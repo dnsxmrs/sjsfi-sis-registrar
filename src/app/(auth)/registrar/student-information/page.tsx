@@ -1263,20 +1263,6 @@ export default function StudentInformationPage() {
            summerClassDetails: '',
         };
 
-        const previousSchool = {
-            schoolName: '',
-            schoolAddress: '',
-            inclusiveYears: '',
-            reasonforTransfer: '',
-            disiplinaryRecord: '',
-        }
-
-        const presentSchool = {
-            schoolName: '',
-            schoolAddress: '',
-            inclusiveYears: '',
-        }
-
         return (
             <div className="p-6 space-y-6">
                 <div className="space-y-4">
@@ -1628,7 +1614,7 @@ export default function StudentInformationPage() {
                                 <textarea placeholder="Answer Here..." disabled readOnly rows={2} maxLength={100} className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Do you have any medication that you're currently taking?</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Do you have any medication that you&apos;re currently taking?</label>
                                 <textarea placeholder="Answer Here..." disabled readOnly rows={2} maxLength={100} className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
                             </div>
                         </div>
