@@ -7,7 +7,7 @@ import {
     Bell,
     Menu,
     X,
-    SquareStack,
+    LayoutDashboard,
     PencilLine,
     BookMarked,
     // Newspaper,
@@ -23,7 +23,7 @@ const NAVIGATION_ITEMS = [
     {
         href: "/registrar/home",
         label: "Dashboard",
-        icon: SquareStack,
+        icon: LayoutDashboard,
     },
     {
         href: "/registrar/student-register",
@@ -121,8 +121,8 @@ export default function RegistrarLayout({
             </div>
             {/* Sidebar */}
             <aside
-                className={`fixed z-20 top-0 left-0 h-full w-64 bg-[#800000] text-white transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
-                    } transition-transform duration-300 ease-in-out md:static md:translate-x-0 md:flex md:flex-col md:w-64 md:h-screen`}
+                className={`fixed z-20 top-0 left-0 h-full w-30 bg-[#800000] text-white transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+                    } transition-transform duration-300 ease-in-out md:static md:translate-x-0 md:flex md:flex-col md:w-30 md:h-screen`}
             >
                 <div className="flex flex-col h-full justify-between">
                     {/* Navigation */}
@@ -131,11 +131,12 @@ export default function RegistrarLayout({
                             <Image
                                 src="/assets/sjsfi_logo.svg"
                                 alt="SJSFI Logo"
-                                width={90}
-                                height={90}
+                                width={60}
+                                height={60}
                             />
                             <span>SJSFI-SIS</span>
                         </div>{" "}
+
                         <nav className="space-y-4 text-sm px-6 pt-4 md:pt-0">
                             {NAVIGATION_ITEMS.map((item) => {
                                 const IconComponent = item.icon;
@@ -143,17 +144,25 @@ export default function RegistrarLayout({
                                     <Link
                                         key={item.href}
                                         href={item.href}
-                                        className={`flex items-center space-x-5 py-2 rounded hover:bg-red-700 ${pathname === item.href
+                                        className={`flex flex-col items-center space-y-1 py-2 rounded hover:bg-red-700 ${pathname === item.href
                                             ? "text-yellow-400"
                                             : ""
                                             }`}
                                     >
-                                        <IconComponent className="w-8 h-8" />
-                                        <span>{item.label}</span>
+                                        <IconComponent className="w-6 h-6" />
+                                        <span className="text-center">
+                                            {item.label.split(' ').map((word, index, arr) => (
+                                                <React.Fragment key={index}>
+                                                    {word}
+                                                    {index < arr.length - 1 && <br />}
+                                                </React.Fragment>
+                                            ))}
+                                        </span>
                                     </Link>
                                 );
                             })}
                         </nav>
+                        
                     </div>
                 </div>
             </aside>

@@ -26,12 +26,12 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }: AdminSideb
             </div>
 
             {/* Sidebar */}
-            <aside className={`fixed z-20 top-0 left-0 h-full w-56 sm:w-64 bg-red-900 text-white transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out md:static md:translate-x-0 md:flex md:flex-col md:w-64 lg:w-72 md:h-auto`}>
+            <aside className={`fixed z-20 top-0 left-0 h-full w-56 sm:w-64 bg-red-900 text-white transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out md:static md:translate-x-0 md:flex md:flex-col md:w-64 lg:w-64 md:h-auto`}>
                 <div className="flex flex-col h-full justify-between">
                     {/* Navigation */}
                     <div>
                         <div className="flex flex-col items-center justify-center py-4 sm:py-6 text-base sm:text-lg lg:text-xl font-bold">
-                            <Image src="/assets/sjsfi_logo.svg" alt="SJSFI Logo" width={70} height={70} className="sm:w-20 sm:h-20 lg:w-24 lg:h-24" />
+                            <Image src="/assets/sjsfi_logo.svg" alt="SJSFI Logo" width={70} height={70} className="sm:w-20 sm:h-20 lg:w-20 lg:h-20" />
                             <span className="mt-2">SJSFI-SIS</span>
                         </div>
                         <nav className="space-y-2 sm:space-y-3 lg:space-y-4 text-xs sm:text-sm lg:text-base px-4 sm:px-6 pt-2 sm:pt-4 md:pt-0">
