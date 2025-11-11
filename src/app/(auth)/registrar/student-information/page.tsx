@@ -72,7 +72,7 @@ export default function StudentInformationPage() {
     const renderPersonalData = () => {
         if (!selectedStudent) {
             return (
-                <div className="flex items-center justify-center h-64 text-gray-500">
+                <div className="flex items-center justify-center h-full text-gray-500">
                     <p className="text-center">Please select a student to view their information</p>
                 </div>
             );
@@ -1263,6 +1263,20 @@ export default function StudentInformationPage() {
            summerClassDetails: '',
         };
 
+        const previousSchool = {
+            schoolName: '',
+            schoolAddress: '',
+            inclusiveYears: '',
+            reasonforTransfer: '',
+            disiplinaryRecord: '',
+        }
+
+        const presentSchool = {
+            schoolName: '',
+            schoolAddress: '',
+            inclusiveYears: '',
+        }
+
         return (
             <div className="p-6 space-y-6">
                 <div className="space-y-4">
@@ -1382,9 +1396,66 @@ export default function StudentInformationPage() {
                                     />
                                 </div>
                             </div>
-                            
                         </div>
                     </div>
+
+                    {/* TRANSFEREES */}
+                    <h3 className="text-center font-bold mb-4 text-black border border-gray-300 rounded-md py-1">
+                    FOR TRANFEREES
+                    </h3>
+
+                    {/* Previous School */}
+                    <div className="border rounded-md p-4 mb-6">
+                        <div className="text-sm font-medium text-gray-700 mb-2">Previous School:</div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">School Name:</label>
+                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">School Address:</label>
+                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Gr. / Yr. Level:</label>
+                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Present School */}
+                    <div className="border rounded-md p-4 mb-6">
+                        <div className="text-sm font-medium text-gray-700 mb-2">Present School:</div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">School Name:</label>
+                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">School Address:</label>
+                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Gr. / Yr. Level:</label>
+                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Reason for Transferring */}
+                    <div className="mb-6">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Transferring:</label>
+                        <textarea placeholder="Answer Here..." disabled readOnly rows={3} className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                        <div className="text-right text-xs text-gray-400 mt-1">250</div>
+                    </div>
+
+                    {/* Disciplinary Actions */}
+                    <div className="mb-6">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Has the applicant been subjected to any disciplinary actions in school? If yes, please describe the action and the sanctions:</label>
+                        <textarea placeholder="Answer Here..." disabled readOnly rows={3} className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                        <div className="text-right text-xs text-gray-400 mt-1">250</div>
+                    </div>
+
                 </div>
             </div>
         );
@@ -1399,15 +1470,202 @@ export default function StudentInformationPage() {
                 </div>
             );
         }
-        // const medical = {
+            return (
+                <div className="p-6 space-y-8">
+                    {/* Medical History Form */}
+                    <div className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Academic Year:</label>
+                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Admission to Grade/Year:</label>
+                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Family Name:</label>
+                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">First Name:</label>
+                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Middle Name:</label>
+                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Nickname:</label>
+                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                            <div className="flex items-center gap-4 mt-6">
+                                <label className="block text-sm font-medium text-gray-700">Gender:</label>
+                                <div className="flex gap-2">
+                                    <input type="radio" disabled readOnly /> <span>Female</span>
+                                    <input type="radio" disabled readOnly /> <span>Male</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Birth Date:</label>
+                                <input type="text" placeholder="MM/DD/YY" disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Place of Birth:</label>
+                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Age:</label>
+                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Height:</label>
+                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Weight:</label>
+                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Parent/s / Guardian Name:</label>
+                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Landline Number:</label>
+                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number:</label>
+                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Home Address:</label>
+                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">City:</label>
+                                <select disabled className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900">
+                                    <option>Answer Here...</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">State/Province:</label>
+                                <select disabled className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900">
+                                    <option>Answer Here...</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Zip/Postal Code:</label>
+                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                        </div>
+                    </div>
 
-        // };
+                    {/* Medical History Checklist */}
+                    <div className="border rounded-md p-4 mt-8">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="col-span-2">
+                                <ul className="space-y-2 text-sm text-gray-700 mt-8">
+                                    <li>1. Epilepsy for the 6 months</li>
+                                    <li>2. Head injuries leading to loss of consciousness for the last 6 months</li>
+                                    <li>3. Recurrent headache/migraine</li>
+                                    <li>4. Diseases Nervous System (Multiple Sclerosis)</li>
+                                    <li>5. Surgery</li>
+                                    <li>6. Visual Diseases (blindness on one eye, blurred vision, glaucoma)</li>
+                                    <li>7. Ear infection</li>
+                                    <li>8. Vertigo or Dizziness</li>
+                                    <li>9. Heart Diseases</li>
+                                    <li>10. Asthma, Bronchitis, TB or Pneumonia</li>
+                                    <li>11. Ulcer</li>
+                                    <li>12. Liver Diseases or Hepatitis</li>
+                                    <li>13. Problems with joints, bones or recurrent dislocation</li>
+                                    <li>14. Allergic skin rashes</li>
+                                    <li>15. Allergies</li>
+                                </ul>
+                            </div>
+                            <div className="col-span-1 w-full">
+                                <div className="flex flex-row gap-2 w-full">
+                                    <div className="flex flex-col gap-2 flex-1">
+                                        <div className="font-semibold text-gray-700 mb-2 text-center">YES</div>
+                                        {[...Array(15)].map((_, i) => (
+                                            <input key={i} type="checkbox" disabled readOnly className="mb-2" />
+                                        ))}
+                                    </div>
+                                    <div className="flex flex-col gap-2 flex-1">
+                                        <div className="font-semibold text-gray-700 mb-2 text-center">NO</div>
+                                        {[...Array(15)].map((_, i) => (
+                                            <input key={i} type="checkbox" disabled readOnly className="mb-2" />
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">If you had surgery, please specify:</label>
+                                <textarea placeholder="Answer Here..." disabled readOnly rows={2} maxLength={100} className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">If you have heart diseases, please specify what:</label>
+                                <textarea placeholder="Answer Here..." disabled readOnly rows={2} maxLength={100} className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">For no. 10, please specify which:</label>
+                                <select disabled className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900">
+                                    <option>Select Which</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">If you have allergies, please specify what:</label>
+                                <textarea placeholder="Answer Here..." disabled readOnly rows={2} maxLength={100} className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Do you have any medication that you're currently taking?</label>
+                                <textarea placeholder="Answer Here..." disabled readOnly rows={2} maxLength={100} className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
+                            </div>
+                        </div>
+                    </div>
 
-        return (
-                <div className="flex items-center justify-center h-64 text-gray-500">
-                    <p>Medical History information will be displayed here</p>
+                    {/* Immunization Record */}
+                    <div className="border rounded-md p-4 mt-8">
+                        <div className="font-bold text-center mb-4 text-black border border-gray-300 rounded-md py-1">IMMUNIZATION RECORD</div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Have you ever had the ff. Please select all that apply:</label>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                    {['Tetanus', 'DPT', 'HepB', 'Polio', 'Measles', 'BCC'].map((v, i) => (
+                                        <div key={i} className="flex items-center gap-2">
+                                            <input type="checkbox" disabled readOnly />
+                                            <span className="text-sm">{v}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Do you allow or school nurse to give first aid during sick days?</label>
+                                <div className="flex gap-4 mt-2">
+                                    <div className="flex items-center gap-2">
+                                        <input type="checkbox" disabled readOnly />
+                                        <span className="text-sm">Yes</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <input type="checkbox" disabled readOnly />
+                                        <span className="text-sm">No</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-        );
+            );
     }
 
         const renderTabContent = () => {
@@ -1428,7 +1686,7 @@ export default function StudentInformationPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100">
+        <div className="h-screen bg-gray-100">
             <div className="flex flex-col md:flex-row h-screen">
                 {/* Students List - Above on mobile, sidebar on desktop */}
                 <div className="w-full md:w-80 bg-white md:border-r border-gray-200 flex flex-col h-64 md:h-full">
