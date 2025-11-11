@@ -24,8 +24,8 @@ const tabs = [
     { id: 'personal', label: 'Personal Data', color: 'bg-red-800 text-white' },
     { id: 'health', label: 'Health History', color: 'bg-red-800 text-white' },
     { id: 'familyBg', label: 'Family Background', color: 'bg-red-800 text-white' },
-    { id: 'family', label: 'Family History', color: 'bg-red-800 text-white' },
     { id: 'education', label: 'Educational Background', color: 'bg-red-800 text-white' },
+    { id: 'medical', label: 'Medical History', color: 'bg-red-800 text-white' },
 ];
 
 export default function StudentInformationPage() {
@@ -1244,6 +1244,172 @@ export default function StudentInformationPage() {
         );
     };
 
+    // EDUCATIONAL BACKGROUND
+    const renderEducBackground = () => {
+        // if (!selectedStudent) {
+        //     return (
+        //         <div className="flex items-center justify-center h-64 text-gray-500">
+        //             <p>Please select a student to view their information</p>
+        //         </div>
+        //     );
+        // }
+        const school = {
+           yearLevel: '',
+           schoolName: '',
+           schoolAddress: '', 
+           honorsReceived: '',
+           inclusiveYearsAttended: '',
+           attendedSummerClasses: '',
+           summerClassDetails: '',
+        };
+
+        return (
+            <div className="p-6 space-y-6">
+                <div className="space-y-4">
+                    {/* School #1 */}
+                    <div className="text-sm font-medium text-gray-700 mb-4">School #1:</div>
+                    
+                    {/* First Row - Gr/Yr Level, School Name, Address, Inclusive Years */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Gr / Yr. Level:
+                            </label>
+                            <input
+                                type="text"
+                                placeholder="Answer Here..."
+                                defaultValue={school.yearLevel}
+                                disabled
+                                readOnly
+                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Name of School:
+                            </label>
+                            <input
+                                type="text"
+                                placeholder="Answer Here..."
+                                defaultValue={school.schoolName}
+                                disabled
+                                readOnly
+                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                School Address:
+                            </label>
+                            <input
+                                type="text"
+                                placeholder="Answer Here..."
+                                defaultValue={school.schoolAddress}
+                                disabled
+                                readOnly
+                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Inclusive Years:
+                            </label>
+                            <input
+                                type="text"
+                                placeholder="YYYY - YYYY"
+                                defaultValue={school.inclusiveYearsAttended}
+                                disabled
+                                readOnly
+                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Honors / Awards Received:
+                            </label>
+                            <textarea
+                                placeholder="Answer Here..."
+                                defaultValue={school.honorsReceived}
+                                disabled
+                                readOnly
+                                rows={6}
+                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                            />
+                        </div>
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Attended Summer Classes A.Y.:
+                                </label>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        placeholder="YYYY - YYYY"
+                                        defaultValue={school.summerClassDetails}
+                                        disabled
+                                        readOnly
+                                        className="flex-1 border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                                    />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                                <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Gr / Yr. Level Repeated:
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Answer Here..."
+                                    disabled
+                                    readOnly
+                                    className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                                />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        No. of Subjects Failed:
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="Answer Here..."
+                                        disabled
+                                        readOnly
+                                        className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                                    />
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // MEDICAL HISTORY 
+    const renderMedicalHistory = () => {
+        // if (!selectedStudent) {
+        //     return (
+        //         <div className="flex items-center justify-center h-64 text-gray-500">
+        //             <p>Please select a student to view their information</p>
+        //         </div>
+        //     );
+        // }
+        const medical = {
+
+        };
+
+        return (
+                <div className="flex items-center justify-center h-64 text-gray-500">
+                    <p>Medical History information will be displayed here</p>
+                </div>
+        );
+    }
+
         const renderTabContent = () => {
         switch (activeTab) {
             case 'personal':
@@ -1252,18 +1418,10 @@ export default function StudentInformationPage() {
                 return renderHealthHistory();
             case 'familyBg':
                 return renderFamBackground();
-            case 'family':
-                return (
-                    <div className="flex items-center justify-center h-64 text-gray-500">
-                        <p>Family History information will be displayed here</p>
-                    </div>
-                );
             case 'education':
-                return (
-                    <div className="flex items-center justify-center h-64 text-gray-500">
-                        <p>Educational Background information will be displayed here</p>
-                    </div>
-                );
+                return renderEducBackground();
+            case 'medical':
+                return renderMedicalHistory();
             default:
                 return renderPersonalData();
         }
