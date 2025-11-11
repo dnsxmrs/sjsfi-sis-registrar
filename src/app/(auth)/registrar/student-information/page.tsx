@@ -21,11 +21,11 @@ interface Student {
 }
 
 const tabs = [
-    { id: 'personal', label: 'Personal Data', color: 'bg-red-800 text-white' },
-    { id: 'health', label: 'Health History', color: 'bg-red-800 text-white' },
-    { id: 'familyBg', label: 'Family Background', color: 'bg-red-800 text-white' },
-    { id: 'education', label: 'Educational Background', color: 'bg-red-800 text-white' },
-    { id: 'medical', label: 'Medical History', color: 'bg-red-800 text-white' },
+    { id: 'personal', label: <>Personal<span className="hidden md:inline"> Data</span></>, color: 'bg-red-800 text-white' },
+    { id: 'health', label: <>Health<span className="hidden md:inline"> History</span></>, color: 'bg-red-800 text-white' },
+    { id: 'familyBg', label: <>Family<span className="hidden md:inline"> Background</span></>, color: 'bg-red-800 text-white' },
+    { id: 'education', label: <>Education<span className="hidden md:inline"> Background</span></>, color: 'bg-red-800 text-white' },
+    { id: 'medical', label: <>Medical<span className="hidden md:inline"> History</span></>, color: 'bg-red-800 text-white' },
 ];
 
 export default function StudentInformationPage() {
@@ -33,6 +33,7 @@ export default function StudentInformationPage() {
     const [searchTerm, setSearchTerm] = useState(''); const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
     const [students, setStudents] = useState<Student[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+
 
     // Fetch students on component mount
     useEffect(() => {
@@ -72,7 +73,7 @@ export default function StudentInformationPage() {
         if (!selectedStudent) {
             return (
                 <div className="flex items-center justify-center h-64 text-gray-500">
-                    <p>Please select a student to view their information</p>
+                    <p className="text-center">Please select a student to view their information</p>
                 </div>
             );
         }
@@ -83,7 +84,7 @@ export default function StudentInformationPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
                                 Full Name
                             </label>
                             <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
@@ -94,7 +95,7 @@ export default function StudentInformationPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
                                 Student Number
                             </label>
                             <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
@@ -103,7 +104,7 @@ export default function StudentInformationPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
                                 Grade Level
                             </label>
                             <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
@@ -112,7 +113,7 @@ export default function StudentInformationPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
                                 Gender
                             </label>
                             <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
@@ -123,7 +124,7 @@ export default function StudentInformationPage() {
 
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
                                 Email Address
                             </label>
                             <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
@@ -132,7 +133,7 @@ export default function StudentInformationPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
                                 Date of Birth
                             </label>
                             <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
@@ -141,7 +142,7 @@ export default function StudentInformationPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
                                 Status
                             </label>
                             <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
@@ -155,7 +156,7 @@ export default function StudentInformationPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
                                 Address
                             </label>
                             <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
@@ -170,7 +171,7 @@ export default function StudentInformationPage() {
                     <h3 className="text-lg font-medium text-gray-900 mb-4">Guardian Information</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
                                 Guardian Name
                             </label>
                             <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
@@ -179,7 +180,7 @@ export default function StudentInformationPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
                                 Guardian Contact
                             </label>
                             <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
@@ -203,14 +204,13 @@ export default function StudentInformationPage() {
             physicalHandicap: 'Lazy eye, and a slight limp',
         };
 
-        // Show placeholder data even if no student is selected
-        // if (!selectedStudent) {
-        //     return (
-        //         <div className="flex items-center justify-center h-64 text-gray-500">
-        //             <p>Please select a student to view their health history</p>
-        //         </div>
-        //     );
-        // }
+        if (!selectedStudent) {
+            return (
+                <div className="flex items-center justify-center h-64 text-gray-500">
+                    <p className="text-center">Please select a student to view their health history</p>
+                </div>
+            );
+        }
 
         return (
             <div className="p-6 space-y-6">
@@ -348,14 +348,13 @@ export default function StudentInformationPage() {
             relationToApplicant: 'Uncle',
         };
 
-        // Show placeholder data even if no student is selected
-        // if (!selectedStudent) {
-        //     return (
-        //         <div className="flex items-center justify-center h-64 text-gray-500">
-        //             <p>Please select a student to view their health history</p>
-        //         </div>
-        //     );
-        // }
+        if (!selectedStudent) {
+            return (
+                <div className="flex items-center justify-center h-64 text-gray-500">
+                    <p className="text-center">Please select a student to view their family background</p>
+                </div>
+            );
+        }
 
           return (
             // ========================= FATHER =========================
@@ -1246,13 +1245,14 @@ export default function StudentInformationPage() {
 
     // EDUCATIONAL BACKGROUND
     const renderEducBackground = () => {
-        // if (!selectedStudent) {
-        //     return (
-        //         <div className="flex items-center justify-center h-64 text-gray-500">
-        //             <p>Please select a student to view their information</p>
-        //         </div>
-        //     );
-        // }
+        if (!selectedStudent) {
+            return (
+                <div className="flex items-center justify-center h-64 text-gray-500">
+                    <p className="text-center">Please select a student to view their educational background</p>
+                </div>
+            );
+        }
+
         const school = {
            yearLevel: '',
            schoolName: '',
@@ -1392,16 +1392,16 @@ export default function StudentInformationPage() {
 
     // MEDICAL HISTORY 
     const renderMedicalHistory = () => {
-        // if (!selectedStudent) {
-        //     return (
-        //         <div className="flex items-center justify-center h-64 text-gray-500">
-        //             <p>Please select a student to view their information</p>
-        //         </div>
-        //     );
-        // }
-        const medical = {
+        if (!selectedStudent) {
+            return (
+                <div className="flex items-center justify-center h-64 text-gray-500">
+                    <p className="text-center">Please select a student to view their medical history</p>
+                </div>
+            );
+        }
+        // const medical = {
 
-        };
+        // };
 
         return (
                 <div className="flex items-center justify-center h-64 text-gray-500">
@@ -1429,9 +1429,9 @@ export default function StudentInformationPage() {
 
     return (
         <div className="min-h-screen bg-gray-100">
-            <div className="flex h-screen">
-                {/* Left Sidebar - Students List */}
-                <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
+            <div className="flex flex-col md:flex-row h-screen">
+                {/* Students List - Above on mobile, sidebar on desktop */}
+                <div className="w-full md:w-80 bg-white md:border-r border-gray-200 flex flex-col h-64 md:h-full">
                     {/* Search Header */}
                     <div className="p-4 border-b border-gray-200">
                         <div className="relative">
@@ -1453,10 +1453,6 @@ export default function StudentInformationPage() {
 
                     {/* Students Section */}
                     <div className="flex-1 overflow-hidden">
-                        {/* <h2 className="px-4 py-3 text-sm font-medium text-red-800 border-b border-gray-200">
-                            Students
-                        </h2> */}
-
                         {/* Students List */}
                         <div className="flex-1 overflow-y-auto">
                             {isLoading ? (
@@ -1486,16 +1482,16 @@ export default function StudentInformationPage() {
                     </div>
                 </div>
 
-                {/* Main Content Area */}
+                {/* Main Content Area - Below on mobile */}
                 <div className="flex-1 flex flex-col bg-white">
                     {/* Tab Navigation */}
-                    <div className="flex items-center justify-between border-b border-gray-200">
-                        <div className="flex">
+                    <div className="flex flex-wrap items-center justify-between border-b border-gray-200">
+                        <div className="flex flex-nowrap md:flex-wrap">
                             {tabs.map((tab) => (
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
-                                    className={`px-6 py-3 text-sm font-medium transition-colors ${activeTab === tab.id
+                                    className={`px-4 py-3 md:px-8 md:py-2 text-[10px] md:text-base font-small transition-colors whitespace-nowrap ${activeTab === tab.id
                                         ? 'bg-yellow-400 text-black border-b-2 border-transparent'
                                         : 'bg-red-800 text-white hover:bg-red-700 border-b-2 border-transparent'
                                         }`}
@@ -1522,6 +1518,8 @@ export default function StudentInformationPage() {
                     </div>
                 </div>
             </div>
+
+
         </div>
     );
 }
