@@ -173,17 +173,16 @@ export default function StudentTransfereePage({ onBack, onNext }: StudentTransfe
 
       {/* Next Page Button */}
       <div className="w-full flex justify-end mt-8 space-x-4">
-        <button
+        {/* <button
           className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700"
           onClick={() => setShowReviewModal(true)}
         >
           Review & Submit Application
-        </button>
+        </button> */}
         {/* Temporary button to access Medical History Page */}
         <button
-          className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
+          className="bg-red-800 text-white px-6 py-2 rounded-md shadow hover:bg-[#7a0000] transition"
           onClick={onNext}
-          hidden
         >
           Go to Medical History
         </button>

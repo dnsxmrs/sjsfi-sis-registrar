@@ -1,11 +1,19 @@
 import React from "react";
+import Agreement from "../student-application/agreement";
 
 interface MedicalHistoryPage2Props {
   onBack?: () => void;
-  //onNext?: () => void;
+  onNext?: () => void;
+  showAgreement?: boolean;
 }
 
-export default function MedicalHistoryPage2({ onBack }: MedicalHistoryPage2Props) {
+export default function MedicalHistoryPage2({ onBack, onNext, showAgreement }: MedicalHistoryPage2Props) {
+  const [showAgreementPage, setShowAgreementPage] = React.useState(false);
+
+  if (showAgreementPage || showAgreement) {
+    return <Agreement onBack={() => setShowAgreementPage(false)} />;
+  }
+
   return (
     <div className=" flex min-screen flex-col items-center py-8">
       {/* Header */}
@@ -104,7 +112,7 @@ export default function MedicalHistoryPage2({ onBack }: MedicalHistoryPage2Props
       <div className="w-full flex justify-end mt-8">
         <button
           className="bg-red-800 text-white px-6 py-2 rounded-md shadow hover:bg-[#7a0000] transition"
-          //onClick={onNext}
+          onClick={onNext}
         >
           Next Page
         </button>
