@@ -2,6 +2,7 @@
 
 import toast from 'react-hot-toast';
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Eye, Copy, Check, X } from 'lucide-react';
 import { rejectRegistration } from '@/app/_actions/rejectRegistration';
 import { approveRegistration } from '@/app/_actions/approveRegistration';
@@ -19,6 +20,8 @@ const RegisterCoursePage: React.FC = () => {
     const [isGeneratingCode, setIsGeneratingCode] = useState(false);
     const [showRejectModal, setShowRejectModal] = useState(false);
     const [selectedRegistrationId, setSelectedRegistrationId] = useState<number | null>(null);
+    const [isApproving, setIsApproving] = useState(false);
+    const [isRejecting, setIsRejecting] = useState(false);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [students, setStudents] = useState<any[]>([]);
@@ -28,11 +31,6 @@ const RegisterCoursePage: React.FC = () => {
             const result = await getStudentTableData();
             if (result.success) {
                 setStudents(result.students);
-
-                // Automatically load first registration details if available
-                if (result.students.length > 0 && !selectedRegistration) {
-                    await handleViewStudent(result.students[0].id);
-                }
             } else {
                 console.error('Failed to fetch students:');
             }
@@ -50,8 +48,15 @@ const RegisterCoursePage: React.FC = () => {
         };
 
         initializeData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    // Load first student details after students are fetched
+    useEffect(() => {
+        if (students.length > 0 && !selectedRegistration) {
+            handleViewStudent(students[0].id);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [students]);
 
     const handleGenerateRegistration = async () => {
         setIsGeneratingCode(true);
@@ -105,6 +110,7 @@ const RegisterCoursePage: React.FC = () => {
             toast.error('No registration selected.');
             return;
         }
+        setIsApproving(true);
         try {
             const result = await approveRegistration(selectedRegistrationId);
 
@@ -132,6 +138,7 @@ const RegisterCoursePage: React.FC = () => {
         } catch {
             toast.error('An error occurred while generating the registration code. Please try again.');
         } finally {
+            setIsApproving(false);
             setSelectedRegistration(null);
         }
     };
@@ -153,6 +160,7 @@ const RegisterCoursePage: React.FC = () => {
         }
 
         setShowRejectModal(false);
+        setIsRejecting(true);
 
         try {
             const result = await rejectRegistration(selectedRegistrationId);
@@ -174,6 +182,8 @@ const RegisterCoursePage: React.FC = () => {
         } catch (error) {
             console.error('Error rejecting registration:', error);
             toast.error('An error occurred while rejecting the registration. Please try again.');
+        } finally {
+            setIsRejecting(false);
         }
     };
 
@@ -319,6 +329,10 @@ const RegisterCoursePage: React.FC = () => {
                                 </div>
                                 <p className="text-xs text-green-700">
                                     Provide this code to the student/parent for registration access.
+                                    {' '}To view all codes go{' '}
+                                    <Link href="/registrar/code-management" className="underline hover:text-green-800 font-medium">
+                                        here.
+                                    </Link>
                                 </p>
                             </div>
                         )}
@@ -619,36 +633,54 @@ const RegisterCoursePage: React.FC = () => {
                                 <div className="flex space-x-4 pt-4 border-t">
                                     <button
                                         onClick={handleRegister}
-                                        disabled={selectedRegistration.status === 'APPROVED'}
-                                        className={`px-4 py-2 rounded text-sm flex items-center space-x-2 ${selectedRegistration.status === 'APPROVED'
+                                        disabled={selectedRegistration.status === 'APPROVED' || isApproving || isRejecting}
+                                        className={`px-4 py-2 rounded text-sm flex items-center space-x-2 ${selectedRegistration.status === 'APPROVED' || isApproving || isRejecting
                                             ? 'bg-gray-400 cursor-not-allowed'
                                             : 'bg-red-800 hover:bg-red-900'
                                             } text-white`}
                                     >
-                                        <svg
-                                            className="w-4 h-4"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="2"
-                                            viewBox="0 0 24 24"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                        <span>
-                                            {selectedRegistration.status === 'APPROVED' ? 'Already Approved' : 'Approve Registration'}
-                                        </span>
+                                        {isApproving ? (
+                                            <>
+                                                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                                                <span>Approving...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <svg
+                                                    className="w-4 h-4"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth="2"
+                                                    viewBox="0 0 24 24"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                                <span>
+                                                    {selectedRegistration.status === 'APPROVED' ? 'Already Approved' : 'Approve Registration'}
+                                                </span>
+                                            </>
+                                        )}
                                     </button>
                                     <button
                                         onClick={handleRejectRegistration}
-                                        disabled={selectedRegistration.status !== 'PENDING'}
-                                        className={`px-4 py-2 rounded text-sm flex items-center space-x-2 ${selectedRegistration.status !== 'PENDING'
+                                        disabled={selectedRegistration.status !== 'PENDING' || isApproving || isRejecting}
+                                        className={`px-4 py-2 rounded text-sm flex items-center space-x-2 ${selectedRegistration.status !== 'PENDING' || isApproving || isRejecting
                                             ? 'bg-gray-400 cursor-not-allowed'
                                             : 'bg-gray-600 hover:bg-gray-700'
                                             } text-white`}
                                     >
-                                        <X className="w-4 h-4" />
-                                        <span>Reject Registration</span>
+                                        {isRejecting ? (
+                                            <>
+                                                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                                                <span>Rejecting...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <X className="w-4 h-4" />
+                                                <span>Reject Registration</span>
+                                            </>
+                                        )}
                                     </button>
                                 </div>
                             </div>

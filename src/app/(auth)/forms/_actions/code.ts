@@ -300,3 +300,34 @@ export async function validateApplicationCode(code: string): Promise<{
         };
     }
 }
+
+export async function validateApplicationCodeURL(code: string) {
+    const application = await prisma.registrationCode.findUnique({
+        where: { registrationCode: code, status: 'ACTIVE', deletedAt: null, applicationId: null },
+        select: {
+            id: true,
+            status: true,
+            expirationDate: true,
+            registrationId: true,
+            applicationId: true,
+            createdAt: true
+        }
+    });
+
+    if (
+        !application ||
+        !application?.expirationDate ||
+        application.expirationDate < new Date() ||
+        !application.applicationId
+    ) {
+        return {
+            success: true,
+            isValid: false
+        };
+    }
+
+    return {
+        success: true,
+        isValid: true,
+    };
+}

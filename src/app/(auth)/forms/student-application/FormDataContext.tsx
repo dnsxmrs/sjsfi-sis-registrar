@@ -152,6 +152,29 @@ export interface FormData {
         reasonForTransfer: string;
         disciplinaryActions: string;
     };
+    medicalHistory: {
+        academicYear: string;
+        admissionGradeYear: string;
+        familyName: string;
+        firstName: string;
+        middleName: string;
+        nickname: string;
+        birthDate: string;
+        placeOfBirth: string;
+        age: string;
+        height: string;
+        weight: string;
+        gender: string;
+        primaryParentGuardian: string;
+        landlineNumber: string;
+        mobileNumber: string;
+        conditions: Record<string, string>;
+        surgeryDetails: string;
+        heartDiseaseDetails: string;
+        respiratoryDetails: string;
+        allergyDetails: string;
+        currentMedication: string;
+    };
     registrationCode: string,
 }
 

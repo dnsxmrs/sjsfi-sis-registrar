@@ -13,6 +13,7 @@ import StudentEducationalBackgroundPage from "./educationalbackground";
 import StudentTransfereePage from "./transferee";
 import MedicalHistoryPage1 from "../Forms-medical/medicalhistoryP1";
 import MedicalHistoryPage2 from "../Forms-medical/medicalhistoryP2";
+import { validateApplicationCodeURL } from "../_actions/code";
 
 export default function StudentApplicationPagedForm() {
   const [page, setPage] = useState(0);
@@ -177,6 +178,29 @@ export default function StudentApplicationPagedForm() {
       reasonForTransfer: "",
       disciplinaryActions: "",
     },
+    medicalHistory: {
+      academicYear: "",
+      admissionGradeYear: "",
+      familyName: "",
+      firstName: "",
+      middleName: "",
+      nickname: "",
+      birthDate: "",
+      placeOfBirth: "",
+      age: "",
+      height: "",
+      weight: "",
+      gender: "",
+      primaryParentGuardian: "",
+      landlineNumber: "",
+      mobileNumber: "",
+      conditions: {},
+      surgeryDetails: "",
+      heartDiseaseDetails: "",
+      respiratoryDetails: "",
+      allergyDetails: "",
+      currentMedication: "",
+    },
     registrationCode: "",
   });
 
@@ -185,34 +209,23 @@ export default function StudentApplicationPagedForm() {
     if (!isMounted) return;
 
     const code = searchParams.get('code');
+    const upperCode = code?.trim().toUpperCase();
 
-    if (!code) {
-      // Redirect to forms/home if no registration code is provided
-      const redirectToHome = () => {
-        try {
-          router.replace('/forms/home');
-        } catch (error) {
-          console.error('Router error:', error);
-          // Fallback: use window.location if router fails
-          if (typeof window !== 'undefined') {
-            window.location.replace('/forms/home');
-          }
-        }
-      };
-
-      // Use setTimeout to ensure router is ready
-      setTimeout(redirectToHome, 100);
+    if (!code || !upperCode || upperCode.startsWith('REG-')) {
+      setTimeout(() => router.replace('/forms/home'), 100);
       return;
     }
 
-    // Store the registration code immediately in form data
-    setFormData(prev => ({
-      ...prev,
-      registrationCode: code
-    }));
-
-    // Set loading to false after processing
-    setIsLoading(false);
+    if (upperCode.startsWith('APP-')) {
+      validateApplicationCodeURL(upperCode).then((result) => {
+        if (result.success && result.isValid) {
+          setFormData(prev => ({ ...prev, registrationCode: code }));
+        }
+        setIsLoading(false);
+      });
+    } else {
+      setIsLoading(false);
+    }
   }, [isMounted, searchParams, router]);
 
   // Function to update form data
@@ -240,11 +253,19 @@ export default function StudentApplicationPagedForm() {
   }
 
   if (page === 10) {
-    return <MedicalHistoryPage2 onBack={() => setPage(9)} />;
+    return (
+      <FormDataContext.Provider value={{ formData, updateFormData }}>
+        <MedicalHistoryPage2 onBack={() => setPage(9)} />
+      </FormDataContext.Provider>
+    );
   }
 
   if (page === 9) {
-    return <MedicalHistoryPage1 onBack={() => setPage(8)} onNext={() => setPage(10)} />;
+    return (
+      <FormDataContext.Provider value={{ formData, updateFormData }}>
+        <MedicalHistoryPage1 onBack={() => setPage(8)} onNext={() => setPage(10)} />
+      </FormDataContext.Provider>
+    );
   }
 
   if (page === 8) {

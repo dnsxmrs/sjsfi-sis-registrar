@@ -506,7 +506,7 @@ export async function approveApplication(student: StudentApplication, requiremen
             // Step 2: Update student application status to APPROVED and set application number (combined)
             const studentApplication = await tx.studentApplication.update({
                 where: { id: student.id },
-                data: { 
+                data: {
                     status: 'APPROVED',
                     applicationNumber: applicationNumber,
                 },

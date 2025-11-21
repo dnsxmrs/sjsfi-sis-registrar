@@ -11,7 +11,7 @@ export default function RegistrarHomePage() {
 
             <StatsCards />
 
-            <div className="grid lg:grid-cols-2 gap-6 mt-8">
+            <div className="grid lg:grid-cols-2 gap-6 mt-8 items-start">
                 <div className="bg-white rounded-2xl shadow-md border-2 border-indigo-200 overflow-hidden hover:shadow-lg transition-shadow">
                     <div className="bg-white border-b-2 border-indigo-200 px-6 py-4">
                         <div className="flex items-center gap-2">

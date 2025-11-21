@@ -26,7 +26,7 @@ export default function SystemLogsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [exportDropdownOpen, setExportDropdownOpen] = useState(false);
-  
+
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -214,7 +214,7 @@ export default function SystemLogsPage() {
             {exportDropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
                 <div className="py-1">
-                  {/* <button
+                  <button
                     onClick={() => {
                       setPDFmodalOpen(true);
                       setExportDropdownOpen(false);
@@ -223,7 +223,7 @@ export default function SystemLogsPage() {
                   >
                     <FileDown size={16} className="mr-2" />
                     Export as PDF
-                  </button> */}
+                  </button>
                   <button
                     onClick={exportToCSV}
                     className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -270,7 +270,7 @@ export default function SystemLogsPage() {
             {exportDropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
                 <div className="py-1">
-                  {/* <button
+                  <button
                     onClick={() => {
                       setPDFmodalOpen(true);
                       setExportDropdownOpen(false);
@@ -279,7 +279,7 @@ export default function SystemLogsPage() {
                   >
                     <FileDown size={16} className="mr-2" />
                     Export as PDF
-                  </button> */}
+                  </button>
                   <button
                     onClick={exportToCSV}
                     className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -348,10 +348,10 @@ export default function SystemLogsPage() {
                   <td className="px-4 py-4 border-t">
                     <span
                       className={`px-3 py-1 rounded-full text-white text-xs font-medium ${log.status === "Success"
-                          ? "bg-green-500"
-                          : log.status === "Failed"
-                            ? "bg-red-500"
-                            : "bg-yellow-500"
+                        ? "bg-green-500"
+                        : log.status === "Failed"
+                          ? "bg-red-500"
+                          : "bg-yellow-500"
                         }`}
                     >
                       {log.status}
@@ -407,11 +407,10 @@ export default function SystemLogsPage() {
               <button
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  currentPage === 1
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${currentPage === 1
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                     : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 <ChevronLeft size={16} />
                 <span className="hidden sm:inline">Previous</span>
@@ -421,7 +420,7 @@ export default function SystemLogsPage() {
               <div className="flex items-center gap-1">
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                   let pageNum: number;
-                  
+
                   if (totalPages <= 5) {
                     pageNum = i + 1;
                   } else if (currentPage <= 3) {
@@ -436,17 +435,16 @@ export default function SystemLogsPage() {
                     <button
                       key={pageNum}
                       onClick={() => setCurrentPage(pageNum)}
-                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                        currentPage === pageNum
+                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${currentPage === pageNum
                           ? 'bg-red-800 text-white'
                           : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-                      }`}
+                        }`}
                     >
                       {pageNum}
                     </button>
                   );
                 })}
-                
+
                 {totalPages > 5 && currentPage < totalPages - 2 && (
                   <>
                     <span className="px-2 text-gray-500">...</span>
@@ -464,11 +462,10 @@ export default function SystemLogsPage() {
               <button
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  currentPage === totalPages
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${currentPage === totalPages
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                     : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 <span className="hidden sm:inline">Next</span>
                 <ChevronRight size={16} />

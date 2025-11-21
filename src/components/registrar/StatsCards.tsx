@@ -216,17 +216,11 @@ export default function StatsCards() {
                     </div>
 
                     {/* Card Body */}
-                    <div className="p-4">
+                    <div className="p-4 flex justify-between items-center">
                         <h3 className="text-sm font-semibold text-gray-700">
                             {stat.label}
                         </h3>
-                        <div className="mt-3 flex items-center justify-between text-xs">
-                            <span className="text-gray-500" suppressHydrationWarning>Updated {timeAgo}</span>
-                            <div className={`${stat.textColor} flex items-center gap-1`}>
-                                <div className="w-2 h-2 rounded-full bg-current animate-pulse"></div>
-                                <span className="font-medium">Live</span>
-                            </div>
-                        </div>
+                        <span className="text-gray-500 text-xs" suppressHydrationWarning>Updated {timeAgo}</span>
                     </div>
 
                     {/* Progress bar */}

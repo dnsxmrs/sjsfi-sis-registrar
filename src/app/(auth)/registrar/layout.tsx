@@ -130,7 +130,7 @@ export default function RegistrarLayout({
             {/* Sidebar */}
             <aside
                 className={`fixed z-20 top-0 left-0 h-full w-30 bg-[#800000] text-white transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
-                    } transition-transform duration-300 ease-in-out md:static md:translate-x-0 md:flex md:flex-col md:w-30 md:h-screen overflow-scroll`}
+                    } transition-transform duration-300 ease-in-out md:static md:translate-x-0 md:flex md:flex-col md:w-30 md:h-screen overflow-y-auto md:overflow-visible`}
             >
                 <div className="flex flex-col h-full justify-between">
                     {/* Navigation */}

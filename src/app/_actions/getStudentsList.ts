@@ -129,6 +129,30 @@ export async function getOneStudentTableData(studentId: number) {
     return {
         ...registration,
         amountPayable: Number(registration.amountPayable),
+        birthdate: registration.birthdate.toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+            timeZone: 'Asia/Manila'
+        }),
+        createdAt: registration.createdAt.toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+            timeZone: 'Asia/Manila'
+        }),
+        updatedAt: registration.updatedAt.toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+            timeZone: 'Asia/Manila'
+        })
     };
 }
 
