@@ -26,7 +26,7 @@ const NAVIGATION_ITEMS = [
         icon: LayoutDashboard,
     },
     {
-        href: "/registrar/student-register",
+        href: "/registrar/student-registration",
         label: "Student Registration",
         icon: PencilLine,
     },
@@ -105,7 +105,7 @@ export default function RegistrarLayout({
     };
 
     return (
-        <div className="h-screen bg-gray-100 flex flex-col md:flex-row overflow-hidden">
+        <div className="h-screen bg-gray-100 flex flex-col md:flex-row overflow-scroll">
             {/* Mobile Top Bar */}
             <div className="md:hidden flex justify-between items-center bg-red-900 text-white px-4 py-3">
                 <Image
