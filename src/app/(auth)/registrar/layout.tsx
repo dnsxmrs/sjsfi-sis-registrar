@@ -10,10 +10,10 @@ import {
     LayoutDashboard,
     PencilLine,
     BookMarked,
-    // Newspaper,
+    Newspaper,
     Scale,
     Shield,
-    // FileUser,
+    FileUser,
     // ScrollText
 } from "lucide-react";
 import Image from "next/image";
@@ -30,21 +30,21 @@ const NAVIGATION_ITEMS = [
         label: "Student Registration",
         icon: PencilLine,
     },
-    // {
-    //     href: "/registrar/student-application",
-    //     label: "Student Application",
-    //     icon: FileUser,
-    // },
+    {
+        href: "/registrar/student-application",
+        label: "Student Application",
+        icon: FileUser,
+    },
     {
         href: "/registrar/student-information",
         label: "Student Information",
         icon: BookMarked,
     },
-    // {
-    //     href: "/registrar/generate-reports",
-    //     label: "Generate Reports",
-    //     icon: Newspaper,
-    // },
+    {
+        href: "/registrar/code-management",
+        label: "Code Management",
+        icon: Newspaper,
+    },
     // {
     //     href: "/registrar/withdraw-student",
     //     label: "Withdraw Student",
@@ -69,33 +69,41 @@ export default function RegistrarLayout({
 }) {
 
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [currentDateTime, setCurrentDateTime] = useState(new Date());
-
+    const [currentDateTime, setCurrentDateTime] = useState<Date | null>(null);
+    const [isMounted, setIsMounted] = useState(false);
     const pathname = usePathname();
 
     useEffect(() => {
+        // Set mounted state to true on client
+        setIsMounted(true);
+        // Set initial date/time on client side only
+        setCurrentDateTime(new Date());
+
         const interval = setInterval(() => {
             setCurrentDateTime(new Date());
         }, 1000);
         return () => clearInterval(interval);
     }, []);
 
-    const formattedDateTime = `${currentDateTime
-        .toLocaleDateString("en-US", {
-            month: "long",
-            day: "numeric",
-            year: "numeric",
-        })
-        .replace(",", "")} - ${currentDateTime.toLocaleTimeString("en-US", {
-            hour: "numeric",
-            minute: "2-digit",
-            hour12: true,
-        })}`;
+    const formattedDateTime = currentDateTime
+        ? `${currentDateTime
+            .toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+            })
+            .replace(",", "")} - ${currentDateTime.toLocaleTimeString("en-US", {
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true,
+            })}`
+        : "";
 
-    const getPageTitle = (path: string) => {
+        const getPageTitle = (path: string) => {
         const navItem = NAVIGATION_ITEMS.find((item) => item.href === path);
         return navItem ? navItem.label : "";
     };
+
     return (
         <div className="h-screen bg-gray-100 flex flex-col md:flex-row overflow-hidden">
             {/* Mobile Top Bar */}
@@ -150,7 +158,7 @@ export default function RegistrarLayout({
                                             }`}
                                     >
                                         <IconComponent className="w-6 h-6" />
-                                        <span className="text-center">
+                                        <span className="text-center text-xs">
                                             {item.label.split(' ').map((word, index, arr) => (
                                                 <React.Fragment key={index}>
                                                     {word}
@@ -162,7 +170,6 @@ export default function RegistrarLayout({
                                 );
                             })}
                         </nav>
-                        
                     </div>
                 </div>
             </aside>
@@ -181,44 +188,46 @@ export default function RegistrarLayout({
                         <h1 className="text-xl font-semibold text-red-700">
                             {getPageTitle(pathname)}
                         </h1>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-500" suppressHydrationWarning>
                             {formattedDateTime}
                         </p>
                     </div>
-                    <div className="flex items-center space-x-4">
-                        <Bell className="text-gray-600" />
-                        <UserButton
-                            appearance={{
-                                elements: {
-                                    userPreview: {
-                                        display: "none",
-                                    },
-                                },
-                            }}
-                            userProfileProps={{
-                                appearance: {
+                    {isMounted && (
+                        <div className="flex items-center space-x-4">
+                            <Bell className="text-gray-600" />
+                            <UserButton
+                                appearance={{
                                     elements: {
-                                        profileSectionPrimaryButton__profile: {
-                                            display: "none",
-                                        },
-                                        profileSection__connectedAccounts: {
-                                            display: "none",
-                                        },
-                                        profileSectionPrimaryButton__emailAddresses:
-                                        {
-                                            display: "none",
-                                        },
-                                        profileSection__danger: {
-                                            display: "none",
-                                        },
-                                        menuButtonEllipsis: {
+                                        userPreview: {
                                             display: "none",
                                         },
                                     },
-                                },
-                            }}
-                        />
-                    </div>
+                                }}
+                                userProfileProps={{
+                                    appearance: {
+                                        elements: {
+                                            profileSectionPrimaryButton__profile: {
+                                                display: "none",
+                                            },
+                                            profileSection__connectedAccounts: {
+                                                display: "none",
+                                            },
+                                            profileSectionPrimaryButton__emailAddresses:
+                                            {
+                                                display: "none",
+                                            },
+                                            profileSection__danger: {
+                                                display: "none",
+                                            },
+                                            menuButtonEllipsis: {
+                                                display: "none",
+                                            },
+                                        },
+                                    },
+                                }}
+                            />
+                        </div>
+                    )}
                 </header>
                 {/* Page Content */}
                 <main className="flex-1 overflow-y-auto p-4 md:p-6">

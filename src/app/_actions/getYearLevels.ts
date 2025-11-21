@@ -8,22 +8,23 @@ export async function getYearLevels() {
     try {
         const yearLevels = await prisma.yearLevel.findMany({
             where: {
+                status: 'ACTIVE', // Only active year levels
                 deletedAt: null, // Only non-deleted year levels
             },
             orderBy: {
-                createdAt: 'desc' // Order by creation date to maintain insertion order
+                id: 'desc' // Order by creation date to maintain insertion order
             }
         });
 
-        await logSystemAction({
-            actionCategory: 'SYSTEM',
-            actionType: 'VIEW',
-            actionDescription: 'Fetch all year levels',
-            targetType: 'YearLevel',
-            targetId: 'all',
-            status: 'SUCCESS',
-            severityLevel: 'LOW',
-        });
+        // await logSystemAction({
+        //     actionCategory: 'SYSTEM',
+        //     actionType: 'VIEW',
+        //     actionDescription: 'Fetch all year levels',
+        //     targetType: 'YearLevel',
+        //     targetId: 'all',
+        //     status: 'SUCCESS',
+        //     severityLevel: 'LOW',
+        // });
 
         return {
             success: true,

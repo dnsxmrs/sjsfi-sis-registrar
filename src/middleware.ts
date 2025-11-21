@@ -6,40 +6,51 @@ const clerkClient = createClerkClient({
     secretKey: process.env.CLERK_SECRET_KEY,
 });
 
-// Helper function to check if user role is allowed for a specific route
-function checkRoleForRoute(pathname: string, userRole: string): boolean {
-    const role = userRole.toLowerCase();
+/**
+ * Helper: Check if user has permission for the route based on roles.
+ * Supports both string (legacy) and array (new) role structures.
+ */
+function checkRoleForRoute(pathname: string, userRoles: string[] | string): boolean {
+    const roles = Array.isArray(userRoles)
+        ? userRoles.map(r => r.toLowerCase())
+        : [String(userRoles).toLowerCase()];
 
-    if (pathname.startsWith("/forms/")) return role === "forms";
-    if (pathname.startsWith("/registrar/")) return role === "registrar";
+    if (pathname.startsWith("/forms/")) {
+        // admin can access forms and registrar routes
+        return roles.includes("admin");
+    }
+
+    if (pathname.startsWith("/registrar/")) {
+        // registrar can access registrar routes only
+        return roles.includes("registrar");
+    }
 
     return false;
 }
 
-// Helper function to get the correct home page for a role
-function getRoleHomePage(userRole: string): string {
-    const role = userRole.toLowerCase();
+/**
+ * Helper: Get the correct home page based on user's role(s)
+ */
+function getRoleHomePage(userRoles: string[] | string): string {
+    const roles = Array.isArray(userRoles)
+        ? userRoles.map(r => r.toLowerCase())
+        : [String(userRoles).toLowerCase()];
 
-    switch (role) {
-        case "registrar":
-            return "/registrar/home";
-        case "forms":
-            return "/forms/home"; // Assuming forms have a dashboard
-        default:
-            return "/workaround/sign-out";
-    }
+    if (roles.includes("admin")) return "/forms/home";
+    if (roles.includes("registrar")) return "/registrar/home";
+
+    return "/workaround/sign-out";
 }
 
 const isPublicRoute = createRouteMatcher([
     "/",
-    "/auth/(.*)",
+    "/login/(.*)",
     "/workaround/sign-out"
 ]);
 
-// Define protected routes (require authentication)
 const isProtectedRoute = createRouteMatcher([
     "/forms/(.*)",
-    "/registrar/(.*)",
+    "/registrar/(.*)"
 ]);
 
 export default clerkMiddleware(
@@ -48,160 +59,88 @@ export default clerkMiddleware(
         const isAuthenticated = !!userId;
         const url = new URL(req.url);
 
-        // Case 1: Not authenticated and trying to access protected route
+        // Case 1: Not authenticated and accessing protected route
         if (!isAuthenticated && isProtectedRoute(req)) {
-            console.log(
-                "⚠️ M Unauthenticated user trying to access protected route:",
-                url.pathname
-            );
+            console.log("⚠️ Unauthenticated user trying to access protected route:", url.pathname);
             await auth.protect();
             return;
         }
 
-        // conditon if route is /api/, then execute this block
-        else if (isAuthenticated && url.pathname.startsWith("/api/")) {
-            console.log("✅ M Authenticated user accessing API route:", url.pathname);
+        // Case 2: Authenticated user accessing API routes — skip restrictions
+        if (isAuthenticated && url.pathname.startsWith("/api/")) {
+            console.log("✅ Authenticated user accessing API route:", url.pathname);
             return NextResponse.next();
         }
 
-        // Case 2: Authenticated user trying to access public routes (redirect to their dashboard)
-        else if (isAuthenticated && isPublicRoute(req)) {
-            // Allow access to terms and privacy pages even when authenticated
+        // Case 3: Authenticated user accessing public routes (redirect to dashboard)
+        if (isAuthenticated && isPublicRoute(req)) {
             if (url.pathname === "/workaround/sign-out") {
-                console.log(
-                    "✅ M Authenticated user accessing terms or privacy page or sign-out"
-                );
                 return NextResponse.next();
             }
-
-            // Allow authenticated users to stay on auth pages during login process
-            if (url.pathname.startsWith("/auth/")) {
-                console.log(
-                    "✅ M Allowing authenticated user to access auth page during login process"
-                );
-                return NextResponse.next();
-            }
-
-            console.log(
-                "⚠️ M Authenticated user attempting to access public route"
-            );
 
             try {
-                // Get user with private metadata (where role is stored)
                 const user = await clerkClient.users.getUser(userId);
-                const userRole = user?.privateMetadata?.role as string;
-                console.log("M User Role from privateMetadata:", userRole);
-                let redirectUrl: string;
-                // Determine redirect based on role
-                if (userRole) {
-                    switch (userRole) {
-                        case "registrar":
-                            redirectUrl = "/registrar/home"; // redirect to student registration form
-                            break;
-                        case "forms":
-                            redirectUrl = "/forms/home"; // redirect to forms dashboard
-                        default:
-                            redirectUrl = "/workaround/sign-out";
-                    }
-                } else {
-                    // If no role is found but user is authenticated, allow them to stay
-                    // This handles the case during login where role isn't set yet
-                    console.warn(
-                        "⚠️ M No role found for user, not allowing access to continue login process"
-                    );
+                const userRoles = (user?.privateMetadata?.roles || user?.privateMetadata?.role) as
+                    | string[]
+                    | string
+                    | undefined;
+
+                if (!userRoles) {
+                    console.warn("⚠️ No roles found for user, redirecting to sign-out");
                     return NextResponse.redirect(new URL("/workaround/sign-out", req.url));
                 }
 
-                console.log("🔄 M Redirecting to:", redirectUrl);
+                const redirectUrl = getRoleHomePage(userRoles);
+                console.log("🔄 Redirecting authenticated user to:", redirectUrl);
                 return NextResponse.redirect(new URL(redirectUrl, req.url));
             } catch (error) {
-                console.error("Error checking user role:", error);
-                // If we can't check the role, allow access to continue instead of forcing sign-out
-                console.log(
-                    "⚠️ M Error checking role, allowing request to continue..."
-                );
+                console.error("❌ Error checking user role:", error);
                 return NextResponse.redirect(new URL("/workaround/sign-out", req.url));
             }
         }
 
-        // Case 3: Authenticated user trying to access protected routes (validate role permissions)
-        else if (isAuthenticated && isProtectedRoute(req)) {
-            console.log(
-                "🔍 M Checking role for protected route access:",
-                url.pathname
-            );
-
+        // Case 4: Authenticated user accessing protected route (role validation)
+        if (isAuthenticated && isProtectedRoute(req)) {
             try {
-                // Get user with private metadata (where role is stored)
                 const user = await clerkClient.users.getUser(userId);
-                const userRole = user?.privateMetadata?.role as string;
+                const userRoles = (user?.privateMetadata?.roles || user?.privateMetadata?.role) as
+                    | string[]
+                    | string
+                    | undefined;
 
-                console.log(
-                    "M User Role from privateMetadata for protected route:",
-                    userRole
-                ); if (!userRole) {
-                    // If no role is defined, redirect to sign-in
-                    console.log(
-                        "⚠️ M No role defined for user accessing protected route, redirecting to sign-in..."
-                    );
-                    return NextResponse.redirect(
-                        new URL("/workaround/sign-out", req.url)
-                    );
+                if (!userRoles) {
+                    console.warn("⚠️ No roles defined for user accessing protected route");
+                    return NextResponse.redirect(new URL("/workaround/sign-out", req.url));
                 }
 
-                // Check if user has the correct role for the route they're trying to access
-                const allowedForRoute = checkRoleForRoute(
-                    url.pathname,
-                    userRole
-                );
+                const allowedForRoute = checkRoleForRoute(url.pathname, userRoles);
 
                 if (!allowedForRoute) {
-                    console.log(
-                        "❌ M User does not have permission for this route:",
-                        url.pathname,
-                        "Role:",
-                        userRole
-                    );
-                    // Redirect to their appropriate home page
-                    const correctRoute = getRoleHomePage(userRole);
-                    return NextResponse.redirect(
-                        new URL(correctRoute, req.url)
-                    );
+                    console.log("❌ User lacks permission for:", url.pathname, "Roles:", userRoles);
+                    const correctHome = getRoleHomePage(userRoles);
+                    return NextResponse.redirect(new URL(correctHome, req.url));
                 }
 
-                console.log(
-                    "✅ M Allowing access to protected route:",
-                    url.pathname,
-                    "for role:",
-                    userRole
-                );
+                console.log("✅ Access granted to:", url.pathname, "Roles:", userRoles);
                 return NextResponse.next();
             } catch (error) {
-                console.error(
-                    "Error checking user role for protected route:",
-                    error
-                );
-                // If we can't check the role, redirect to home page instead of forcing sign-out
-                console.log(
-                    "⚠️ M Error checking role, redirecting to home page..."
-                );
+                console.error("❌ Error verifying roles for protected route:", error);
                 return NextResponse.redirect(new URL("/workaround/sign-out", req.url));
             }
         }
 
-        // Case 4: Default fallback for all other scenarios (not authenticated + public routes)
-        // This includes unauthenticated users accessing public routes - allow them through
-        console.log("✅ M Allowing request to continue:", url.pathname);
+        // Case 5: Default fallback — allow public routes
+        console.log("✅ Allowing request to continue:", url.pathname);
         return NextResponse.next();
     },
     { debug: false }
-); // change before pushing to production
+);
 
 export const config = {
     matcher: [
         // Skip Next.js internals and all static files, unless found in search params
         "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
         // Always run for API routes
-        "/(api|trpc)(.*)",
-    ],
+        "/(api|trpc)(.*)"
+    ]
 };

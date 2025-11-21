@@ -22,7 +22,7 @@ interface PersonalData {
     weight: string;
     bloodType: string;
     languages: string;
-    status: string;
+    childStatus: string;
     landline: string;
     mobile: string;
     email: string;
@@ -100,6 +100,8 @@ interface EducationalBackground {
     schoolAddress?: string;
     inclusiveYears?: string;
     honorsAwardsReceived?: string;
+    isAttendedSummerSchool?: boolean;
+    attendedSummerSchool?: string;
     gradeYearLevelRepeated?: string;
     numberOfSubjectsFailed?: string;
 }
@@ -120,7 +122,9 @@ export async function submitStudentApplication(applicationData: StudentApplicati
     try {
         console.log("Starting student application submission...");
 
-        const { personalData, healthHistory, fatherBackground, motherBackground, guardianBackground, registrationCode } = applicationData;
+        // console.log("Application Data:", applicationData);
+
+        const { personalData, healthHistory, fatherBackground, motherBackground, guardianBackground, transferee, familyMembers, educationalBackground, registrationCode } = applicationData;
 
         // Convert string values to appropriate types
         const age = parseInt(personalData.age) || 0;
@@ -129,12 +133,12 @@ export async function submitStudentApplication(applicationData: StudentApplicati
         const birthdate = new Date(personalData.birthDate);
 
         // Determine child status enum
-        let childStatus: 'LEGITIMATE' | 'ILLEGITIMATE' | 'ADOPTED' | 'STEPCHILD' = 'LEGITIMATE';
-        if (personalData.status.toUpperCase() === 'ADOPTED') {
-            childStatus = 'ADOPTED';
-        } else if (personalData.status.toUpperCase() === 'BIOLOGICAL') {
-            childStatus = 'ILLEGITIMATE';
-        }
+        // let childStatus: 'LEGITIMATE' | 'ILLEGITIMATE' | 'ADOPTED' | 'STEPCHILD' = 'LEGITIMATE';
+        // if (personalData.childStatus.toUpperCase() === 'ADOPTED') {
+        //     const childStatus = 'ADOPTED';
+        // } else if (personalData.childStatus.toUpperCase() === 'BIOLOGICAL') {
+        //     const childStatus = 'BIOLOGICAL';
+        // }
 
         // Determine gender enum
         const gender: 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY' =
@@ -163,32 +167,69 @@ export async function submitStudentApplication(applicationData: StudentApplicati
                 }
             }
 
+            // Fetch the active academic term
+            const activeAcademicTerm = await tx.academicTerm.findFirst({
+                where: { year: personalData.academicYear },
+                orderBy: { startDate: 'desc' }
+            });
+
+            if (!activeAcademicTerm) {
+                throw new Error('No active academic term found. Please contact the administrator.');
+            }
+
+            // Find year level by name matching admission grade year
+            const yearLevel = await tx.yearLevel.findFirst({
+                where: {
+                    name: personalData.admissionGradeYear,
+                    status: 'ACTIVE'
+                }
+            });
+
+            if (!yearLevel) {
+                throw new Error(`Year level "${personalData.admissionGradeYear}" not found or inactive.`);
+            }
+
+            //CREATE A STUDENT APPLICATION NUMBER WITH PREFIX AND SEQUENCE
+            // E.g., "APP-00001-000", "APP-00002-000", etc.
+            const applicationCount = await tx.studentApplication.count();
+            const applicationNumber = `APP-${(applicationCount + 1).toString().padStart(5, '0')}-000`;
+
             // Create the main student application
             const studentApplication = await tx.studentApplication.create({
                 data: {
-                    academicYear: personalData.academicYear,
-                    admissionToGrade: personalData.admissionGradeYear,
+                    academicYearId: activeAcademicTerm.id,
+                    yearLevelId: yearLevel.id,
                     familyName: personalData.familyName,
+                    applicationNumber: applicationNumber,
                     firstName: personalData.firstName,
-                    middleName: personalData.middleName || null,
-                    nickName: personalData.nickname || null,
+                    middleName: personalData.middleName,
+                    nickName: personalData.nickname,
                     birthdate: birthdate,
                     placeOfBirth: personalData.placeOfBirth,
                     age: age,
                     birthOrder: birthOrder,
                     numberOfSiblings: numberOfSiblings,
                     gender: gender,
+                    nationality: personalData.nationality,
+                    religion: personalData.religion,
+                    heightCm: parseFloat(personalData.height) || 0,
+                    weightKg: parseFloat(personalData.weight) || 0,
+                    bloodType: personalData.bloodType,
                     languagesSpokenAtHome: personalData.languages,
-                    childStatus: childStatus,
-                    landLine: personalData.landline || null,
+                    childStatus: personalData.childStatus,
+                    landlineNumber: personalData.landline || '',
                     mobileNumber: personalData.mobile,
                     emailAddress: personalData.email,
-                    homeAddress: `${personalData.homeAddress}, ${personalData.homeCity}, ${personalData.homeStateProvince}, ${personalData.homeZip}`,
+                    homeAddress: personalData.homeAddress,
                     city: personalData.homeCity,
                     stateProvince: personalData.homeStateProvince,
                     postalCode: personalData.homeZip,
-                    specialSkills: personalData.talents || null,
-                    hobbiesInterests: personalData.hobbies || null,
+                    provincialAddress: personalData.provincialAddress,
+                    provincialCity: personalData.provincialCity,
+                    provincialStateProvince: personalData.provincialStateProvince,
+                    provincialPostalCode: personalData.provincialZip,
+                    talents: personalData.talents || '',
+                    hobbiesInterests: personalData.hobbies,
                     status: 'PENDING',
                     createdBy: 1, // You might want to get this from the current user session
                 },
@@ -198,7 +239,7 @@ export async function submitStudentApplication(applicationData: StudentApplicati
             if (healthHistory && Object.values(healthHistory).some(value => value)) {
                 await tx.healthHistory.create({
                     data: {
-                        studentFormId: studentApplication.id,
+                        studentApplicationId: studentApplication.id,
                         childhoodDiseases: healthHistory.childhoodDiseases || null,
                         allergies: healthHistory.allergies || null,
                         otherMedicalConditions: healthHistory.otherMedicalConditions || null,
@@ -316,6 +357,95 @@ export async function submitStudentApplication(applicationData: StudentApplicati
                         createdBy: 1,
                     },
                 });
+            }
+
+            // Create siblings (family members) if data exists
+            if (familyMembers && familyMembers.length > 0) {
+                for (const member of familyMembers) {
+                    if (member.familyName || member.firstName) {
+                        await tx.siblings.create({
+                            data: {
+                                studentApplicationId: studentApplication.id,
+                                familyName: member.familyName || '',
+                                firstName: member.firstName || '',
+                                middleName: member.middleName || null,
+                                birthDate: member.birthDate ? new Date(member.birthDate) : new Date(),
+                                age: parseInt(member.age || '0') || 0,
+                                gradeYearLevel: member.gradeYearLevel || '',
+                                schoolEmployer: member.schoolEmployer || '',
+                            },
+                        });
+                    }
+                }
+            }
+
+            // Create educational background if data exists
+            if (educationalBackground && educationalBackground.length > 0) {
+                // Aggregate all educational background data into a single record
+                const firstRecord = educationalBackground[0];
+
+                if (firstRecord && (firstRecord.schoolName || firstRecord.honorsAwardsReceived)) {
+                    const educationalBgRecord = await tx.educationalBackground.create({
+                        data: {
+                            studentFormId: studentApplication.id,
+                            yearLevel: firstRecord.gradeYearLevel || null,
+                            schoolName: firstRecord.schoolName || null,
+                            schoolAddress: firstRecord.schoolAddress || null,
+                            inclusiveYearsAttended: firstRecord.inclusiveYears || null,
+                            attendedSummerClasses: firstRecord.isAttendedSummerSchool || false,
+                            summerClassDetails: firstRecord.attendedSummerSchool || null,
+                            yearRepeated: firstRecord.gradeYearLevelRepeated || null,
+                            numberOfSubjectsFailed: firstRecord.numberOfSubjectsFailed ? parseInt(firstRecord.numberOfSubjectsFailed) : null,
+                        },
+                    });
+
+                    // Create honors/awards if present
+                    if (firstRecord.honorsAwardsReceived) {
+                        await tx.honorsAwards.create({
+                            data: {
+                                educationalId: educationalBgRecord.id,
+                                description: firstRecord.honorsAwardsReceived,
+                            },
+                        });
+                    }
+                }
+            }
+
+            // Create transferee information if data exists
+            if (transferee && (transferee.previousSchool?.name || transferee.presentSchool?.name || transferee.reasonForTransfer)) {
+                const transfereeRecord = await tx.transferee.create({
+                    data: {
+                        studentFormId: studentApplication.id,
+                        reasonForTransfer: transferee.reasonForTransfer || '',
+                        disiplinaryRecord: transferee.disciplinaryActions || null,
+                    },
+                });
+
+                // Create previous school if provided
+                if (transferee.previousSchool && transferee.previousSchool.name) {
+                    await tx.previousSchool.create({
+                        data: {
+                            transferId: transfereeRecord.id,
+                            schoolName: transferee.previousSchool.name,
+                            schoolAddress: transferee.previousSchool.address || '',
+                            inclusiveYears: transferee.previousSchool.gradeYearLevel?.toString() || '',
+                            reasonForLeaving: null,
+                        },
+                    });
+                }
+
+                // Create present school if provided
+                if (transferee.presentSchool && transferee.presentSchool.name) {
+                    await tx.presentSchool.create({
+                        data: {
+                            transferId: transfereeRecord.id,
+                            schoolName: transferee.presentSchool.name,
+                            schoolAddress: transferee.presentSchool.address || '',
+                            inclusiveYears: transferee.presentSchool.gradeYearLevel?.toString() || '',
+                            reasonForLeaving: null,
+                        },
+                    });
+                }
             }
 
             // Update registration code status if it was used

@@ -31,6 +31,7 @@ export async function getStudents() {
         const formattedStudents = registration.map((regis) => ({
             id: regis.studentNo,
             registrationId: regis.id,
+            fullName: `${regis.firstName} ${regis.familyName}`,
             firstName: regis.firstName,
             middleName: regis.middleName,
             familyName: regis.familyName,
@@ -79,19 +80,16 @@ export async function getStudents() {
                 expirationDate: code.expirationDate?.toISOString() || null, // Convert Date to string
                 createdAt: code.createdAt.toISOString(), // Convert Date to string
             })),
-            createdAt: regis.createdAt.toISOString(), // Convert Date to string
+            createdAt: regis.createdAt.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZone: 'Asia/Manila'
+            }), // Convert Date to string
             updatedAt: regis.updatedAt.toISOString(), // Convert Date to string
         }));
-
-        await logSystemAction({
-            actionCategory: 'SYSTEM',
-            actionType: 'VIEW',
-            actionDescription: 'Fetch students (pending registrations)',
-            targetType: 'Registration',
-            targetId: 'all',
-            status: 'SUCCESS',
-            severityLevel: 'LOW',
-        });
 
         return {
             success: true,
@@ -165,9 +163,6 @@ export async function getApproveRegistrations() {
             schoolYear: {
                 id: regis.schoolYear.id,
                 year: regis.schoolYear.year,
-                startDate: regis.schoolYear.startDate.toISOString(), // Convert Date to string
-                endDate: regis.schoolYear.endDate.toISOString(), // Convert Date to string
-                status: regis.schoolYear.status,
             },
             status: regis.status,
             email: regis.emailAddress,
@@ -183,16 +178,9 @@ export async function getApproveRegistrations() {
                 id: contact.id,
                 number: contact.number,
             })),
-            studentForm: regis.studentForm ? {
-                id: regis.studentForm.id,
-                // Add other student form fields as needed
-            } : null,
             registrationCodes: regis.registrationcode.map(code => ({
                 id: code.id,
                 code: code.registrationCode,
-                status: code.status,
-                expirationDate: code.expirationDate?.toISOString() || null, // Convert Date to string
-                createdAt: code.createdAt.toISOString(), // Convert Date to string
             })),
             createdAt: regis.createdAt.toISOString(), // Convert Date to string
             updatedAt: regis.updatedAt.toISOString(), // Convert Date to string
@@ -228,6 +216,36 @@ export async function getApproveRegistrations() {
         return {
             success: false,
             students: [],
+            error: logError,
+        };
+    }
+}
+
+
+export async function getAllPendingStudentApplications() {
+    let logError: string | undefined = undefined;
+    try {
+        console.log("Fetching pending student applications from database...");
+        const applications = await prisma.studentApplication.findMany({
+            where: {
+                status: 'PENDING',
+                deletedAt: null,
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+        console.log("Pending student applications fetched successfully:", applications.length);
+        return {
+            success: true,
+            applications,
+        };
+    } catch (error) {
+        logError = 'Failed to fetch pending student applications';
+        console.error("Error fetching pending student applications:", error);
+        return {
+            success: false,
+            applications: [],
             error: logError,
         };
     }

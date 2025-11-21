@@ -358,24 +358,6 @@ async function sendSMSNotification(payload: NotificationPayload): Promise<{ succ
     }
 }
 
-// Log notification to database
-// async function logNotification(payload: NotificationPayload, status: string, method: string) {
-//     try {
-//         // This assumes you have a notifications table in your database
-//         // You might need to create this table in your Prisma schema
-//         await prisma.$executeRaw`
-//       INSERT INTO notifications (student_id, method, status, content, created_at)
-//       VALUES (${payload.studentId}, ${method}, ${status}, ${JSON.stringify({
-//             missingRequirements: payload.missingRequirements,
-//             email: payload.email,
-//             phone: payload.phone
-//         })}, NOW())
-//     `;
-//     } catch (error) {
-//         console.error('Failed to log notification:', error);
-//         // Don't throw error as this is just logging
-//     }
-// }
 
 // Main notification function
 export async function sendMissingRequirementsNotification(payload: NotificationPayload): Promise<NotificationResponse> {

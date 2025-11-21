@@ -14,10 +14,10 @@ export default function Loading() {
             />
 
             {/* Loading Text */}
-            <h2 className="text-2xl text-[#800000] font-semibold mb-2">
+            <h2 className="text-2xl font-semibold text-[#800000] mb-2">
                 Loading...
             </h2>
-            <p className="text-sm text-black mb-4">
+            <p className="text-sm text-black mb-6">
                 Please wait while we prepare your portal.
             </p>
 

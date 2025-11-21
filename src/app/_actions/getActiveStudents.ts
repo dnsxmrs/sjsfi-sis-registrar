@@ -1,7 +1,7 @@
 'use server'
 
 import { prisma } from "@/lib/prisma";
-import { logSystemAction } from "@/lib/systemLogger";
+// import { logSystemAction } from "@/lib/systemLogger";
 
 export async function getActiveStudents() {
     try {
@@ -14,16 +14,16 @@ export async function getActiveStudents() {
         });
 
         // Log the system action for fetching active students
-        await logSystemAction({
-            actionCategory: "SYSTEM",
-            actionType: "VIEW",
-            actionDescription: `Fetched count of active students: ${activeStudentCount}`,
-            targetType: "STUDENT",
-            targetId: "active-students",
-            status: "SUCCESS",
-            severityLevel: "LOW",
-            metadata: { count: activeStudentCount }
-        });
+        // await logSystemAction({
+        //     actionCategory: "SYSTEM",
+        //     actionType: "VIEW",
+        //     actionDescription: `Fetched count of active students: ${activeStudentCount}`,
+        //     targetType: "STUDENT",
+        //     targetId: "active-students",
+        //     status: "SUCCESS",
+        //     severityLevel: "LOW",
+        //     metadata: { count: activeStudentCount }
+        // });
 
         console.log("Count of active students fetched successfully:", activeStudentCount);
         return {
@@ -32,16 +32,16 @@ export async function getActiveStudents() {
         };
     } catch (error) {
         // Log the error in system logger
-        await logSystemAction({
-            actionCategory: "SYSTEM",
-            actionType: "VIEW",
-            actionDescription: `Error fetching active students: ${error}`,
-            targetType: "STUDENT",
-            targetId: "active-students",
-            status: "FAILED",
-            severityLevel: "LOW",
-            errorMessage: String(error)
-        });
+        // await logSystemAction({
+        //     actionCategory: "SYSTEM",
+        //     actionType: "VIEW",
+        //     actionDescription: `Error fetching active students: ${error}`,
+        //     targetType: "STUDENT",
+        //     targetId: "active-students",
+        //     status: "FAILED",
+        //     severityLevel: "LOW",
+        //     errorMessage: String(error)
+        // });
 
         console.error("Error fetching active students:", error);
         return {

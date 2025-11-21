@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { validateRegistrationCode, validateApplicationCode } from '@/app/_actions/generateCode';
+import { validateRegistrationCode, validateApplicationCode } from '@/app/(auth)/forms/_actions/code';
 //import { toast } from 'react-hot-toast';
 
 export default function HomePage() {
@@ -53,7 +53,7 @@ export default function HomePage() {
         setIsLoading(false);
         return;
       }
-      router.push(`/forms/Form-students?code=${encodeURIComponent(upperCode)}`);
+      router.push(`/forms/student-application?code=${encodeURIComponent(upperCode)}`);
       setIsLoading(false);
       return;
     } else {
@@ -88,7 +88,7 @@ export default function HomePage() {
               id="code"
               value={code}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-gray-900 placeholder-gray-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 text-gray-900 placeholder-gray-500"
               placeholder="Enter your code (e.g., REG-XXXXXXXX)"
               autoComplete="off"
             />
@@ -99,7 +99,7 @@ export default function HomePage() {
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || code.trim() === ''}
             className="w-full bg-red-800 text-white py-3 px-4 rounded-lg hover:bg-red-900 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
             {isLoading ? (

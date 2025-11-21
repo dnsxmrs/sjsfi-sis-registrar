@@ -1,7 +1,9 @@
 import { UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 
-export default function AdminHomeLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminHomeLayout({ children }: { children: React.ReactNode }) {
+  // delay to test the loading screen
+  await new Promise(resolve => setTimeout(resolve, 5000));
 
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col md:flex-row">

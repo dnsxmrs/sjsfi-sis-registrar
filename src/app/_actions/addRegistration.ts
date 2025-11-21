@@ -163,16 +163,14 @@ export async function addRegistration(data: RegistrationFormData): Promise<Regis
         // 3. Generate student number (you may want to implement your own logic here)
         const registrationCount = await prisma.registration.count()
         const schoolYearPrefix = schoolYearRecord.startDate.getFullYear()
-        const studentNo = `${data.registrationCode}-${schoolYearPrefix}-${String(registrationCount + 1).padStart(4, '0')}`
+        const studentNo = `REG-${schoolYearPrefix}-${String(registrationCount + 1).padStart(4, '0')}`
 
         // 4. Convert string values to appropriate types
         const ageNumber = parseInt(data.age, 10)
         const amountPayableNumber = parseInt(data.amountPayable, 10)
         const birthDateObj = new Date(data.birthDate)
 
-        // Convert to UTC+8 (Philippine local time)
         const now = new Date();
-        const phTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
 
         // Map registration type
         const registrationType: RegistrationType = data.schoolYearType === 'new' ? RegistrationType.NEW : RegistrationType.OLD
@@ -185,9 +183,9 @@ export async function addRegistration(data: RegistrationFormData): Promise<Regis
             // Create the registration record
             const registration = await tx.registration.create({
                 data: {
-                    schoolYearRef: schoolYearRecord.id,
+                    schoolYearId: schoolYearRecord.id,
                     registrationType: registrationType,
-                    yearLevelRef: yearLevelRecord.id,
+                    yearLevelId: yearLevelRecord.id,
                     studentNo: studentNo,
                     familyName: data.familyName,
                     firstName: data.firstName,
@@ -205,8 +203,8 @@ export async function addRegistration(data: RegistrationFormData): Promise<Regis
                     status: 'PENDING', // Default status
                     emailAddress: data.emailAddress,
 
-                    createdAt: phTime,
-                    updatedAt: phTime,
+                    createdAt: now,
+                    updatedAt: now,
                 }
             })
 
@@ -217,8 +215,8 @@ export async function addRegistration(data: RegistrationFormData): Promise<Regis
                         data: {
                             registrationId: registration.id,
                             number: contactNumber.trim(),
-                            createdAt: phTime,
-                            updatedAt: phTime
+                            createdAt: now,
+                            updatedAt: now
                         }
                     })
                 }
@@ -235,8 +233,8 @@ export async function addRegistration(data: RegistrationFormData): Promise<Regis
                             middleName: parent.middleName,
                             occupation: parent.occupation,
                             relationToStudent: parent.relation,
-                            createdAt: phTime,
-                            updatedAt: phTime
+                            createdAt: now,
+                            updatedAt: now
                         }
                     })
                 }
@@ -249,7 +247,8 @@ export async function addRegistration(data: RegistrationFormData): Promise<Regis
                 },
                 data: {
                     status: 'INACTIVE',
-                    updatedAt: phTime
+                    updatedAt: now,
+                    registrationId: registration.id
                 }
             })
 

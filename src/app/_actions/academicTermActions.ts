@@ -243,7 +243,7 @@ export async function deleteAcademicTerm(id: number) {
         // Check if there are registrations associated with this term
         const registrations = await prisma.registration.findFirst({
             where: {
-                schoolYearRef: id,
+                schoolYearId: id,
                 deletedAt: null
             }
         });

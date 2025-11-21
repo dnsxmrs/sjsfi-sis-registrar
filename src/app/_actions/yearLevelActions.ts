@@ -3,10 +3,9 @@
 import { prisma } from "@/lib/prisma";
 import { logDatabaseChange } from "@/lib/systemLoggerHelpers";
 
-const now = new Date();
-const phTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-
 export async function addYearLevel(name: string) {
+    const now = new Date();
+
     try {
         if (!name.trim()) {
             return {
@@ -35,8 +34,8 @@ export async function addYearLevel(name: string) {
             () => prisma.yearLevel.create({
                 data: {
                     name: name.trim(),
-                    createdAt: phTime,
-                    updatedAt: phTime
+                    createdAt: now,
+                    updatedAt: now
                 }
             }),
             {
@@ -62,6 +61,8 @@ export async function addYearLevel(name: string) {
 }
 
 export async function updateYearLevel(id: number, name: string) {
+    const now = new Date();
+
     try {
         if (!name.trim()) {
             return {
@@ -94,7 +95,7 @@ export async function updateYearLevel(id: number, name: string) {
                 where: { id },
                 data: {
                     name: name.trim(),
-                    updatedAt: phTime
+                    updatedAt: now
                 }
             }),
             {
@@ -121,6 +122,8 @@ export async function updateYearLevel(id: number, name: string) {
 }
 
 export async function deleteYearLevel(id: number) {
+    const now = new Date();
+
     try {
         // Fetch old values for logging
         const oldYearLevel = await prisma.yearLevel.findUnique({ where: { id } });
@@ -130,7 +133,7 @@ export async function deleteYearLevel(id: number) {
             () => prisma.yearLevel.update({
                 where: { id },
                 data: {
-                    deletedAt: phTime
+                    deletedAt: now
                 }
             }),
             {

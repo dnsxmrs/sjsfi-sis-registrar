@@ -1,7 +1,7 @@
 'use server'
 
 import { prisma } from '@/lib/prisma';
-import { generateUniqueApplicationCode } from '@/app/_actions/generateCode';
+import { generateUniqueApplicationCode } from '@/app/(auth)/forms/_actions/code';
 import { logRegistrationEvent } from '@/lib/systemLoggerHelpers';
 
 export async function approveRegistration(registrationId: number): Promise<{
@@ -68,12 +68,8 @@ export async function approveRegistration(registrationId: number): Promise<{
         // Generate application code
         const code = await generateUniqueApplicationCode();
 
-        // Convert to UTC+8 (Philippine local time)
         const now = new Date();
-        const phTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-
-        // 24 hours expiration from PH time
-        const expirationDate = new Date(phTime.getTime() + 24 * 60 * 60 * 1000);
+        const expirationDate = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
 
         // Start transaction to update registration status and create code
         await prisma.$transaction(async (tx) => {
@@ -82,7 +78,7 @@ export async function approveRegistration(registrationId: number): Promise<{
                 where: { id: registrationId },
                 data: {
                     status: 'APPROVED',
-                    updatedAt: phTime
+                    updatedAt: now
                 }
             });
 
@@ -94,7 +90,7 @@ export async function approveRegistration(registrationId: number): Promise<{
                     expirationDate: expirationDate,
                     registrationId: registrationId,
                     applicationId: registration.studentApplicationId,
-                    createdAt: phTime
+                    createdAt: now
                 }
             });
         });

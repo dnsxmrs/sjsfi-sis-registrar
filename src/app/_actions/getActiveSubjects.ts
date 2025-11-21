@@ -1,6 +1,6 @@
 'use server';
 
-import { logSystemAction } from "@/lib/systemLogger";
+// import { logSystemAction } from "@/lib/systemLogger";
 
 export async function getActiveSubjects() {
     try {
@@ -156,16 +156,16 @@ export async function getActiveSubjects() {
         ];
 
         // Log the system action for fetching active subjects (mock)
-        await logSystemAction({
-            actionCategory: "SYSTEM",
-            actionType: "VIEW",
-            actionDescription: `Fetched mock active subjects. Total subjects: ${mockSubjects.length}`,
-            targetType: "REPORT",
-            targetId: "mock-active-subjects",
-            status: "SUCCESS",
-            severityLevel: "LOW",
-            metadata: { count: mockSubjects.length }
-        });
+        // await logSystemAction({
+        //     actionCategory: "SYSTEM",
+        //     actionType: "VIEW",
+        //     actionDescription: `Fetched mock active subjects. Total subjects: ${mockSubjects.length}`,
+        //     targetType: "REPORT",
+        //     targetId: "mock-active-subjects",
+        //     status: "SUCCESS",
+        //     severityLevel: "LOW",
+        //     metadata: { count: mockSubjects.length }
+        // });
 
         console.log("Mock subject data returned successfully:", mockSubjects.length, "subjects");
         return {
@@ -177,16 +177,16 @@ export async function getActiveSubjects() {
         };
     } catch (error) {
         // Log the error in system logger
-        await logSystemAction({
-            actionCategory: "SYSTEM",
-            actionType: "VIEW",
-            actionDescription: `Error fetching active subjects: ${error}`,
-            targetType: "REPORT",
-            targetId: "mock-active-subjects",
-            status: "FAILED",
-            severityLevel: "LOW",
-            errorMessage: String(error)
-        });
+        // await logSystemAction({
+        //     actionCategory: "SYSTEM",
+        //     actionType: "VIEW",
+        //     actionDescription: `Error fetching active subjects: ${error}`,
+        //     targetType: "REPORT",
+        //     targetId: "mock-active-subjects",
+        //     status: "FAILED",
+        //     severityLevel: "LOW",
+        //     errorMessage: String(error)
+        // });
 
         console.error("Error in getActiveSubjects:", error);
         return {

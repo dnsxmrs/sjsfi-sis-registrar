@@ -30,11 +30,11 @@ export default function MedicalHistoryPage1({ onBack, onNext }: MedicalHistoryPa
         {/* Section Title */}
         <div className="w-full flex justify-center">
           <div className="text-lg tracking-wide py-2 text-white bg-[#a10000] rounded w-full text-center p-3">
-            Our health standard requires student applicants to provide details of their health. 
-            The health of each candidate is considered individually and no decision to reject a candidate is 
-            made with out referral to a medical advisor. Any information given on your medical history will 
+            Our health standard requires student applicants to provide details of their health.
+            The health of each candidate is considered individually and no decision to reject a candidate is
+            made with out referral to a medical advisor. Any information given on your medical history will
             assist us in assessing whether reasonable adjustment can be made.
-            </div>
+          </div>
         </div>
 
         {/* Academic Year and Grade */}

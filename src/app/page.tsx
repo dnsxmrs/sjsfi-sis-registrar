@@ -1,11 +1,11 @@
 import Image from 'next/image';
-import RoleButton from '@/components/atoms/RoleButton';
-import LoginFooter from '@/components/atoms/LoginFooter';
+import RoleButton from '@/components/app/RoleButton';
+import LoginFooter from '@/app/login/components/LoginFooter';
 
 
 export default async function Home() {
   // delay to test the loading screen
-  // await new Promise(resolve => setTimeout(resolve, 1000));
+  // await new Promise(resolve => setTimeout(resolve, 5000));
 
   return (
     <div className="flex h-screen w-screen bg-white min-width-[360px]">
@@ -30,14 +30,14 @@ export default async function Home() {
                   height={90}
                   className="mb-2"
                 />
-                <h1 className="text-3xl text-center text-[#800000] w-full">
+                <h1 className="text-2xl md:text-3xl text-center text-[#800000] w-full font-medium">
                   Welcome to <span className='font-bold'>SJSFI-SIS Portal</span>
                 </h1>
               </div>
 
               {/* BODY */}
               <div className="flex flex-col items-center justify-center w-full">
-                <p className='text-center text-black text-sm mb-4'>
+                <p className='text-center text-black text-sm md:text-base mb-6 font-medium'>
                   Please click or tap your role to sign in
                 </p>
 
@@ -46,7 +46,7 @@ export default async function Home() {
                     <RoleButton
                       label="Forms"
                       color="bg-[#800000]"
-                      href="/auth/forms"
+                      href="/login/forms"
                     />
                   </div>
                   <div className="mb-4 w-full">
@@ -54,7 +54,7 @@ export default async function Home() {
                       label="Registrar"
                       color="bg-[#ffd700]"
                       hoverClass="hover:bg-[#DAA520]"
-                      href="/auth/registrar"
+                      href="/login/registrar"
                     />
                   </div>
                   <LoginFooter />

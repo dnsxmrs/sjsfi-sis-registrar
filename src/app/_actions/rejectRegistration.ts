@@ -43,9 +43,7 @@ export async function rejectRegistration(registrationId: number): Promise<{
             return { success: false, error: 'Registration is already approved' };
         }
 
-        // Convert to UTC+8 (Philippine local time)
         const now = new Date();
-        const phTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
 
         // Start transaction to update registration status and create code
         await prisma.$transaction(async (tx) => {
@@ -54,7 +52,7 @@ export async function rejectRegistration(registrationId: number): Promise<{
                 where: { id: registrationId },
                 data: {
                     status: 'REJECTED',
-                    updatedAt: phTime
+                    updatedAt: now
                 }
             });
         });

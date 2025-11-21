@@ -3,16 +3,17 @@
 import toast from 'react-hot-toast';
 import React, { useState, useEffect } from 'react';
 import { Eye, Copy, Check, X } from 'lucide-react';
-import { getStudents } from '@/app/_actions/getStudents';
 import { rejectRegistration } from '@/app/_actions/rejectRegistration';
 import { approveRegistration } from '@/app/_actions/approveRegistration';
-import { generateRegistrationCode } from '@/app/_actions/generateCode';
+import { generateRegistrationCode } from '@/app/(auth)/forms/_actions/code';
+import { getStudentTableData, getOneStudentTableData } from '@/app/_actions/getStudentsList';
 
 const RegisterCoursePage: React.FC = () => {
     // Selected registration details state
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [selectedRegistration, setSelectedRegistration] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isLoadingDetails, setIsLoadingDetails] = useState(false);
     const [generatedCode, setGeneratedCode] = useState<string>('');
     const [isCodeCopied, setIsCodeCopied] = useState(false);
     const [isGeneratingCode, setIsGeneratingCode] = useState(false);
@@ -22,64 +23,35 @@ const RegisterCoursePage: React.FC = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [students, setStudents] = useState<any[]>([]);
 
+    const studentsList = async () => {
+        try {
+            const result = await getStudentTableData();
+            if (result.success) {
+                setStudents(result.students);
+
+                // Automatically load first registration details if available
+                if (result.students.length > 0 && !selectedRegistration) {
+                    await handleViewStudent(result.students[0].id);
+                }
+            } else {
+                console.error('Failed to fetch students:');
+            }
+        } catch (error) {
+            console.error('Error fetching students:', error);
+        }
+    }
+
     // Fetch students on component mount
     useEffect(() => {
-        const fetchStudents = async () => {
-            try {
-                const result = await getStudents();
-                if (result.success) {
-                    setStudents(result.students);
-                } else {
-                    console.error('Failed to fetch students:', result.error);
-                }
-            } catch (error) {
-                console.error('Error fetching students:', error);
-            } finally {
-                setIsLoading(false);
-            }
+        const initializeData = async () => {
+            setIsLoading(true);
+            await studentsList();
+            setIsLoading(false);
         };
 
-        fetchStudents();
+        initializeData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-    const handleRegister = async () => {
-        if (!selectedRegistrationId) {
-            toast.error('No registration selected.');
-            return;
-        }
-        try {
-            const result = await approveRegistration(selectedRegistrationId);
-
-            if (result.success && result.code) {
-                setGeneratedCode(result.code);
-                toast.success(`Registration Code Generated: ${result.code}`, {
-                    duration: 5000,
-                });
-
-                // Update the selected registration status
-                if (selectedRegistration) {
-                    setSelectedRegistration({
-                        ...selectedRegistration,
-                        status: 'APPROVED'
-                    });
-                }
-
-                // Refresh the students list
-                const refreshResult = await getStudents();
-                if (refreshResult.success) {
-                    setStudents(refreshResult.students);
-                }
-
-            } else {
-                toast.error(`Failed to generate registration code: ${result.error || 'Unknown error occurred'}`);
-            }
-
-        } catch {
-            toast.error('An error occurred while generating the registration code. Please try again.');
-        } finally {
-            setSelectedRegistration(null);
-        }
-    };
 
     const handleGenerateRegistration = async () => {
         setIsGeneratingCode(true);
@@ -128,6 +100,42 @@ const RegisterCoursePage: React.FC = () => {
         }
     };
 
+    const handleRegister = async () => {
+        if (!selectedRegistrationId) {
+            toast.error('No registration selected.');
+            return;
+        }
+        try {
+            const result = await approveRegistration(selectedRegistrationId);
+
+            if (result.success && result.code) {
+                setGeneratedCode(result.code);
+                toast.success(`Registration Code Generated: ${result.code}`, {
+                    duration: 5000,
+                });
+
+                // Update the selected registration status
+                if (selectedRegistration) {
+                    setSelectedRegistration({
+                        ...selectedRegistration,
+                        status: 'APPROVED'
+                    });
+                }
+
+                // Refresh the students list
+                studentsList();
+
+            } else {
+                toast.error(`Failed to generate registration code: ${result.error || 'Unknown error occurred'}`);
+            }
+
+        } catch {
+            toast.error('An error occurred while generating the registration code. Please try again.');
+        } finally {
+            setSelectedRegistration(null);
+        }
+    };
+
     const handleRejectRegistration = async () => {
         if (!selectedRegistrationId) {
             toast.error('No registration selected.');
@@ -152,7 +160,7 @@ const RegisterCoursePage: React.FC = () => {
                 toast.success(`Registration rejected for ${selectedRegistration?.firstName} ${selectedRegistration?.familyName}`);
 
                 // Refresh the students list
-                const refreshResult = await getStudents();
+                const refreshResult = await getStudentTableData();
                 if (refreshResult.success) {
                     setStudents(refreshResult.students);
                 }
@@ -170,10 +178,19 @@ const RegisterCoursePage: React.FC = () => {
     };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const handleViewStudent = (student: any) => {
-        // Set the selected registration data
-        setSelectedRegistration(student);
-        setSelectedRegistrationId(student.registrationId);
+    const handleViewStudent = async (studentId: any) => {
+        setIsLoadingDetails(true);
+        try {
+            // fetch the selected registration data
+            const result = await getOneStudentTableData(studentId);
+            setSelectedRegistration(result);
+            setSelectedRegistrationId(studentId);
+        } catch (error) {
+            console.error('Error fetching student details:', error);
+            toast.error('Failed to load student details');
+        } finally {
+            setIsLoadingDetails(false);
+        }
     };
 
     // Rejection Modal Component
@@ -197,36 +214,33 @@ const RegisterCoursePage: React.FC = () => {
                         </div>
 
                         <div className="mb-6">
-                            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-                                <div className="flex items-start">
-                                    <div className="flex-shrink-0">
-                                        <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                        </svg>
-                                    </div>
-                                    <div className="ml-3">
-                                        <h4 className="text-sm font-medium text-red-800">Warning</h4>
-                                        <p className="text-sm text-red-700 mt-1">
-                                            This action cannot be undone. The registration will be permanently rejected.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
                             <p className="text-gray-700 mb-4">
                                 Are you sure you want to reject the registration for <strong>{selectedRegistration?.firstName} {selectedRegistration?.familyName}</strong>?
                             </p>
 
-                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-1">
                                 <p className="text-sm text-gray-700">
-                                    <strong>Registration ID:</strong> {selectedRegistration?.id}
+                                    <strong>Registration ID:</strong> {selectedRegistration?.studentNo}
                                 </p>
                                 <p className="text-sm text-gray-700">
-                                    <strong>Grade Level:</strong> {selectedRegistration?.gradeLevel}
+                                    <strong>Grade Level:</strong> {selectedRegistration?.yearLevel?.name}
                                 </p>
-                                <p className="text-sm text-gray-700">
-                                    <strong>Email:</strong> {selectedRegistration?.email}
-                                </p>
+                            </div>
+                        </div>
+
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                            <div className="flex items-start">
+                                <div className="flex-shrink-0">
+                                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div className="ml-3">
+                                    <h4 className="text-sm font-medium text-red-800">Warning</h4>
+                                    <p className="text-sm text-red-700 mt-1">
+                                        This action cannot be undone. The registration will be permanently rejected.
+                                    </p>
+                                </div>
                             </div>
                         </div>
 
@@ -245,6 +259,7 @@ const RegisterCoursePage: React.FC = () => {
                                 <span>Reject Registration</span>
                             </button>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -319,6 +334,7 @@ const RegisterCoursePage: React.FC = () => {
                             <table className="w-full text-left text-sm"><thead>
                                 <tr className="border-b border-gray-300 text-black">
                                     <th className="py-2 font-semibold">Registration ID</th>
+                                    <th className="py-2 font-semibold">Date & Time</th>
                                     <th className="py-2 font-semibold">Full Name</th>
                                     <th className="py-2 font-semibold">Grade Level</th>
                                     <th className="py-2 font-semibold">Actions</th>
@@ -334,8 +350,9 @@ const RegisterCoursePage: React.FC = () => {
                                     ) : (
                                         students.map((student) => (
                                             <tr key={student.id} className="border-b border-gray-200 text-black hover:bg-gray-50">
-                                                <td className="py-2">{student.id}</td>
-                                                <td className="py-2">{student.firstName} {student.familyName}</td>
+                                                <td className="py-2">{student.registrationId}</td>
+                                                <td className="py-2">{student.createdAt}</td>
+                                                <td className="py-2">{student.fullName}</td>
                                                 {/* <td className="py-2">{student.familyName}</td> */}
                                                 <td className="py-2">
                                                     <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
@@ -346,7 +363,7 @@ const RegisterCoursePage: React.FC = () => {
                                                     <button
                                                         title="View"
                                                         className="text-gray-700 hover:text-gray-900"
-                                                        onClick={() => handleViewStudent(student)}
+                                                        onClick={() => handleViewStudent(student.id)}
                                                     >
                                                         <Eye className="h-5 w-5" />
                                                     </button>
@@ -363,7 +380,12 @@ const RegisterCoursePage: React.FC = () => {
                         <h2 className="text-lg font-semibold mb-4 text-black">
                             Registration Details
                         </h2>
-                        {selectedRegistration ? (
+                        {isLoadingDetails ? (
+                            <div className="flex flex-col justify-center items-center py-16 space-y-4">
+                                <div className="animate-spin h-12 w-12 border-4 border-red-800 border-t-transparent rounded-full"></div>
+                                <p className="text-gray-600 text-sm">Loading registration details...</p>
+                            </div>
+                        ) : selectedRegistration ? (
                             <div className="space-y-6">
                                 {/* Basic Information */}
                                 <div>
@@ -372,14 +394,11 @@ const RegisterCoursePage: React.FC = () => {
                                         <div>
                                             <label className="block text-sm font-medium mb-1 text-black">Registration ID</label>
                                             <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100">
-                                                {selectedRegistration.id}
+                                                {selectedRegistration.studentNo}
                                             </div>
                                         </div>
                                         <div>
-                                            {/* <label className="block text-sm font-medium mb-1 text-black">Student Number</label>
-                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100">
-                                                {selectedRegistration.id}
-                                            </div> */}
+                                            {/* empty 2nd column to force down the other fields */}
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium mb-1 text-black">First Name</label>
@@ -402,7 +421,7 @@ const RegisterCoursePage: React.FC = () => {
                                         <div>
                                             <label className="block text-sm font-medium mb-1 text-black">Email Address</label>
                                             <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100">
-                                                {selectedRegistration.email}
+                                                {selectedRegistration.emailAddress}
                                             </div>
                                         </div>
                                     </div>
@@ -427,7 +446,7 @@ const RegisterCoursePage: React.FC = () => {
                                         <div>
                                             <label className="block text-sm font-medium mb-1 text-black">Age</label>
                                             <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100">
-                                                {selectedRegistration.age}
+                                                {selectedRegistration.age} years old
                                             </div>
                                         </div>
                                         <div>
@@ -483,7 +502,7 @@ const RegisterCoursePage: React.FC = () => {
                                         <div>
                                             <label className="block text-sm font-medium mb-1 text-black">Grade Level</label>
                                             <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100">
-                                                {selectedRegistration.gradeLevel}
+                                                {selectedRegistration.yearLevel.name}
                                             </div>
                                         </div>
                                         <div>
@@ -494,8 +513,8 @@ const RegisterCoursePage: React.FC = () => {
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium mb-1 text-black">Registration Status</label>
-                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100">
-                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${selectedRegistration.status === 'APPROVED'
+                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 bg-gray-100">
+                                                <span className={`px-2 py-1 rounded-full text-sm font-medium ${selectedRegistration.status === 'APPROVED'
                                                     ? 'bg-green-100 text-green-800'
                                                     : selectedRegistration.status === 'PENDING'
                                                         ? 'bg-yellow-100 text-yellow-800'
@@ -521,7 +540,10 @@ const RegisterCoursePage: React.FC = () => {
                                         <div>
                                             <label className="block text-sm font-medium mb-1 text-black">Amount Payable</label>
                                             <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100">
-                                                ₱{selectedRegistration.amountPayable}
+                                                ₱ {selectedRegistration.amountPayable.toLocaleString('en-PH', {
+                                                    minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2,
+                                                })}
                                             </div>
                                         </div>
                                     </div>
@@ -530,7 +552,7 @@ const RegisterCoursePage: React.FC = () => {
                                 {/* Contact Numbers */}
                                 {selectedRegistration.contactNumbers.length > 0 && (
                                     <div>
-                                        <h3 className="text-md font-semibold mb-3 text-gray-800 border-b pb-2">Contact Numbers</h3>
+                                        <h3 className="text-md font-semibold mb-3 text-gray-800 border-b pb-2">Contact Number/s</h3>
                                         <div className="grid grid-cols-2 gap-4">
                                             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                             {selectedRegistration.contactNumbers.map((contact: any, index: number) => (
@@ -548,7 +570,7 @@ const RegisterCoursePage: React.FC = () => {
                                 {/* Guardians */}
                                 {selectedRegistration.guardians.length > 0 && (
                                     <div>
-                                        <h3 className="text-md font-semibold mb-3 text-gray-800 border-b pb-2">Guardians</h3>
+                                        <h3 className="text-md font-semibold mb-3 text-gray-800 border-b pb-2">Guardian/s</h3>
                                         <div className="space-y-4">
                                             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                             {selectedRegistration.guardians.map((guardian: any, index: number) => (

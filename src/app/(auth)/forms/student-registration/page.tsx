@@ -98,6 +98,7 @@ const StudentRegistrationForm: React.FC = () => {
   useEffect(() => {
     const code = searchParams.get('code');
     if (code) {
+      // TODO: ADD VALIDATION FOR CODE THAT IS FETCHED
       setRegistrationCode(code);
     } else {
       router.push('/forms/home'); // Redirect back if no code is provided
@@ -833,7 +834,7 @@ const StudentRegistrationForm: React.FC = () => {
               <span className="w-32 text-sm font-medium">Place of Birth <span className="text-red-600">*</span></span>
               <input
                 type="text"
-                placeholder="Caloocan City"
+                placeholder="Quezon City"
                 value={placeOfBirth}
                 onChange={(e) => {
                   setPlaceOfBirth(e.target.value);
@@ -1154,9 +1155,10 @@ const StudentRegistrationForm: React.FC = () => {
                   }`}
               >
                 <option value="">Select Payment Method</option>
-                <option value="cash">Cash</option>
-                <option value="check">Check</option>
-                <option value="online">Online</option>
+                <option value="Cash">Cash</option>
+                <option value="Check">Check</option>
+                <option value="Loan">Loan</option>
+                <option value="Online">Online</option>
               </select>
             </label>
             <ErrorMessage error={errors.modeOfPayment} />

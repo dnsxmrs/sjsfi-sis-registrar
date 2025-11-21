@@ -13,15 +13,15 @@ export async function getSchoolYears() {
             },
         });
 
-        await logSystemAction({
-            actionCategory: 'SYSTEM',
-            actionType: 'VIEW',
-            actionDescription: 'Fetch active school years',
-            targetType: 'AcademicTerm',
-            targetId: 'all',
-            status: 'SUCCESS',
-            severityLevel: 'LOW',
-        });
+        // await logSystemAction({
+        //     actionCategory: 'SYSTEM',
+        //     actionType: 'VIEW',
+        //     actionDescription: 'Fetch active school years',
+        //     targetType: 'AcademicTerm',
+        //     targetId: 'all',
+        //     status: 'SUCCESS',
+        //     severityLevel: 'LOW',
+        // });
 
         return {
             success: true,

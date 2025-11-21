@@ -69,9 +69,7 @@ export async function saveGeneralPolicy(content: string) {
             }
         });
 
-        // Convert to UTC+8 (Philippine local time)
         const now = new Date();
-        const phTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
 
         let policy;
         if (existingPolicy) {
@@ -80,7 +78,7 @@ export async function saveGeneralPolicy(content: string) {
                 where: { id: existingPolicy.id },
                 data: {
                     content: content.trim(),
-                    updatedAt: phTime
+                    updatedAt: now
                 }
             });
         } else {
@@ -89,8 +87,8 @@ export async function saveGeneralPolicy(content: string) {
                 data: {
                     title: 'General Policy and Guidelines',
                     content: content.trim(),
-                    createdAt: phTime,
-                    updatedAt: phTime
+                    createdAt: now,
+                    updatedAt: now
                 }
             });
         }

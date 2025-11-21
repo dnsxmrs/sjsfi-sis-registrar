@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Eye, Trash, Copy, Check, X, Mail } from 'lucide-react';
-import { getStudents } from '@/app/_actions/getStudents';
+import { Eye, Trash, X, Mail } from 'lucide-react';
+// import { getStudents } from '@/app/_actions/getStudents';
+import { getStudentApplicationTableData } from '@/app/_actions/getStudentsList';
 import { sendMissingRequirementsNotification, getMissingRequirements } from '@/app/_actions/sendNotification';
-import { generateRegistrationCode } from '@/app/_actions/generateCode';
+import { approveApplication } from '@/app/_actions/studentApplication';
 import toast from 'react-hot-toast';
 
 const RegisterCoursePage: React.FC = () => {
@@ -13,14 +14,12 @@ const RegisterCoursePage: React.FC = () => {
     const [gradeLevel, setGradeLevel] = useState('');
     const [email, setEmail] = useState('');
     const [status, setStatus] = useState(''); // This will hold the application status
-    const [students, setStudents] = useState<Array<{
-        id: string;
-        firstName: string;
-        familyName: string;
-        gradeLevel: string;
-        status: string;
-        email: string;
-    }>>([]);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [students, setStudents] = useState<any[]>([]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [selectedApplication, setSelectedApplication] = useState<any>(null);
+
     const [isLoading, setIsLoading] = useState(true);
     const [requirements, setRequirements] = useState({
         birthCertificate: false,
@@ -30,34 +29,43 @@ const RegisterCoursePage: React.FC = () => {
         privacyForm: false,
     });
     const [isNotificationLoading, setIsNotificationLoading] = useState(false);
-    const [generatedCode, setGeneratedCode] = useState<string>('');
-    const [isCodeCopied, setIsCodeCopied] = useState(false);
-    const [isGeneratingCode, setIsGeneratingCode] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showApproveModal, setShowApproveModal] = useState(false);
+    const [isApproving, setIsApproving] = useState(false);
     const [modalData, setModalData] = useState<{
         fullName: string;
         email: string;
         missingReqs: string[];
     }>({ fullName: '', email: '', missingReqs: [] });
 
+    const fetchStudents = async () => {
+        try {
+            const result = await getStudentApplicationTableData();
+
+            if (result.success) {
+                setStudents(result.students);
+                // Automatically load first application details if available
+                if (result.students.length > 0) {
+                    handleViewStudent(result.students[0]);
+                }
+            } else {
+                console.error('Failed to fetch students');
+            }
+        } catch (error) {
+            console.error('Error fetching students:', error);
+        }
+    };
+
     // Fetch students on component mount
     useEffect(() => {
-        const fetchStudents = async () => {
-            try {
-                const result = await getStudents();
-                if (result.success) {
-                    setStudents(result.students);
-                } else {
-                    console.error('Failed to fetch students:', result.error);
-                }
-            } catch (error) {
-                console.error('Error fetching students:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
+        const initializeData = async () => {
+            setIsLoading(true);
+            await fetchStudents();
+            setIsLoading(false);
+        }
 
-        fetchStudents();
+        initializeData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleRequirementChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,54 +76,40 @@ const RegisterCoursePage: React.FC = () => {
     };
 
     const handleRegister = () => {
-        // Placeholder for register student logic
-        toast('Register Student clicked');
+        if (!selectedApplication) {
+            toast.error('No application selected.');
+            return;
+        }
+
+        if (!studentID || !fullName) {
+            toast.error('Please select a student first by clicking the View button in the table');
+            return;
+        }
+
+        // Show approval confirmation modal
+        setShowApproveModal(true);
     };
 
-    const handleGenerateRegistration = async () => {
-        setIsGeneratingCode(true);
-        setGeneratedCode('');
-        setIsCodeCopied(false);
+    const handleConfirmApprove = async () => {
+        setIsApproving(true);
 
         try {
-            const result = await generateRegistrationCode();
-
-            if (result.success && result.code) {
-                setGeneratedCode(result.code);
-
-                // Show success alert with the generated code
-                // alert(`✅ Registration Code Generated Successfully!\n\nCode: ${result.code}\n\nThis code is unique and can only be used once for registration.\nPlease provide this code to the student to access the registration form.`);
-                toast.success(`Registration Code Generated: ${result.code}`, {
-                    duration: 5000,
-                });
+            // Simulate registration logic
+            const result = await approveApplication(selectedApplication, requirements);
+            if (result.success) {
+                toast.success('Student application approved successfully!');
+                setShowApproveModal(false);
+                // refresh list
+                setIsLoading(true);
+                await fetchStudents();
+                setIsLoading(false);
             } else {
-                toast.error(`Failed to generate registration code: ${result.error || 'Unknown error occurred'}`);
+                toast.error('Failed to approve application.');
             }
-        } catch (error) {
-            console.error('Error generating registration code:', error);
-            toast.error('An error occurred while generating the registration code. Please try again.');
+        } catch {
+            toast.error('Failed to approve application. An error occurred.');
         } finally {
-            setIsGeneratingCode(false);
-        }
-    };
-
-    const handleCopyCode = async () => {
-        if (generatedCode) {
-            try {
-                await navigator.clipboard.writeText(generatedCode);
-                setIsCodeCopied(true);
-                setTimeout(() => setIsCodeCopied(false), 2000); // Reset after 2 seconds
-            } catch {
-                // Fallback for browsers that don't support clipboard API
-                const textArea = document.createElement('textarea');
-                textArea.value = generatedCode;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                setIsCodeCopied(true);
-                setTimeout(() => setIsCodeCopied(false), 2000);
-            }
+            setIsApproving(false);
         }
     };
 
@@ -169,19 +163,22 @@ const RegisterCoursePage: React.FC = () => {
     };
 
     const handleViewStudent = (student: {
-        id: string;
-        firstName: string;
-        familyName: string;
+        id: string | number;
+        applicationNumber: string | null;
+        fullName: string;
         gradeLevel: string;
         status: string;
-        email: string;
+        emailAddress: string;
+        createdAt: string;
     }) => {
         // Populate form fields with student data
-        setStudentID(student.id);
-        setFullName(student.firstName + ' ' + student.familyName);
+        setStudentID(student.applicationNumber || '');
+        setFullName(student.fullName);
         setGradeLevel(student.gradeLevel);
-        setEmail(student.email);
+        setEmail(student.emailAddress);
         setStatus(student.status);
+
+        setSelectedApplication(student);
 
         // For requirements, we'll set them to false as default since we don't have this data
         // You can modify this logic based on your actual data structure
@@ -194,7 +191,7 @@ const RegisterCoursePage: React.FC = () => {
         });
     };
 
-    // Confirmation Modal Component
+    // Confirmation Modal Component for sending email
     const ConfirmationModal: React.FC = () => {
         if (!showConfirmModal) return null;
 
@@ -272,67 +269,199 @@ const RegisterCoursePage: React.FC = () => {
         );
     };
 
+    // Confirmation Modal Component for approving application
+    const ApproveConfirmationModal: React.FC = () => {
+        if (!showApproveModal) return null;
+
+        const requirementsList = [
+            { key: 'birthCertificate', label: 'Birth Certificate', checked: requirements.birthCertificate },
+            { key: 'f137', label: 'F-137', checked: requirements.f137 },
+            { key: 'f138', label: 'F-138', checked: requirements.f138 },
+            { key: 'goodMoral', label: 'Good Moral', checked: requirements.goodMoral },
+            { key: 'privacyForm', label: 'Privacy Form', checked: requirements.privacyForm },
+        ];
+
+        return (
+            <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-lg max-w-lg w-full">
+                    <div className="p-6">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+                                <svg
+                                    className="w-6 h-6 mr-2 text-green-600"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Confirm Application Approval
+                            </h3>
+                            <button
+                                onClick={() => setShowApproveModal(false)}
+                                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                                disabled={isApproving}
+                            >
+                                <X className="w-5 h-5 text-gray-500" />
+                            </button>
+                        </div>
+
+                        <div className="mb-6 space-y-4">
+                            <p className="text-gray-700">
+                                Are you sure you want to approve this student application?
+                            </p>
+
+                            {/* Student Information */}
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
+                                <h4 className="font-semibold text-blue-900 mb-3">Student Information</h4>
+                                <div className="grid grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <span className="text-blue-700 font-medium">Application ID:</span>
+                                        <p className="text-blue-900">{studentID || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-blue-700 font-medium">Full Name:</span>
+                                        <p className="text-blue-900">{fullName || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-blue-700 font-medium">Grade Level:</span>
+                                        <p className="text-blue-900">{gradeLevel || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-blue-700 font-medium">Email:</span>
+                                        <p className="text-blue-900 truncate">{email || 'N/A'}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Status Change */}
+                            <div className="bg-gradient-to-r from-yellow-50 to-green-50 border border-gray-200 rounded-lg p-4">
+                                <h4 className="font-semibold text-gray-800 mb-2">Status Change</h4>
+                                <div className="flex items-center justify-center space-x-3">
+                                    <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">
+                                        PENDING
+                                    </span>
+                                    <svg
+                                        className="w-5 h-5 text-gray-500"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                                    </svg>
+                                    <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+                                        APPROVED
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Requirements */}
+                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                <h4 className="font-semibold text-gray-800 mb-3">Requirements Checklist</h4>
+                                <div className="space-y-2">
+                                    {requirementsList.map((req) => (
+                                        <div key={req.key} className="flex items-center space-x-2">
+                                            {req.checked ? (
+                                                <svg
+                                                    className="w-5 h-5 text-green-600 flex-shrink-0"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth="2"
+                                                    viewBox="0 0 24 24"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                            ) : (
+                                                <svg
+                                                    className="w-5 h-5 text-red-500 flex-shrink-0"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth="2"
+                                                    viewBox="0 0 24 24"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                            )}
+                                            <span className={`text-sm ${req.checked ? 'text-gray-700' : 'text-gray-500'}`}>
+                                                {req.label}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Warning if missing requirements */}
+                            {requirementsList.some(req => !req.checked) && (
+                                <div className="bg-amber-50 border border-amber-300 rounded-lg p-3 flex items-start space-x-2">
+                                    <svg
+                                        className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                    </svg>
+                                    <p className="text-sm text-amber-800">
+                                        Some requirements are not yet submitted. You can still approve this application.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex justify-end space-x-3">
+                            <button
+                                onClick={() => setShowApproveModal(false)}
+                                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                                disabled={isApproving}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleConfirmApprove}
+                                disabled={isApproving}
+                                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                            >
+                                {isApproving ? (
+                                    <>
+                                        <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                                        <span>Approving...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg
+                                            className="w-4 h-4"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        <span>Approve Application</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+
+
     return (
         <div className="min-h-screen bg-gray-100 p-6">
             <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-6 md:gap-8">
-                <aside className="w-full md:w-56 space-y-4 flex-shrink-0 order-1 md:order-2">
-                    <div className="bg-white rounded-lg shadow p-4 flex flex-col space-y-3">
-                        <label className="block text-sm font-medium text-black px-3">
-                            Quick Access Buttons
-                        </label>
-                        {/* <button
-                            className="bg-red-800 text-white py-2 rounded text-sm hover:bg-red-900"
-                            onClick={() => handleGenerateApplication(student)}
-                        >
-                            Student Application Form
-                        </button> */}
-                        <button
-                            className="bg-red-800 text-white py-2 rounded text-sm hover:bg-red-900 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-                            onClick={() => handleGenerateRegistration()}
-                            disabled={isGeneratingCode}
-                        >
-                            {isGeneratingCode ? (
-                                <>
-                                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                                    <span>Generating...</span>
-                                </>
-                            ) : (
-                                <span>Generate Registration Code</span>
-                            )}
-                        </button>
-
-                        {/* Generated Code Display */}
-                        {generatedCode && (
-                            <div className="bg-green-50 border border-green-200 rounded p-3 space-y-2">
-                                <label className="block text-xs font-medium text-green-800">
-                                    Generated Code:
-                                </label>
-                                <div className="flex items-center space-x-2 w-full">
-                                    <input
-                                        type="text"
-                                        value={generatedCode}
-                                        readOnly
-                                        className="flex-1 min-w-0 text-sm font-mono bg-white border border-green-300 rounded px-2 py-1 text-green-800 truncate"
-                                    />
-                                    <button
-                                        onClick={handleCopyCode}
-                                        className="flex-shrink-0 p-1 text-green-600 hover:text-green-800 hover:bg-green-100 rounded"
-                                        title="Copy to clipboard"
-                                    >
-                                        {isCodeCopied ? (
-                                            <Check className="h-4 w-4" />
-                                        ) : (
-                                            <Copy className="h-4 w-4" />
-                                        )}
-                                    </button>
-                                </div>
-                                <p className="text-xs text-green-700">
-                                    Provide this code to the student for registration access.
-                                </p>
-                            </div>
-                        )}
-                    </div>
-                </aside>
                 {/* First Column: Add Student Form + All Students Table */}
                 <div className="flex-1 space-y-6 order-2 md:order-1">
                     {/* All Students Table */}
@@ -346,6 +475,7 @@ const RegisterCoursePage: React.FC = () => {
                             <table className="w-full text-left text-sm"><thead>
                                 <tr className="border-b border-gray-300 text-black">
                                     <th className="py-2 font-semibold">Application ID</th>
+                                    <th className="py-2 font-semibold">Date & Time</th>
                                     <th className="py-2 font-semibold">Full Name</th>
                                     <th className="py-2 font-semibold">Grade Level</th>
                                     <th className="py-2 font-semibold">Actions</th>
@@ -361,8 +491,9 @@ const RegisterCoursePage: React.FC = () => {
                                     ) : (
                                         students.map((student) => (
                                             <tr key={student.id} className="border-b border-gray-200 text-black hover:bg-gray-50">
-                                                <td className="py-2">{student.id}</td>
-                                                <td className="py-2">{student.firstName} {student.familyName}</td>
+                                                <td className="py-2">{student.applicationNumber}</td>
+                                                <td className="py-2">{student.createdAt}</td>
+                                                <td className="py-2">{student.fullName}</td>
                                                 <td className="py-2">
                                                     <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
                                                         {student.gradeLevel}
@@ -379,7 +510,7 @@ const RegisterCoursePage: React.FC = () => {
                                                     <button
                                                         title="Delete"
                                                         className="text-red-600 hover:text-red-800"
-                                                        onClick={() => toast(`Delete student ${student.id}`)}
+                                                        onClick={() => toast(`Delete student ${student.applicationNumber}`)}
                                                     >
                                                         <Trash className="h-5 w-5" />
                                                     </button>
@@ -399,7 +530,7 @@ const RegisterCoursePage: React.FC = () => {
                         <div className="grid grid-cols-2 gap-4 mb-4">
                             <div>
                                 <label className="block text-sm font-medium mb-1 text-black" htmlFor="studentID">
-                                    Student ID
+                                    Application ID
                                 </label>
                                 <input
                                     id="studentID"
@@ -437,9 +568,12 @@ const RegisterCoursePage: React.FC = () => {
                             </div>
                             <div>
                                 <label className="block text-sm font-medium mb-1 text-black" htmlFor="status">
-                                    Registration Status
+                                    Application Status
                                 </label>
-                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100">
+                                <div className={`w-full border border-gray-300 rounded px-3 py-2 text-sm ${status
+                                    ? 'bg-yellow-100 text-yellow-800 font-semibold'
+                                    : 'bg-gray-100 text-black'
+                                    }`}>
                                     {status || 'Not selected'}
                                 </div>
                             </div>
@@ -459,7 +593,10 @@ const RegisterCoursePage: React.FC = () => {
                             />
                         </div>
                         <div className="mb-4">
-                            <span className="block text-sm font-medium mb-2 text-black">Requirements</span>
+                            <span className="block text-sm font-medium text-black">Requirements</span>
+                            <p className="text-xs text-gray-500 mb-2">
+                                Note: Make sure to click &apos;Approve Application&apos; to save the application and requirements.
+                            </p>
                             <div className="flex flex-col space-y-1">
                                 <label className="inline-flex items-center">
                                     <input
@@ -528,7 +665,7 @@ const RegisterCoursePage: React.FC = () => {
                                 >
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path>
                                 </svg>
-                                <span>Approve Registration</span>
+                                <span>Approve Application</span>
                             </button>
                             <button
                                 onClick={handleNotify}
@@ -578,6 +715,7 @@ const RegisterCoursePage: React.FC = () => {
 
             {/* Confirmation Modal */}
             <ConfirmationModal />
+            <ApproveConfirmationModal />
         </div>
     );
 };

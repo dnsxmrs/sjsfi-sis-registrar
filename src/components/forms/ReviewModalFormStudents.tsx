@@ -98,7 +98,7 @@ interface ReviewModalFormStudentsProps {
     weight: string;
     bloodType: string;
     languages: string;
-    status: string;
+    childStatus: string;
     landline: string;
     mobile: string;
     email: string;
@@ -234,7 +234,7 @@ const ReviewModalFormStudents: React.FC<ReviewModalFormStudentsProps> = ({
                 <div><span className="font-medium">Weight:</span> {personalData.weight || "N/A"}</div>
                 <div><span className="font-medium">Blood Type:</span> {personalData.bloodType || "N/A"}</div>
                 <div><span className="font-medium">Languages/Dialect:</span> {personalData.languages || "N/A"}</div>
-                <div><span className="font-medium">Status:</span> {personalData.status || "N/A"}</div>
+                <div><span className="font-medium">Status:</span> {personalData.childStatus || "N/A"}</div>
                 <div><span className="font-medium">Landline Number:</span> {personalData.landline || "N/A"}</div>
                 <div><span className="font-medium">Mobile Number:</span> {personalData.mobile || "N/A"}</div>
                 <div><span className="font-medium">Email Address:</span> {personalData.email || "N/A"}</div>
