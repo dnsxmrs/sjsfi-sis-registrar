@@ -24,9 +24,9 @@ model User {
   suffix     String?       @db.VarChar(50)
   student    Student?
 
-  @@index([role, status]) // Common filtering combination
-  @@index([email, status]) // Login queries
-  @@index([familyName, firstName]) // Name searches
+  @@index([role, status])
+  @@index([email, status])
+  @@index([familyName, firstName])
 }
 
 model Student {
@@ -39,7 +39,7 @@ model Student {
   birthdate     DateTime  @default(now()) @db.Date
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([studentNumber, deletedAt]) // Active student lookups
+  @@index([studentNumber, deletedAt])
 }
 
 model Feedback {
@@ -52,8 +52,8 @@ model Feedback {
   updatedAt  DateTime      @updatedAt
   deletedAt  DateTime?
 
-  @@index([type, status]) // Filter by type and status
-  @@index([createdAt]) // Chronological queries
+  @@index([type, status])
+  @@index([createdAt])
 }
 
 model YearLevel {
@@ -66,8 +66,8 @@ model YearLevel {
   registrations       Registration[]
   studentApplications StudentApplication[]
 
-  @@index([status]) // Active year level lookups
-  @@index([name, status]) // Name-based filtering
+  @@index([status])
+  @@index([name, status])
 }
 
 model AcademicTerm {
@@ -82,16 +82,14 @@ model AcademicTerm {
   registrations       Registration[]
   studentApplications StudentApplication[]
 
-  @@index([status, startDate]) // Active term lookups
-  @@index([year, status]) // Year-based queries
+  @@index([status, startDate])
+  @@index([year, status])
 }
 
 model Registration {
   id                   Int                 @id @default(autoincrement())
   studentApplicationId Int?
-  schoolYearId         Int
   registrationType     RegistrationType    @default(NEW)
-  yearLevelId          Int
   studentNo            String              @unique @db.VarChar(100)
   familyName           String              @db.VarChar(255)
   firstName            String              @db.VarChar(255)
@@ -111,6 +109,8 @@ model Registration {
   createdAt            DateTime            @default(now())
   updatedAt            DateTime            @updatedAt
   deletedAt            DateTime?
+  schoolYearId         Int
+  yearLevelId          Int
   contactNumbers       ContactNumber[]
   guardians            Guardian[]
   schoolYear           AcademicTerm        @relation(fields: [schoolYearId], references: [id])
@@ -118,13 +118,13 @@ model Registration {
   yearLevel            YearLevel           @relation(fields: [yearLevelId], references: [id])
   registrationcode     RegistrationCode[]
 
-  @@index([status, schoolYearId]) // Most common query pattern
-  @@index([schoolYearId, yearLevelId, status]) // Dashboard queries
-  @@index([studentNo, status]) // Student lookups
-  @@index([emailAddress]) // Email-based searches
-  @@index([createdAt]) // Recent registrations
-  @@index([familyName, firstName]) // Name-based searches
-  @@index([registrationType, status]) // Type filtering
+  @@index([status, schoolYearId])
+  @@index([schoolYearId, yearLevelId, status])
+  @@index([studentNo, status])
+  @@index([emailAddress])
+  @@index([createdAt])
+  @@index([familyName, firstName])
+  @@index([registrationType, status])
 }
 
 model Guardian {
@@ -141,7 +141,7 @@ model Guardian {
   deletedAt         DateTime?
   registration      Registration  @relation(fields: [registrationId], references: [id], onDelete: Cascade)
 
-  @@index([registrationId, status]) // Active guardians per registration
+  @@index([registrationId, status])
 }
 
 model ContactNumber {
@@ -155,13 +155,12 @@ model ContactNumber {
   deletedAt      DateTime?
   registration   Registration  @relation(fields: [registrationId], references: [id], onDelete: Cascade)
 
-  @@index([registrationId, status]) // Active contacts per registration
-  @@index([number]) // Phone number lookups
+  @@index([registrationId, status])
+  @@index([number])
 }
 
 model Requirements {
   id                   Int                @id @default(autoincrement())
-  studentApplicationId Int                @default(1)
   requirementType      String             @db.VarChar(100)
   status               RequirementStatus  @default(PENDING)
   fileUrl              String?            @db.VarChar(255)
@@ -169,75 +168,75 @@ model Requirements {
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
   deletedAt            DateTime?
+  studentApplicationId Int                @default(1)
   studentApplication   StudentApplication @relation(fields: [studentApplicationId], references: [id], onDelete: Cascade)
 
-  @@index([status, requirementType]) // Filter by status and type
-  @@index([createdAt]) // Recent requirements
+  @@index([status, requirementType])
+  @@index([createdAt])
 }
 
 model StudentApplication {
-  id                      Int                     @id @default(autoincrement())
-  academicYearId          Int
-  yearLevelId             Int
-  applicationNumber       String?                 @unique @db.VarChar(100)
-  familyName              String                  @db.VarChar(255)
-  firstName               String                  @db.VarChar(255)
-  middleName              String                  @db.VarChar(255)
-  nickName                String                  @db.VarChar(100)
-  birthdate               DateTime                @db.Date
-  placeOfBirth            String                  @db.VarChar(255)
+  id                      Int                    @id @default(autoincrement())
+  familyName              String                 @db.VarChar(255)
+  firstName               String                 @db.VarChar(255)
+  middleName              String                 @db.VarChar(255)
+  nickName                String                 @db.VarChar(100)
+  birthdate               DateTime               @db.Date
+  placeOfBirth            String                 @db.VarChar(255)
   age                     Int
   birthOrder              Int
   numberOfSiblings        Int
   gender                  Gender
-  nationality             String                  @db.VarChar(100)
-  religion                String                  @db.VarChar(100)
-  heightCm                Decimal                 @db.Decimal(5, 2)
-  weightKg                Decimal                 @db.Decimal(5, 2)
-  bloodType               String                  @db.VarChar(3)
-  languagesSpokenAtHome   String                  @db.VarChar(255)
-  childStatus             String                  @default("LEGITIMATE") @db.VarChar(50)
-  landlineNumber          String                  @db.VarChar(50)
-  mobileNumber            String                  @db.VarChar(50)
-  emailAddress            String                  @db.VarChar(255)
-  homeAddress             String                  @db.VarChar(255)
-  city                    String                  @db.VarChar(100)
-  stateProvince           String                  @db.VarChar(100)
-  postalCode              String                  @db.VarChar(20)
-  provincialAddress       String                  @db.VarChar(255)
-  provincialCity          String                  @db.VarChar(100)
-  provincialStateProvince String                  @db.VarChar(100)
-  provincialPostalCode    String                  @db.VarChar(20)
-  talents                 String                  @db.VarChar(255)
-  hobbiesInterests        String                  @db.VarChar(255)
-  healthHistory           HealthHistory?
+  languagesSpokenAtHome   String                 @db.VarChar(255)
+  mobileNumber            String                 @db.VarChar(50)
+  emailAddress            String                 @db.VarChar(255)
+  homeAddress             String                 @db.VarChar(255)
+  city                    String                 @db.VarChar(100)
+  stateProvince           String                 @db.VarChar(100)
+  postalCode              String                 @db.VarChar(20)
+  hobbiesInterests        String                 @db.VarChar(255)
+  status                  ApplicationStatus      @default(PENDING)
+  createdBy               Int
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+  deletedAt               DateTime?
+  academicYearId          Int
+  bloodType               String                 @db.VarChar(3)
+  heightCm                Decimal                @db.Decimal(5, 2)
+  landlineNumber          String                 @db.VarChar(50)
+  nationality             String                 @db.VarChar(100)
+  provincialAddress       String                 @db.VarChar(255)
+  provincialCity          String                 @db.VarChar(100)
+  provincialPostalCode    String                 @db.VarChar(20)
+  provincialStateProvince String                 @db.VarChar(100)
+  religion                String                 @db.VarChar(100)
+  talents                 String                 @db.VarChar(255)
+  weightKg                Decimal                @db.Decimal(5, 2)
+  yearLevelId             Int
+  childStatus             String                 @default("LEGITIMATE") @db.VarChar(50)
+  applicationNumber       String?                @unique @db.VarChar(100)
+  educationalBackground   EducationalBackground?
   familyBackgrounds       FamilyBackground[]
-  siblings                Siblings[]
-  educationalBackground   EducationalBackground[]
-  transferee              Transferee?
+  healthHistory           HealthHistory?
   registrations           Registration[]
   registrationCodes       RegistrationCode[]
-  status                  ApplicationStatus       @default(PENDING)
-  createdBy               Int
-  createdAt               DateTime                @default(now())
-  updatedAt               DateTime                @updatedAt
-  deletedAt               DateTime?
-  academicYear            AcademicTerm            @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
-  yearLevel               YearLevel               @relation(fields: [yearLevelId], references: [id], onDelete: Cascade)
   requirements            Requirements[]
+  siblings                Siblings[]
+  academicYear            AcademicTerm           @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  yearLevel               YearLevel              @relation(fields: [yearLevelId], references: [id], onDelete: Cascade)
+  transferee              Transferee?
 
-  @@index([status, academicYearId]) // Most common filter
-  @@index([academicYearId, yearLevelId, status]) // Grade-specific queries
-  @@index([emailAddress]) // Email lookups
-  @@index([createdBy]) // Applications by user
-  @@index([createdAt]) // Recent applications
-  @@index([familyName, firstName]) // Name searches
-  @@index([mobileNumber]) // Phone lookups
+  @@index([status, academicYearId])
+  @@index([academicYearId, yearLevelId, status])
+  @@index([emailAddress])
+  @@index([createdBy])
+  @@index([createdAt])
+  @@index([familyName, firstName])
+  @@index([mobileNumber])
 }
 
 model HealthHistory {
   id                     Int                @id @default(autoincrement())
-  studentApplicationId   Int                @unique
   childhoodDiseases      String?
   allergies              String?
   otherMedicalConditions String?
@@ -247,6 +246,7 @@ model HealthHistory {
   createdAt              DateTime           @default(now())
   updatedAt              DateTime           @updatedAt
   deletedAt              DateTime?
+  studentApplicationId   Int                @unique
   studentApplication     StudentApplication @relation(fields: [studentApplicationId], references: [id], onDelete: Cascade)
 }
 
@@ -257,14 +257,18 @@ model FamilyBackground {
   familyName            String             @db.VarChar(255)
   firstName             String             @db.VarChar(255)
   middleName            String?            @db.VarChar(255)
-  age                   Int
   birthdate             DateTime           @db.Date
   placeOfBirth          String             @db.VarChar(255)
+  age                   Int
   nationality           String             @db.VarChar(100)
   religion              String             @db.VarChar(100)
   landLine              String?            @db.VarChar(50)
   mobileNo              String             @db.VarChar(50)
   emailAddress          String             @db.VarChar(255)
+  homeAddress           String             @db.VarChar(255)
+  city                  String             @db.VarChar(100)
+  stateProvince         String             @db.VarChar(100)
+  postalCode            String             @db.VarChar(20)
   educationalAttainment String             @db.VarChar(255)
   occupation            String             @db.VarChar(100)
   employer              String?            @db.VarChar(255)
@@ -272,20 +276,16 @@ model FamilyBackground {
   companyCity           String?            @db.VarChar(100)
   businessNo            String?            @db.VarChar(50)
   annualIncome          Decimal?           @db.Decimal(12, 2)
-  homeAddress           String             @db.VarChar(255)
-  city                  String             @db.VarChar(100)
-  stateProvince         String             @db.VarChar(100)
-  postalCode            String             @db.VarChar(20)
-  parentStatus          String             @db.VarChar(50)
   createdBy             Int
   createdAt             DateTime           @default(now())
   updatedAt             DateTime           @updatedAt
   deletedAt             DateTime?
+  parentStatus          String             @db.VarChar(50)
   studentForm           StudentApplication @relation(fields: [studentFormId], references: [id], onDelete: Cascade)
 
-  @@index([studentFormId, guardianType]) // Family members by type
-  @@index([emailAddress]) // Email lookups
-  @@index([mobileNo]) // Phone lookups
+  @@index([studentFormId, guardianType])
+  @@index([emailAddress])
+  @@index([mobileNo])
 }
 
 model RegistrationCode {
@@ -301,9 +301,9 @@ model RegistrationCode {
   application      StudentApplication? @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   registration     Registration?       @relation(fields: [registrationId], references: [id], onDelete: Cascade)
 
-  @@index([status, expirationDate]) // Active code validation
-  @@index([registrationCode, status]) // Code verification
-  @@index([applicationId]) // Application lookups
+  @@index([status, expirationDate])
+  @@index([registrationCode, status])
+  @@index([applicationId])
 }
 
 model GeneralPolicy {
@@ -315,8 +315,185 @@ model GeneralPolicy {
   updatedAt DateTime      @updatedAt
   deletedAt DateTime?
 
-  @@index([status]) // Active policies
-  @@index([updatedAt]) // Recent updates
+  @@index([status])
+  @@index([updatedAt])
+}
+
+model SystemLog {
+  id                String        @id @default(cuid())
+  logNumber         String        @unique
+  timestamp         DateTime      @default(now())
+  userId            Int?
+  userName          String?
+  userRole          String?
+  sessionId         String?
+  actionCategory    String
+  actionType        String
+  actionSubType     String?
+  actionDescription String
+  targetType        String
+  targetId          String
+  targetName        String?
+  oldValues         Json?
+  newValues         Json?
+  changedFields     String[]
+  ipAddress         String?
+  userAgent         String?
+  requestMethod     String?
+  requestUrl        String?
+  status            LogStatus
+  errorCode         String?
+  errorMessage      String?
+  severityLevel     SeverityLevel
+  executionTimeMs   Int?
+  metadata          Json?
+  isSensitiveData   Boolean       @default(false)
+  createdAt         DateTime      @default(now())
+  archivedAt        DateTime?
+
+  @@index([timestamp])
+  @@index([userId, timestamp])
+  @@index([actionCategory, timestamp])
+  @@index([actionCategory, actionType, timestamp])
+  @@index([targetType, targetId])
+  @@index([status, severityLevel])
+  @@index([sessionId])
+  @@index([ipAddress])
+  @@index([severityLevel, timestamp])
+}
+
+model EducationalBackground {
+  id                     Int                @id @default(autoincrement())
+  studentFormId          Int                @unique
+  yearLevel              String?
+  schoolName             String?
+  schoolAddress          String?
+  inclusiveYearsAttended String?
+  attendedSummerClasses  Boolean?
+  summerClassDetails     String?
+  yearRepeated           String?
+  numberOfSubjectsFailed Int?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+  deletedAt              DateTime?
+  studentForm            StudentApplication @relation(fields: [studentFormId], references: [id], onDelete: Cascade)
+  honorsAwards           HonorsAwards[]
+}
+
+model HonorsAwards {
+  id            Int                   @id @default(autoincrement())
+  educationalId Int
+  description   String?
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  deletedAt     DateTime?
+  educational   EducationalBackground @relation(fields: [educationalId], references: [id], onDelete: Cascade)
+
+  @@index([educationalId])
+}
+
+model Transferee {
+  id                Int                @id @default(autoincrement())
+  studentFormId     Int                @unique
+  reasonForTransfer String             @db.VarChar(255)
+  disiplinaryRecord String?            @db.VarChar(255)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  deletedAt         DateTime?
+  presentSchool     PresentSchool?
+  previousSchool    PreviousSchool?
+  studentForm       StudentApplication @relation(fields: [studentFormId], references: [id], onDelete: Cascade)
+}
+
+model PreviousSchool {
+  id               Int        @id @default(autoincrement())
+  transferId       Int        @unique
+  schoolName       String     @db.VarChar(255)
+  schoolAddress    String     @db.VarChar(255)
+  inclusiveYears   String     @db.VarChar(100)
+  reasonForLeaving String?    @db.VarChar(255)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  deletedAt        DateTime?
+  transfer         Transferee @relation(fields: [transferId], references: [id], onDelete: Cascade)
+}
+
+model PresentSchool {
+  id               Int        @id @default(autoincrement())
+  transferId       Int        @unique
+  schoolName       String     @db.VarChar(255)
+  schoolAddress    String     @db.VarChar(255)
+  inclusiveYears   String     @db.VarChar(100)
+  reasonForLeaving String?    @db.VarChar(255)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  deletedAt        DateTime?
+  transfer         Transferee @relation(fields: [transferId], references: [id], onDelete: Cascade)
+}
+
+model Siblings {
+  id                   Int                @id @default(autoincrement())
+  studentApplicationId Int
+  familyName           String             @db.VarChar(255)
+  firstName            String             @db.VarChar(255)
+  middleName           String?            @db.VarChar(255)
+  birthDate            DateTime           @db.Date
+  age                  Int
+  gradeYearLevel       String             @db.VarChar(100)
+  schoolEmployer       String             @db.VarChar(255)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  deletedAt            DateTime?
+  studentApplication   StudentApplication @relation(fields: [studentApplicationId], references: [id], onDelete: Cascade)
+}
+
+model Subject {
+  id          Int        @id @default(autoincrement())
+  code        String     @unique
+  name        String
+  description String?
+  units       Int
+  gradeLevel  String
+  department  String
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  grades      Grade[]
+  schedules   Schedule[]
+}
+
+model Schedule {
+  id         Int      @id @default(autoincrement())
+  subjectId  Int
+  time       String
+  room       String
+  instructor String
+  day        String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  subject    Subject  @relation(fields: [subjectId], references: [id])
+}
+
+model Grade {
+  id            Int      @id @default(autoincrement())
+  subjectId     Int
+  firstGrading  Int?
+  secondGrading Int?
+  thirdGrading  Int?
+  fourthGrading Int?
+  finalGrade    Int?
+  remarks       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  subject       Subject  @relation(fields: [subjectId], references: [id])
+}
+
+model Notification {
+  id          Int      @id @default(autoincrement())
+  date        DateTime
+  title       String
+  description String
+  createdAt   DateTime @default(now())
 }
 
 enum Gender {
@@ -399,11 +576,11 @@ enum GuardianType {
 }
 
 enum ChildStatus {
-  BIOLOGICAL
   LEGITIMATE
   ILLEGITIMATE
   ADOPTED
   STEPCHILD
+  BIOLOGICAL
 }
 
 enum ParentStatus {
@@ -413,67 +590,6 @@ enum ParentStatus {
   WIDOWED
   SINGLE
   DECEASED
-}
-
-model SystemLog {
-  id        String   @id @default(cuid())
-  logNumber String   @unique
-  timestamp DateTime @default(now())
-
-  // User context
-  userId    Int?
-  userName  String?
-  userRole  String?
-  sessionId String?
-
-  // Action details
-  actionCategory    String // "AUTH", "REGISTRATION", "ACADEMIC"
-  actionType        String // "CREATE", "UPDATE", "DELETE"
-  actionSubType     String? // "APPROVE", "REJECT", "STATUS_CHANGE"
-  actionDescription String
-
-  // Target information
-  targetType String // "ACADEMIC_TERM", "REGISTRATION", "USER"
-  targetId   String
-  targetName String?
-
-  // Change tracking
-  oldValues     Json?
-  newValues     Json?
-  changedFields String[]
-
-  // System context
-  ipAddress     String?
-  userAgent     String?
-  requestMethod String?
-  requestUrl    String?
-
-  // Status and results
-  status        LogStatus
-  errorCode     String?
-  errorMessage  String?
-  severityLevel SeverityLevel
-
-  // Performance
-  executionTimeMs Int?
-  metadata        Json?
-
-  // Flags
-  isSensitiveData Boolean @default(false)
-
-  // Timestamps
-  createdAt  DateTime  @default(now())
-  archivedAt DateTime?
-
-  @@index([timestamp]) // Chronological queries
-  @@index([userId, timestamp]) // User activity logs
-  @@index([actionCategory, timestamp]) // Category-based filtering
-  @@index([actionCategory, actionType, timestamp]) // Detailed filtering
-  @@index([targetType, targetId]) // Target-based lookups
-  @@index([status, severityLevel]) // Error and warning queries
-  @@index([sessionId]) // Session tracking
-  @@index([ipAddress]) // IP-based analysis
-  @@index([severityLevel, timestamp]) // Critical log monitoring
 }
 
 enum LogStatus {
@@ -487,151 +603,4 @@ enum SeverityLevel {
   MEDIUM
   HIGH
   CRITICAL
-}
-
-// Table for the one-off fields and transferee info
-model EducationalBackground {
-  id                     Int            @id @default(autoincrement())
-  studentFormId          Int            @unique
-  yearLevel              String?
-  schoolName             String?
-  schoolAddress          String?
-  inclusiveYearsAttended String?
-  honorsAwards           HonorsAwards[]
-  attendedSummerClasses  Boolean?
-  summerClassDetails     String?
-  yearRepeated           String?
-  numberOfSubjectsFailed Int?
-  createdAt              DateTime       @default(now())
-  updatedAt              DateTime       @updatedAt
-  deletedAt              DateTime?
-
-  studentForm StudentApplication @relation(fields: [studentFormId], references: [id], onDelete: Cascade)
-}
-
-model HonorsAwards {
-  id            Int       @id @default(autoincrement())
-  educationalId Int
-  description   String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  deletedAt     DateTime?
-
-  educational EducationalBackground @relation(fields: [educationalId], references: [id], onDelete: Cascade)
-
-  @@index([educationalId]) // Awards by educational record
-}
-
-model Transferee {
-  id                Int              @id @default(autoincrement())
-  studentFormId     Int              @unique
-  previousSchool    PreviousSchool[]
-  presentSchool     PresentSchool[]
-  reasonForTransfer String           @db.VarChar(255)
-  disiplinaryRecord String?          @db.VarChar(255)
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-  deletedAt         DateTime?
-
-  studentForm StudentApplication @relation(fields: [studentFormId], references: [id], onDelete: Cascade)
-}
-
-model PreviousSchool {
-  id               Int       @id @default(autoincrement())
-  transferId       Int       @unique
-  schoolName       String    @db.VarChar(255)
-  schoolAddress    String    @db.VarChar(255)
-  inclusiveYears   String    @db.VarChar(100)
-  reasonForLeaving String?   @db.VarChar(255)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  deletedAt        DateTime?
-
-  transfer Transferee @relation(fields: [transferId], references: [id], onDelete: Cascade)
-}
-
-model PresentSchool {
-  id               Int       @id @default(autoincrement())
-  transferId       Int       @unique
-  schoolName       String    @db.VarChar(255)
-  schoolAddress    String    @db.VarChar(255)
-  inclusiveYears   String    @db.VarChar(100)
-  reasonForLeaving String?   @db.VarChar(255)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  deletedAt        DateTime?
-
-  transfer Transferee @relation(fields: [transferId], references: [id], onDelete: Cascade)
-}
-
-model Siblings {
-  id                   Int                @id @default(autoincrement())
-  studentApplicationId Int
-  familyName           String             @db.VarChar(255)
-  firstName            String             @db.VarChar(255)
-  middleName           String?            @db.VarChar(255)
-  birthDate            DateTime           @db.Date
-  age                  Int
-  gradeYearLevel       String             @db.VarChar(100)
-  schoolEmployer       String             @db.VarChar(255)
-  createdAt            DateTime           @default(now())
-  updatedAt            DateTime           @updatedAt
-  deletedAt            DateTime?
-  studentApplication   StudentApplication @relation(fields: [studentApplicationId], references: [id], onDelete: Cascade)
-}
-
-model Subject {
-  id          Int      @id @default(autoincrement())
-  code        String   @unique
-  name        String
-  description String?
-  units       Int
-  gradeLevel  String
-  department  String
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  schedules Schedule[]
-  grades    Grade[]
-}
-
-model Schedule {
-  id         Int      @id @default(autoincrement())
-  subjectId  Int
-  time       String
-  room       String
-  instructor String
-  day        String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  // Relations
-  subject Subject @relation(fields: [subjectId], references: [id])
-}
-
-model Grade {
-  id            Int      @id @default(autoincrement())
-  subjectId     Int
-  firstGrading  Int?
-  secondGrading Int?
-  thirdGrading  Int?
-  fourthGrading Int?
-  finalGrade    Int?
-  remarks       String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  // Relations
-  subject Subject @relation(fields: [subjectId], references: [id])
-}
-
-// =============== NOTIFICATIONS ===============
-model Notification {
-  id          Int      @id @default(autoincrement())
-  date        DateTime
-  title       String
-  description String
-  createdAt   DateTime @default(now())
 }

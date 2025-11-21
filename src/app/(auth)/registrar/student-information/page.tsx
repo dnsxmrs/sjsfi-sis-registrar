@@ -17,6 +17,30 @@ interface StudentPersonalData {
     fullName: string;
     applicationNumber: string | null;
     yearLevel: string;
+    academicYear?: string;
+    admissionGradeYear?: string;
+    familyName?: string;
+    firstName?: string;
+    middleName?: string;
+    nickname?: string;
+    placeOfBirth?: string;
+    age?: string;
+    birthOrder?: string;
+    numberOfSiblings?: string;
+    nationality?: string;
+    religion?: string;
+    height?: string;
+    weight?: string;
+    bloodType?: string;
+    language?: string;
+    landlineNumber?: string;
+    mobileNumber?: string;
+    hobbiesInterests?: string;
+    talentsSpecialSkills?: string;
+    childStatus?: string;
+    biologicalRelationship?: string;
+    adoptedStatus?: string;
+    provincialAddress?: string;
     gender: string;
     emailAddress: string;
     birthdate: string;
@@ -25,9 +49,8 @@ interface StudentPersonalData {
     city: string;
     stateProvince: string;
     postalCode: string;
-    guardianName?: string;
-    guardianContact?: string;
     createdAt: string;
+    
 }
 
 interface StudentHealthData {
@@ -140,7 +163,7 @@ export default function StudentInformationPage() {
         }
     };
 
-    // STUDENT
+    // STUDENT PERSONAL DATA
     const renderPersonalData = () => {
         if (!personalData) {
             return (
@@ -152,115 +175,425 @@ export default function StudentInformationPage() {
 
         return (
             <div className="p-6 space-y-6">
-                {/* Student Basic Info */}
+                {/* Academic Year and Admission */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Full Name
-                            </label>
-                            <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                                <p className="text-gray-900">
-                                    {personalData.fullName}
-                                </p>
-                            </div>
-                        </div>
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Academic Year
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Answer Here..."
+                            value={personalData.academicYear || 'Not specified'}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Admission to Grade/ Year
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Answer Here..."
+                            value={personalData.admissionGradeYear || 'Not specified'}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                    </div>
+                </div>
 
-                        <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Student Number
-                            </label>
-                            <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                                <p className="text-gray-900">{personalData.applicationNumber}</p>
-                            </div>
-                        </div>
+                <hr className="my-4" />
 
-                        <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Grade Level
-                            </label>
-                            <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                                <p className="text-gray-900">{personalData.yearLevel}</p>
-                            </div>
-                        </div>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Family Name
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Answer Here..."
+                            value={personalData.familyName || 'Not specified'}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            First Name
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Answer Here..."
+                            value={personalData.firstName || 'Not specified'}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Middle Name
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Answer Here..."
+                            value={personalData.middleName || 'Not specified'}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Nickname
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Answer Here..."
+                            value={personalData.nickname || 'Not specified'}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                    </div>
+                </div>
 
-                        <div>
+                {/* Birth Information */}
+                <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+                    <div className="md:col-span-1">
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Birth Date
+                        </label>
+                        <input
+                            type="date"
+                            placeholder="MM/DD/YY"
+                            value={personalData.birthdate || 'Not specified'}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                    </div>
+                    <div className="md:col-span-2">
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Place of Birth
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Answer Here..."
+                            value={personalData.placeOfBirth || 'Not specified'}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Age
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Answer Here..."
+                            value={personalData.age || ''}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Birth Order
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Answer Here..."
+                            value={personalData.birthOrder || 'Not specified'}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Number of Siblings
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Answer Here..."
+                            value={personalData.numberOfSiblings || 'Not specified'}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                    </div>
+                </div>
+
+                {/* Nationality and Religion */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Nationality
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Answer Here..."
+                            value={personalData.nationality || 'Not specified'}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Religion
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Answer Here..."
+                            value={personalData.religion || 'Not specified'}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Languages/ Dialect spoken at home
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Answer Here..."
+                            value={personalData.language || 'Not specified'}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                    </div>
+                    
+                </div>
+
+                {/* Physical Characteristics */}
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Height
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Answer Here..."
+                            value={personalData.height || 'Not specified'}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Weight
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Answer Here..."
+                            value={personalData.weight || 'Not specified'}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Blood Type
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Answer Here..."
+                            value={personalData.bloodType || 'Not specified'}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                    </div>
+                    {/* Group Gender and Child Status together to reduce horizontal gap */}
+                    <div className="md:col-span-2 flex gap-8 items-start">
+                        <div className="flex-1">
                             <label className="block text-xs font-medium text-gray-700 mb-1">
                                 Gender
                             </label>
-                            <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                                <p className="text-gray-900">{personalData.gender}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Email Address
-                            </label>
-                            <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                                <p className="text-gray-900">{personalData.emailAddress || 'Not specified'}</p>
+                            <div className="flex gap-4 mt-2">
+                                <label className="flex items-center">
+                                    <input type="radio" disabled checked={personalData.gender === 'Female'} className="mr-2" />
+                                    <span className="text-sm">Female</span>
+                                </label>
+                                <label className="flex items-center">
+                                    <input type="radio" disabled checked={personalData.gender === 'Male'} className="mr-2" />
+                                    <span className="text-sm">Male</span>
+                                </label>
                             </div>
                         </div>
 
-                        <div>
+                        <div className="flex-1">
                             <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Date of Birth
+                                Child Status
                             </label>
-                            <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                                <p className="text-gray-900">{personalData.birthdate || 'Not specified'}</p>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Status
-                            </label>
-                            <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${personalData.status === 'active'
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-red-100 text-red-800'
-                                    }`}>
-                                    {personalData.status}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Address
-                            </label>
-                            <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                                <p className="text-gray-900">{personalData.homeAddress}, {personalData.city}, {personalData.stateProvince} {personalData.postalCode}</p>
+                            <div className="flex gap-4 mt-2">
+                                <label className="flex items-center">
+                                    <input type="radio" disabled checked={personalData.childStatus === 'Legitimate'} className="mr-2" />
+                                    <span className="text-sm">Legitimate</span>
+                                </label>
+                                <label className="flex items-center">
+                                    <input type="radio" disabled checked={personalData.childStatus === 'Biological'} className="mr-2" />
+                                    <span className="text-sm">Biological</span>
+                                </label>
+                                <label className="flex items-center">
+                                    <input type="radio" disabled checked={personalData.childStatus === 'Adopted'} className="mr-2" />
+                                    <span className="text-sm">Adopted</span>
+                                </label>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Guardian Information */}
-                <div className="border-t pt-6">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Guardian Information</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Guardian Name
-                            </label>
-                            <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                                <p className="text-gray-900">{personalData?.guardianName || 'Not specified'}</p>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Guardian Contact
-                            </label>
-                            <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                                <p className="text-gray-900">{personalData?.guardianContact || 'Not specified'}</p>
-                            </div>
-                        </div>
+                {/* Contact Information */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Landline Number
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Answer Here..."
+                            value={personalData.landlineNumber || 'Not specified'}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Mobile Number
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Answer Here..."
+                            value={personalData.mobileNumber || 'Not specified'}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            E-mail Address
+                        </label>
+                        <input
+                            type="email"
+                            placeholder="Answer Here..."
+                            value={personalData.emailAddress || 'Not specified'}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
                     </div>
                 </div>
+
+                {/* Home Address */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Home Address
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Answer Here..."
+                            value={personalData.homeAddress || 'Not specified'}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            City
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Answer Here..."
+                            value={personalData.city || 'Not specified'}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                    </div>
+                </div>
+
+                {/* Provincial Address */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Provincial Address
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Answer Here..."
+                            value={personalData.provincialAddress || 'Not specified'}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            City
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Answer Here..."
+                            value={personalData.city || 'Not specified'}
+                            disabled
+                            readOnly
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                    </div>
+                </div>
+                
+                <hr className="my-4" />
+
+                {/* Talents and Hobbies */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Talents/ Special Skills
+                        </label>
+                        <textarea
+                            placeholder="Answer Here..."
+                            value={personalData.talentsSpecialSkills || 'Not specified'}
+                            disabled
+                            readOnly
+                            rows={3}
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                        <div className="text-right text-xs text-gray-500 mt-1">150</div>
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Hobbies and interests
+                        </label>
+                        <textarea
+                            placeholder="Answer Here..."
+                            value={personalData.hobbiesInterests || 'Not specified'}
+                            disabled
+                            readOnly
+                            rows={3}
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
+                        />
+                        <div className="text-right text-xs text-gray-500 mt-1">150</div>
+                    </div>
+                </div>
+
+                <hr className="my-4" />
             </div>
         );
     };
