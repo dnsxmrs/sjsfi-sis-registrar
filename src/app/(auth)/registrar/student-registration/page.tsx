@@ -223,6 +223,9 @@ const RegisterCoursePage: React.FC = () => {
                                     <strong>Registration ID:</strong> {selectedRegistration?.studentNo}
                                 </p>
                                 <p className="text-sm text-gray-700">
+                                    <strong>Full Name:</strong> {selectedRegistration?.firstName} {selectedRegistration?.familyName}
+                                </p>
+                                <p className="text-sm text-gray-700">
                                     <strong>Grade Level:</strong> {selectedRegistration?.yearLevel?.name}
                                 </p>
                             </div>
@@ -267,7 +270,7 @@ const RegisterCoursePage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 p-6">
+        <div className="min-h-screen p-6 space-y-6 bg-gray-100">
             <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-6 md:gap-8">
                 <aside className="w-full md:w-56 space-y-4 flex-shrink-0 order-1 md:order-2">
                     <div className="bg-white rounded-lg shadow p-4 flex flex-col space-y-3">
@@ -434,7 +437,7 @@ const RegisterCoursePage: React.FC = () => {
                                         <div>
                                             <label className="block text-sm font-medium mb-1 text-black">Birthdate</label>
                                             <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100">
-                                                {new Date(selectedRegistration.birthdate).toLocaleDateString()}
+                                                {selectedRegistration.birthdate}
                                             </div>
                                         </div>
                                         <div>
@@ -600,13 +603,13 @@ const RegisterCoursePage: React.FC = () => {
                                         <div>
                                             <label className="block text-sm font-medium mb-1 text-black">Created At</label>
                                             <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100">
-                                                {new Date(selectedRegistration.createdAt).toLocaleString()}
+                                                {selectedRegistration.createdAt}
                                             </div>
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium mb-1 text-black">Last Updated</label>
                                             <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100">
-                                                {new Date(selectedRegistration.updatedAt).toLocaleString()}
+                                                {selectedRegistration.updatedAt}
                                             </div>
                                         </div>
                                     </div>
