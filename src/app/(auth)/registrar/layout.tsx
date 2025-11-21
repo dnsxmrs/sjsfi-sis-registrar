@@ -105,7 +105,7 @@ export default function RegistrarLayout({
     };
 
     return (
-        <div className="h-screen bg-gray-100 flex flex-col md:flex-row overflow-scroll">
+        <div className="h-screen bg-gray-100 flex flex-col md:flex-row overflow-hidden">
             {/* Mobile Top Bar */}
             <div className="md:hidden flex justify-between items-center bg-red-900 text-white px-4 py-3">
                 <Image
@@ -130,7 +130,7 @@ export default function RegistrarLayout({
             {/* Sidebar */}
             <aside
                 className={`fixed z-20 top-0 left-0 h-full w-30 bg-[#800000] text-white transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
-                    } transition-transform duration-300 ease-in-out md:static md:translate-x-0 md:flex md:flex-col md:w-30 md:h-screen`}
+                    } transition-transform duration-300 ease-in-out md:static md:translate-x-0 md:flex md:flex-col md:w-30 md:h-screen overflow-scroll`}
             >
                 <div className="flex flex-col h-full justify-between">
                     {/* Navigation */}
