@@ -65,6 +65,7 @@ export interface FormData {
         occupationalPositionHeld: string;
         employerCompany: string;
         companyAddress: string;
+        companyCity: string;
         businessTelephoneNumber: string;
         annualIncome: string;
         statusOfParent: string;
@@ -89,6 +90,7 @@ export interface FormData {
         occupationalPositionHeld: string;
         employerCompany: string;
         companyAddress: string;
+        companyCity: string;
         businessTelephoneNumber: string;
         annualIncome: string;
         statusOfParent: string;
