@@ -14,7 +14,8 @@ import {
     Scale,
     Shield,
     FileUser,
-    // ScrollText
+    ScrollText,
+    ChevronRight
 } from "lucide-react";
 import Image from "next/image";
 import { UserButton } from "@clerk/nextjs";
@@ -62,6 +63,54 @@ const NAVIGATION_ITEMS = [
     },
 ];
 
+const PATH_ITEMS = [
+    {
+        href: "/registrar/home",
+        label: "Dashboard",
+        icon: LayoutDashboard,
+    },
+    {
+        href: "/registrar/student-registration",
+        label: "Student Registration",
+        icon: PencilLine,
+    },
+    {
+        href: "/registrar/student-application",
+        label: "Student Application",
+        icon: FileUser,
+    },
+    {
+        href: "/registrar/student-information",
+        label: "Student Information",
+        icon: BookMarked,
+    },
+    {
+        href: "/registrar/code-management",
+        label: "Code Management",
+        icon: Newspaper,
+    },
+    {
+        href: "/registrar/student-information/",
+        label: "Withdraw Student",
+        icon: ScrollText,
+    },
+    {
+        href: "/registrar/policies",
+        label: "Policies",
+        icon: Scale,
+    },
+    {
+        href: "/registrar/system-logs",
+        label: "System Logs",
+        icon: Shield,
+    },
+    {
+        href: "/registrar/system-logs",
+        label: "System Logs",
+        icon: Shield,
+    },
+];
+
 export default function RegistrarLayout({
     children,
 }: {
@@ -99,9 +148,33 @@ export default function RegistrarLayout({
             })}`
         : "";
 
-        const getPageTitle = (path: string) => {
-        const navItem = NAVIGATION_ITEMS.find((item) => item.href === path);
-        return navItem ? navItem.label : "";
+    const getBreadcrumbs = (path: string) => {
+        // Handle dynamic routes with breadcrumbs
+        const segments = path.split('/').filter(Boolean);
+        const breadcrumbs = [];
+
+        // Check if we're in a student detail page
+        if (path.startsWith('/registrar/student-information/') && segments.length > 2) {
+            const studentNumber = segments[2];
+            breadcrumbs.push({
+                label: 'Student Information',
+                href: '/registrar/student-information',
+            });
+            breadcrumbs.push({
+                label: studentNumber,
+                href: path,
+                isActive: true,
+            });
+            return breadcrumbs;
+        }
+
+        // Default single page title
+        const navItem = PATH_ITEMS.find((item) => item.href === path);
+        if (navItem) {
+            return [{ label: navItem.label, href: path, isActive: true }];
+        }
+
+        return [{ label: '', href: path, isActive: true }];
     };
 
     return (
@@ -185,9 +258,28 @@ export default function RegistrarLayout({
                 {/* Top Bar */}
                 <header className="flex items-center justify-between bg-white shadow px-4 py-3 md:px-6 flex-shrink-0">
                     <div>
-                        <h1 className="text-xl font-semibold text-red-700">
-                            {getPageTitle(pathname)}
-                        </h1>
+                        {/* Breadcrumb Navigation */}
+                        <div className="flex items-center gap-2 mb-1">
+                            {getBreadcrumbs(pathname).map((crumb, index) => (
+                                <React.Fragment key={index}>
+                                    {index > 0 && (
+                                        <ChevronRight className="w-4 h-4 text-gray-400" />
+                                    )}
+                                    {crumb.isActive ? (
+                                        <h1 className="text-xl font-semibold text-red-700">
+                                            {crumb.label}
+                                        </h1>
+                                    ) : (
+                                        <Link
+                                            href={crumb.href}
+                                            className="text-xl font-semibold text-gray-600 hover:text-red-700 transition-colors"
+                                        >
+                                            {crumb.label}
+                                        </Link>
+                                    )}
+                                </React.Fragment>
+                            ))}
+                        </div>
                         <p className="text-sm text-gray-500" suppressHydrationWarning>
                             {formattedDateTime}
                         </p>

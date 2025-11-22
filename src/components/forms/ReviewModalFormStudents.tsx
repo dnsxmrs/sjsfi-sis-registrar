@@ -388,7 +388,7 @@ const ReviewModalFormStudents: React.FC<ReviewModalFormStudentsProps> = ({
                       <div><span className="font-medium">Birth Date:</span> {member.birthDate || "N/A"}</div>
                       <div><span className="font-medium">Age:</span> {member.age || "N/A"}</div>
                       <div><span className="font-medium">Grade/ Year Level:</span> {member.gradeYearLevel || "N/A"}</div>
-                      <div><span className="font-medium">School Employer:</span> {member.schoolEmployer || "N/A"}</div>
+                      <div><span className="font-medium">School/Employer:</span> {member.schoolEmployer || "N/A"}</div>
                     </div>
                   ))}
                 </div>

@@ -276,6 +276,7 @@ model FamilyBackground {
   companyCity           String?            @db.VarChar(100)
   businessNo            String?            @db.VarChar(50)
   annualIncome          Decimal?           @db.Decimal(12, 2)
+  relationToApplicant   String?            @db.VarChar(100)
   createdBy             Int
   createdAt             DateTime           @default(now())
   updatedAt             DateTime           @updatedAt
@@ -545,6 +546,7 @@ enum RequirementStatus {
   APPROVED
   REJECTED
   INCOMPLETE
+    ARCHIVED
 }
 
 enum FeedbackType {
@@ -561,6 +563,7 @@ enum ApplicationStatus {
   APPROVED
   REJECTED
   WAITLISTED
+  ARCHIVED
 }
 
 enum GuardianType {

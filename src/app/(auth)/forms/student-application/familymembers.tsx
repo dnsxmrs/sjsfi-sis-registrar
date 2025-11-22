@@ -149,7 +149,7 @@ export default function StudentFamilyMembersPage({ onBack, onNext }: StudentFami
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-black">School Employer:</label>
+                <label className="block text-sm font-medium mb-1 text-black">School/Employer:</label>
                 <input
                   type="text"
                   placeholder="Answer Here..."

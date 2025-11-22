@@ -55,6 +55,8 @@ const RegisterCoursePage: React.FC = () => {
         if (students.length > 0 && !selectedRegistration) {
             handleViewStudent(students[0].id);
         }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [students]);
 
@@ -130,7 +132,6 @@ const RegisterCoursePage: React.FC = () => {
 
                 // Refresh the students list
                 studentsList();
-
             } else {
                 toast.error(`Failed to generate registration code: ${result.error || 'Unknown error occurred'}`);
             }
@@ -140,6 +141,8 @@ const RegisterCoursePage: React.FC = () => {
         } finally {
             setIsApproving(false);
             setSelectedRegistration(null);
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
 
@@ -167,15 +170,11 @@ const RegisterCoursePage: React.FC = () => {
             if (result.success) {
                 toast.success(`Registration rejected for ${selectedRegistration?.firstName} ${selectedRegistration?.familyName}`);
 
-                // Refresh the students list
-                const refreshResult = await getStudentTableData();
-                if (refreshResult.success) {
-                    setStudents(refreshResult.students);
-                }
-
+                studentsList();
                 // Clear selection
                 setSelectedRegistration(null);
                 setSelectedRegistrationId(null);
+
             } else {
                 toast.error(`Failed to reject registration: ${result.error || 'Unknown error occurred'}`);
             }
@@ -184,6 +183,8 @@ const RegisterCoursePage: React.FC = () => {
             toast.error('An error occurred while rejecting the registration. Please try again.');
         } finally {
             setIsRejecting(false);
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
 
