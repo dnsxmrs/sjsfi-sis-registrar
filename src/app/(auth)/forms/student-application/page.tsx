@@ -11,9 +11,6 @@ import GuardianBackgroundPage from "./guardianbackground";
 import StudentFamilyMembersPage from "./familymembers";
 import StudentEducationalBackgroundPage from "./educationalbackground";
 import StudentTransfereePage from "./transferee";
-import MedicalHistoryPage1 from "../Forms-medical/medicalhistoryP1";
-import MedicalHistoryPage2 from "../Forms-medical/medicalhistoryP2";
-import Agreement from "./agreement";
 import { validateApplicationCodeURL } from "../_actions/code";
 
 export default function StudentApplicationPagedForm() {
@@ -254,34 +251,10 @@ export default function StudentApplicationPagedForm() {
   }
 
 
-  if (page === 11) {
-    return (
-      <FormDataContext.Provider value={{ formData, updateFormData }}>
-        <Agreement onBack={() => setPage(10)} />
-      </FormDataContext.Provider>
-    );
-  }
-
-  if (page === 10) {
-    return (
-      <FormDataContext.Provider value={{ formData, updateFormData }}>
-        <MedicalHistoryPage2 onBack={() => setPage(9)} onNext={() => setPage(11)} />
-      </FormDataContext.Provider>
-    );
-  }
-
-  if (page === 9) {
-    return (
-      <FormDataContext.Provider value={{ formData, updateFormData }}>
-        <MedicalHistoryPage1 onBack={() => setPage(8)} onNext={() => setPage(10)} />
-      </FormDataContext.Provider>
-    );
-  }
-
   if (page === 8) {
     return (
       <FormDataContext.Provider value={{ formData, updateFormData }}>
-        <StudentTransfereePage onBack={() => setPage(7)} onNext={() => setPage(9)} />
+        <StudentTransfereePage onBack={() => setPage(7)} />
       </FormDataContext.Provider>
     );
   }

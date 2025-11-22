@@ -269,8 +269,8 @@ export default function MotherBackgroundPage({ onBack, onNext }: MotherBackgroun
               type="text"
               placeholder="Answer Here..."
               className="border border-gray-300 rounded px-2 py-1 w-full text-black"
-              value={motherBackground.city}//palitan toh
-              onChange={(e) => handleInputChange('city', e.target.value)}
+              value={motherBackground.companyCity}
+              onChange={(e) => handleInputChange('companyCity', e.target.value)}
             />
           </div>
           <div>

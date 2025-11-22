@@ -13,7 +13,7 @@ import {
     type StudentSibling,
     type StudentRequirement,
 } from '@/app/_actions/getStudentByNumber';
-import { saveStudentEdit } from '@/app/_actions/getStudents';
+import { saveStudentEdit, archiveStudent } from '@/app/_actions/getStudents';
 
 interface PageProps {
     params: Promise<{
@@ -184,10 +184,15 @@ export default function StudentDetailPage({ params }: PageProps) {
         
         if (confirmed) {
             try {
-                // TODO: Implement archive student API call
-                console.log('Archiving student:', studentNumber);
-                // After successful archive, redirect back to students list
-                // router.push('/registrar/student-information');
+                const result = await archiveStudent(studentNumber);
+                
+                if (result.success) {
+                    alert('Student archived successfully!');
+                    // Redirect back to students list
+                    router.push('/registrar/student-information');
+                } else {
+                    alert(`Failed to archive student: ${result.error}`);
+                }
             } catch (error) {
                 console.error('Error archiving student:', error);
                 alert('Failed to archive student. Please try again.');

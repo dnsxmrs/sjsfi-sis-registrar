@@ -4,10 +4,9 @@ import ReviewModalFormStudents from "@/components/forms/ReviewModalFormStudents"
 
 interface StudentTransfereeProps {
   onBack?: () => void;
-  onNext?: () => void;
 }
 
-export default function StudentTransfereePage({ onBack, onNext }: StudentTransfereeProps) {
+export default function StudentTransfereePage({ onBack }: StudentTransfereeProps) {
   const { formData, updateFormData } = useFormData();
   const { transferee } = formData;
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -173,18 +172,11 @@ export default function StudentTransfereePage({ onBack, onNext }: StudentTransfe
 
       {/* Next Page Button */}
       <div className="w-full flex justify-end mt-8 space-x-4">
-        {/* <button
+        <button
           className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700"
           onClick={() => setShowReviewModal(true)}
         >
           Review & Submit Application
-        </button> */}
-        {/* Temporary button to access Medical History Page */}
-        <button
-          className="bg-red-800 text-white px-6 py-2 rounded-md shadow hover:bg-[#7a0000] transition"
-          onClick={onNext}
-        >
-          Go to Medical History
         </button>
       </div>
 

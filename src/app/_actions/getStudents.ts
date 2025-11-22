@@ -473,3 +473,70 @@ export async function saveStudentEdit(data: {
         };
     }
 }
+
+export async function archiveStudent(applicationNumber: string) {
+    let logError: string | undefined = undefined;
+    try {
+        console.log("Archiving student application:", applicationNumber);
+
+        // Find the student application by application number
+        const studentApplication = await prisma.studentApplication.findUnique({
+            where: {
+                applicationNumber: applicationNumber,
+            },
+        });
+
+        if (!studentApplication) {
+            return {
+                success: false,
+                error: 'Student application not found',
+            };
+        }
+
+        // Update the status to ARCHIVED
+        await prisma.studentApplication.update({
+            where: {
+                applicationNumber: applicationNumber,
+            },
+            data: {
+                status: 'ARCHIVED',
+            },
+        });
+
+        await logSystemAction({
+            actionCategory: 'ACADEMIC',
+            actionType: 'UPDATE',
+            actionDescription: `Archived student application ${applicationNumber}`,
+            targetType: 'StudentApplication',
+            targetId: studentApplication.id.toString(),
+            targetName: `${studentApplication.firstName} ${studentApplication.familyName}`,
+            status: 'SUCCESS',
+            severityLevel: 'MEDIUM',
+        });
+
+        console.log("Student application archived successfully");
+        return {
+            success: true,
+            message: 'Student application archived successfully',
+        };
+    } catch (error) {
+        logError = 'Failed to archive student application';
+        console.error("Error archiving student application:", error);
+
+        await logSystemAction({
+            actionCategory: 'ACADEMIC',
+            actionType: 'UPDATE',
+            actionDescription: `Failed to archive student application ${applicationNumber}`,
+            targetType: 'StudentApplication',
+            targetId: applicationNumber,
+            status: 'FAILED',
+            errorMessage: error instanceof Error ? error.message : logError,
+            severityLevel: 'HIGH',
+        });
+
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : logError,
+        };
+    }
+}

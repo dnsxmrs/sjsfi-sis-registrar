@@ -2,8 +2,8 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Eye, Edit, Archive, Search, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react';
-import { getAllApprovedStudentApplications } from '@/app/_actions/getStudents';
+import { Eye, Archive, Search, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { getAllApprovedStudentApplications, archiveStudent } from '@/app/_actions/getStudents';
 
 
 type SortField = 'studentNumber' | 'name' | 'schoolYear' | 'gradeLevel';
@@ -187,14 +187,22 @@ export default function StudentInformationPage() {
         router.push(`/registrar/student-information/${encodeURIComponent(applicationNumber)}`);
     };
 
-    const handleEditStudent = (studentId: string) => {
-        console.log('Edit student:', studentId);
-        // TODO: Implement edit student functionality
-    };
+    const handleArchiveStudent = async (applicationNumber: string) => {
+        if (!confirm('Are you sure you want to archive this student? This action can be reversed later.')) {
+            return;
+        }
 
-    const handleArchiveStudent = (studentId: string) => {
-        console.log('Archive student:', studentId);
-        // TODO: Implement archive student functionality
+        const result = await archiveStudent(applicationNumber);
+        if (result.success) {
+            // Refresh the students list
+            const response = await getAllApprovedStudentApplications();
+            if (response && response.success && Array.isArray(response.applications)) {
+                setStudents(response.applications);
+            }
+            alert('Student archived successfully');
+        } else {
+            alert(`Failed to archive student: ${result.error}`);
+        }
     };
 
     return (
@@ -338,15 +346,15 @@ export default function StudentInformationPage() {
                                                     <Eye className="w-4 h-4" />
                                                     <span>View</span>
                                                 </button>
-                                                <button
+                                                {/* <button
                                                     onClick={() => handleEditStudent(student.id)}
                                                     className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
                                                 >
                                                     <Edit className="w-4 h-4" />
                                                     <span>Edit</span>
-                                                </button>
+                                                </button> */}
                                                 <button
-                                                    onClick={() => handleArchiveStudent(student.id)}
+                                                    onClick={() => handleArchiveStudent(student.applicationNumber)}
                                                     className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm font-medium text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
                                                 >
                                                     <Archive className="w-4 h-4" />
@@ -438,16 +446,16 @@ export default function StudentInformationPage() {
                                                         <Eye className="w-4 h-4" />
                                                         <span>View</span>
                                                     </button>
-                                                    <button
+                                                    {/* <button
                                                         onClick={() => handleEditStudent(student.id)}
                                                         className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
                                                         title="Edit Student"
                                                     >
                                                         <Edit className="w-4 h-4" />
                                                         <span>Edit</span>
-                                                    </button>
+                                                    </button> */}
                                                     <button
-                                                        onClick={() => handleArchiveStudent(student.id)}
+                                                        onClick={() => handleArchiveStudent(student.applicationNumber)}
                                                         className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
                                                         title="Archive Student"
                                                     >
