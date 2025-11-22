@@ -439,7 +439,7 @@ export async function saveStudentEdit(data: {
         }
 
         await logSystemAction({
-            actionCategory: 'STUDENT',
+            actionCategory: 'ACADEMIC',
             actionType: 'UPDATE',
             actionDescription: `Updated student information for ${data.studentNumber}`,
             targetType: 'StudentApplication',
@@ -457,7 +457,7 @@ export async function saveStudentEdit(data: {
         console.error('Error saving student edit:', error);
 
         await logSystemAction({
-            actionCategory: 'STUDENT',
+            actionCategory: 'ACADEMIC',
             actionType: 'UPDATE',
             actionDescription: `Failed to update student information for ${data.studentNumber}`,
             targetType: 'StudentApplication',
