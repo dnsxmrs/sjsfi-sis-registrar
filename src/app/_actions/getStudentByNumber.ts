@@ -176,7 +176,7 @@ export async function getStudentByNumber(studentNumber: string): Promise<Student
             },
         });
 
-        // console.log(studentApplication)
+        console.log(studentApplication)
 
         if (!studentApplication) {
             return null;
@@ -269,7 +269,7 @@ export async function getStudentByNumber(studentNumber: string): Promise<Student
 
         // Build educational background data
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const educBg = (studentApplication.educationalBackground as any)?.[0];
+        const educBg = studentApplication.educationalBackground as any;
         const educationalBackground: StudentEducationalBackground | null =
             educBg
             ? {
@@ -292,7 +292,7 @@ export async function getStudentByNumber(studentNumber: string): Promise<Student
         // Build transferee background data
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const transfereeData = studentApplication.transferee as any;
-        const transfereeBackground: StudentTransfereeBackground | null = 
+        const transfereeBackground: StudentTransfereeBackground | null =
             transfereeData
             ? {
                 id: transfereeData.id,

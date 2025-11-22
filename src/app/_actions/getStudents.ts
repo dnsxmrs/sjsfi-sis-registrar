@@ -2,6 +2,14 @@
 
 import { prisma } from "@/lib/prisma";
 import { logSystemAction } from "@/lib/systemLogger";
+import type { 
+    StudentPersonalData, 
+    StudentHealthData, 
+    StudentFamilyBackground,
+    StudentEducationalBackground,
+    StudentTransfereeBackground,
+    StudentSibling 
+} from './getStudentByNumber';
 
 export async function getStudents() {
     let logError: string | undefined = undefined;
@@ -221,7 +229,6 @@ export async function getApproveRegistrations() {
     }
 }
 
-
 export async function getAllPendingStudentApplications() {
     let logError: string | undefined = undefined;
     try {
@@ -247,6 +254,222 @@ export async function getAllPendingStudentApplications() {
             success: false,
             applications: [],
             error: logError,
+        };
+    }
+}
+
+export async function getAllApprovedStudentApplications() {
+    let logError: string | undefined = undefined;
+    try {
+        console.log("Fetching approved student applications from database...");
+        const applications = await prisma.studentApplication.findMany({
+            where: {
+                status: 'APPROVED',
+                deletedAt: null,
+            },
+            select: {
+                id: true,
+                applicationNumber: true,
+                firstName: true,
+                middleName: true,
+                familyName: true,
+                createdAt: true,
+                yearLevel: {
+                    select: {
+                        name: true,
+                    },
+                },
+                academicYear: {
+                    select: {
+                        year: true,
+                    },
+                },
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+
+        console.log("Approved student applications fetched successfully:", applications.length);
+        return {
+            success: true,
+            applications,
+        };
+    } catch (error) {
+        logError = 'Failed to fetch approved student applications';
+        console.error("Error fetching approved student applications:", error);
+        return {
+            success: false,
+            applications: [],
+            error: logError,
+        };
+    }
+}
+
+export async function saveStudentEdit(data: {
+    studentNumber: string;
+    personalData: StudentPersonalData | null;
+    healthData: StudentHealthData | null;
+    familyData: StudentFamilyBackground[];
+    educationalData: StudentEducationalBackground | null;
+    transfereeData: StudentTransfereeBackground | null;
+    siblingsData: StudentSibling[];
+}) {
+    let logError: string | undefined = undefined;
+    try {
+        console.log('Saving student data:', data);
+
+        // Find the student application by application number
+        const studentApplication = await prisma.studentApplication.findUnique({
+            where: {
+                applicationNumber: data.studentNumber,
+            },
+        });
+
+        if (!studentApplication) {
+            throw new Error('Student not found');
+        }
+
+        // Update personal data
+        if (data.personalData) {
+            await prisma.studentApplication.update({
+                where: { id: studentApplication.id },
+                data: {
+                    familyName: data.personalData.familyName,
+                    firstName: data.personalData.firstName,
+                    middleName: data.personalData.middleName,
+                    nickName: data.personalData.nickname,
+                    placeOfBirth: data.personalData.placeOfBirth,
+                    age: data.personalData.age ? parseInt(data.personalData.age) : undefined,
+                    birthOrder: data.personalData.birthOrder ? parseInt(data.personalData.birthOrder) : undefined,
+                    numberOfSiblings: data.personalData.numberOfSiblings ? parseInt(data.personalData.numberOfSiblings) : undefined,
+                    nationality: data.personalData.nationality,
+                    religion: data.personalData.religion,
+                    heightCm: data.personalData.height ? parseFloat(data.personalData.height) : undefined,
+                    weightKg: data.personalData.weight ? parseFloat(data.personalData.weight) : undefined,
+                    bloodType: data.personalData.bloodType,
+                    languagesSpokenAtHome: data.personalData.language,
+                    landlineNumber: data.personalData.landlineNumber,
+                    mobileNumber: data.personalData.mobileNumber,
+                    hobbiesInterests: data.personalData.hobbiesInterests,
+                    talents: data.personalData.talentsSpecialSkills,
+                    childStatus: data.personalData.childStatus,
+                    provincialAddress: data.personalData.provincialAddress,
+                    provincialCity: data.personalData.provincialCity,
+                    provincialStateProvince: data.personalData.stateProvince,
+                    provincialPostalCode: data.personalData.postalCode,
+                    emailAddress: data.personalData.emailAddress,
+                    homeAddress: data.personalData.homeAddress,
+                    city: data.personalData.city,
+                    stateProvince: data.personalData.stateProvince,
+                    postalCode: data.personalData.postalCode,
+                    birthdate: data.personalData.birthdate ? new Date(data.personalData.birthdate) : undefined,
+                },
+            });
+        }
+
+        // Update health data
+        if (data.healthData) {
+            await prisma.healthHistory.updateMany({
+                where: { studentApplicationId: studentApplication.id },
+                data: {
+                    allergies: data.healthData.allergies,
+                    childhoodDiseases: data.healthData.childhoodDiseases,
+                    otherMedicalConditions: data.healthData.medicalConditions,
+                    immunizations: data.healthData.immunizations,
+                    specificHandicaps: data.healthData.physicalHandicap,
+                },
+            });
+        }
+
+        // Update family backgrounds
+        if (data.familyData && data.familyData.length > 0) {
+            for (const family of data.familyData) {
+                if (family.id) {
+                    await prisma.familyBackground.update({
+                        where: { id: family.id },
+                        data: {
+                            familyName: family.familyName,
+                            firstName: family.firstName,
+                            middleName: family.middleName,
+                            birthdate: new Date(family.birthDate),
+                            placeOfBirth: family.placeOfBirth,
+                            age: parseInt(family.age),
+                            nationality: family.nationality,
+                            religion: family.religion,
+                            landLine: family.landlineNumber,
+                            mobileNo: family.mobileNumber,
+                            emailAddress: family.email,
+                            homeAddress: family.homeAddress,
+                            city: family.city,
+                            stateProvince: family.stateProvince,
+                            postalCode: family.zipCode,
+                            educationalAttainment: family.education,
+                            occupation: family.occupation,
+                            employer: family.company,
+                            companyAddress: family.companyAddress,
+                            companyCity: family.companyCity,
+                            businessNo: family.businessNumber,
+                            annualIncome: family.annualIncome,
+                            parentStatus: family.statusOfParent,
+                        },
+                    });
+                }
+            }
+        }
+
+        // Update siblings
+        if (data.siblingsData && data.siblingsData.length > 0) {
+            for (const sibling of data.siblingsData) {
+                if (sibling.id) {
+                    await prisma.siblings.update({
+                        where: { id: sibling.id },
+                        data: {
+                            familyName: sibling.familyName,
+                            firstName: sibling.firstName,
+                            middleName: sibling.middleName,
+                            birthDate: new Date(sibling.birthDate),
+                            age: parseInt(sibling.age.toString()) || 0,
+                            gradeYearLevel: sibling.gradeYearLevel,
+                            schoolEmployer: sibling.schoolEmployer,
+                        },
+                    });
+                }
+            }
+        }
+
+        await logSystemAction({
+            actionCategory: 'STUDENT',
+            actionType: 'UPDATE',
+            actionDescription: `Updated student information for ${data.studentNumber}`,
+            targetType: 'StudentApplication',
+            targetId: studentApplication.id.toString(),
+            status: 'SUCCESS',
+            severityLevel: 'MEDIUM',
+        });
+
+        return {
+            success: true,
+            message: 'Student information updated successfully',
+        };
+    } catch (error) {
+        logError = 'Failed to save student edit';
+        console.error('Error saving student edit:', error);
+
+        await logSystemAction({
+            actionCategory: 'STUDENT',
+            actionType: 'UPDATE',
+            actionDescription: `Failed to update student information for ${data.studentNumber}`,
+            targetType: 'StudentApplication',
+            targetId: data.studentNumber,
+            status: 'FAILED',
+            errorMessage: error instanceof Error ? error.message : logError,
+            severityLevel: 'HIGH',
+        });
+
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : logError,
         };
     }
 }

@@ -13,6 +13,7 @@ import {
     type StudentSibling,
     type StudentRequirement,
 } from '@/app/_actions/getStudentByNumber';
+import { saveStudentEdit } from '@/app/_actions/getStudents';
 
 interface PageProps {
     params: Promise<{
@@ -40,7 +41,7 @@ export default function StudentDetailPage({ params }: PageProps) {
         const fetchStudentData = async () => {
             setIsLoading(true);
             const data = await getStudentByNumber(studentNumber);
-            // console.log(data)
+            console.log(data)
 
             if (data) {
                 setPersonalData(data.personalData);
@@ -84,20 +85,33 @@ export default function StudentDetailPage({ params }: PageProps) {
     const handleSaveStudent = async () => {
         setIsSaving(true);
         try {
-            // TODO: Implement save student API call
-            console.log('Saving student data:', {
+            const result = await saveStudentEdit({
+                studentNumber,
                 personalData,
                 healthData,
                 familyData,
                 educationalData,
                 transfereeData,
                 siblingsData,
-                requirementsData
             });
-            
-            // After successful save
-            alert('Student information updated successfully!');
-            setIsEditMode(false);
+
+            if (result.success) {
+                alert('Student information updated successfully!');
+                setIsEditMode(false);
+                // Refetch data to show updated values
+                const data = await getStudentByNumber(studentNumber);
+                if (data) {
+                    setPersonalData(data.personalData);
+                    setHealthData(data.healthData);
+                    setFamilyData(data.familyBackground);
+                    setEducationalData(data.educationalBackground);
+                    setTransfereeData(data.transfereeBackground);
+                    setSiblingsData(data.siblings);
+                    setRequirementsData(data.requirements);
+                }
+            } else {
+                alert(`Failed to save: ${result.error}`);
+            }
         } catch (error) {
             console.error('Error saving student:', error);
             alert('Failed to save student information. Please try again.');
@@ -108,6 +122,59 @@ export default function StudentDetailPage({ params }: PageProps) {
 
     const updatePersonalData = (field: keyof StudentPersonalData, value: string) => {
         setPersonalData(prev => prev ? { ...prev, [field]: value } : null);
+    };
+
+    const updateHealthData = (field: keyof StudentHealthData, value: string | null) => {
+        setHealthData(prev => prev ? { ...prev, [field]: value } : null);
+    };
+
+    const updateFamilyData = (index: number, field: keyof StudentFamilyBackground, value: string) => {
+        setFamilyData(prev => {
+            const updated = [...prev];
+            updated[index] = { ...updated[index], [field]: value };
+            return updated;
+        });
+    };
+
+    const updateSiblingData = (index: number, field: keyof StudentSibling, value: string) => {
+        setSiblingsData(prev => {
+            const updated = [...prev];
+            updated[index] = { ...updated[index], [field]: value };
+            return updated;
+        });
+    };
+
+    const updateEducationalData = (field: keyof StudentEducationalBackground, value: string | string[] | number | null) => {
+        setEducationalData(prev => prev ? { ...prev, [field]: value } : null);
+    };
+
+    const updateTransfereeData = (field: string, value: string | null) => {
+        setTransfereeData(prev => {
+            if (!prev) return null;
+            
+            // Handle nested fields for presentSchool and previousSchool
+            if (field.startsWith('presentSchool.')) {
+                const schoolField = field.split('.')[1];
+                return {
+                    ...prev,
+                    presentSchool: prev.presentSchool ? {
+                        ...prev.presentSchool,
+                        [schoolField]: value
+                    } : null
+                };
+            } else if (field.startsWith('previousSchool.')) {
+                const schoolField = field.split('.')[1];
+                return {
+                    ...prev,
+                    previousSchool: prev.previousSchool ? {
+                        ...prev.previousSchool,
+                        [schoolField]: value
+                    } : null
+                };
+            }
+            
+            return { ...prev, [field]: value };
+        });
     };
 
     const handleArchiveStudent = async () => {
@@ -163,9 +230,13 @@ export default function StudentDetailPage({ params }: PageProps) {
     }
 
     // Extract family members by guardian type
-    const father = familyData.find((family) => family.guardianType === 'FATHER');
-    const mother = familyData.find((family) => family.guardianType === 'MOTHER');
-    const guardian = familyData.find((family) => family.guardianType === 'GUARDIAN');
+    const fatherIndex = familyData.findIndex((family) => family.guardianType === 'FATHER');
+    const motherIndex = familyData.findIndex((family) => family.guardianType === 'MOTHER');
+    const guardianIndex = familyData.findIndex((family) => family.guardianType === 'GUARDIAN');
+    
+    const father = fatherIndex >= 0 ? familyData[fatherIndex] : null;
+    const mother = motherIndex >= 0 ? familyData[motherIndex] : null;
+    const guardian = guardianIndex >= 0 ? familyData[guardianIndex] : null;
 
     return (
         <div className="p-4 sm:p-6 space-y-6">
@@ -310,7 +381,7 @@ export default function StudentDetailPage({ params }: PageProps) {
                 <div className="bg-white rounded-lg shadow-md p-6">
                     <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center gap-2">
                         <User className="w-5 h-5" />
-                        Personal Information
+                        Personal Data
                     </h3>
                     <div className="space-y-6">
                         {/* Academic Year and Admission */}
@@ -775,45 +846,70 @@ export default function StudentDetailPage({ params }: PageProps) {
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Childhood Diseases
                                     </label>
-                                    <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                                        <p className="text-gray-900">{healthData.childhoodDiseases || 'Not specified'}</p>
-                                    </div>
+                                    <textarea
+                                        value={healthData.childhoodDiseases || ''}
+                                        disabled={!isEditMode}
+                                        readOnly={!isEditMode}
+                                        onChange={(e) => updateHealthData('childhoodDiseases', e.target.value)}
+                                        rows={3}
+                                        className={`w-full border border-gray-300 rounded px-3 py-2 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                    />
                                 </div>
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Allergies
                                     </label>
-                                    <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                                        <p className="text-gray-900">{healthData.allergies}</p>
-                                    </div>
+                                    <textarea
+                                        value={healthData.allergies || ''}
+                                        disabled={!isEditMode}
+                                        readOnly={!isEditMode}
+                                        onChange={(e) => updateHealthData('allergies', e.target.value)}
+                                        rows={3}
+                                        className={`w-full border border-gray-300 rounded px-3 py-2 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                    />
                                 </div>
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Other Medical Conditions
                                     </label>
-                                    <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                                        <p className="text-gray-900">{healthData.medicalConditions}</p>
-                                    </div>
+                                    <textarea
+                                        value={healthData.medicalConditions || ''}
+                                        disabled={!isEditMode}
+                                        readOnly={!isEditMode}
+                                        onChange={(e) => updateHealthData('medicalConditions', e.target.value)}
+                                        rows={3}
+                                        className={`w-full border border-gray-300 rounded px-3 py-2 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                    />
                                 </div>
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Immunizations
                                     </label>
-                                    <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                                        <p className="text-gray-900">{healthData.immunizations}</p>
-                                    </div>
+                                    <textarea
+                                        value={healthData.immunizations || ''}
+                                        disabled={!isEditMode}
+                                        readOnly={!isEditMode}
+                                        onChange={(e) => updateHealthData('immunizations', e.target.value)}
+                                        rows={3}
+                                        className={`w-full border border-gray-300 rounded px-3 py-2 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                    />
                                 </div>
 
                                 <div className="md:col-span-2">
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Physical Handicaps/ Special Needs
                                     </label>
-                                    <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                                        <p className="text-gray-900">{healthData.physicalHandicap}</p>
-                                    </div>
+                                    <textarea
+                                        value={healthData.physicalHandicap || ''}
+                                        disabled={!isEditMode}
+                                        readOnly={!isEditMode}
+                                        onChange={(e) => updateHealthData('physicalHandicap', e.target.value)}
+                                        rows={3}
+                                        className={`w-full border border-gray-300 rounded px-3 py-2 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -842,9 +938,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Family Name"
                                                 value={father.familyName}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(fatherIndex, 'familyName', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 flex-grow w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -853,9 +950,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="First Name"
                                                 value={father.firstName}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(fatherIndex, 'firstName', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 flex-grow w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -864,9 +962,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Middle Name"
                                                 value={father.middleName ?? ''}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(fatherIndex, 'middleName', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 flex-grow w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                     </div>
@@ -878,9 +977,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Birth Date"
                                                 value={father.birthDate}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(fatherIndex, 'birthDate', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 flex-grow w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div className="md:col-span-2">
@@ -889,9 +989,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Place of Birth"
                                                 value={father.placeOfBirth}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                className={`border border-gray-300 rounded px-2 py-1 flex-grow w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                onChange={(e) => updateFamilyData(fatherIndex, 'placeOfBirth', e.target.value)}
                                             />
                                         </div>
                                         <div>
@@ -900,9 +1001,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Age"
                                                 value={father.age}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                className={`border border-gray-300 rounded px-2 py-1 flex-grow w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                onChange={(e) => updateFamilyData(fatherIndex, 'age', e.target.value)}
                                             />
                                         </div>
                                         <div>
@@ -911,9 +1013,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Nationality"
                                                 value={father.nationality}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                className={`border border-gray-300 rounded px-2 py-1 flex-grow w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                onChange={(e) => updateFamilyData(fatherIndex, 'nationality', e.target.value)}
                                             />
                                         </div>
                                         <div>
@@ -922,9 +1025,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Religion"
                                                 value={father.religion}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                className={`border border-gray-300 rounded px-2 py-1 flex-grow w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                onChange={(e) => updateFamilyData(fatherIndex, 'religion', e.target.value)}
                                             />
                                         </div>
                                     </div>
@@ -936,9 +1040,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Landline Number"
                                                 value={father.landlineNumber ?? ''}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                className={`border border-gray-300 rounded px-2 py-1 flex-grow w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                onChange={(e) => updateFamilyData(fatherIndex, 'landlineNumber', e.target.value)}
                                             />
                                         </div>
                                         <div>
@@ -947,9 +1052,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Mobile Number"
                                                 value={father.mobileNumber}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                className={`border border-gray-300 rounded px-2 py-1 flex-grow w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                onChange={(e) => updateFamilyData(fatherIndex, 'mobileNumber', e.target.value)}
                                             />
                                         </div>
                                         <div>
@@ -958,9 +1064,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="email"
                                                 placeholder="E-mail Address"
                                                 value={father.email}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                className={`border border-gray-300 rounded px-2 py-1 flex-grow w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                onChange={(e) => updateFamilyData(fatherIndex, 'email', e.target.value)}
                                             />
                                         </div>
                                     </div>
@@ -972,9 +1079,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Home Address"
                                                 value={father.homeAddress}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                className={`border border-gray-300 rounded px-2 py-1 flex-grow w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                onChange={(e) => updateFamilyData(fatherIndex, 'homeAddress', e.target.value)}
                                             />
                                         </div>
                                         <div>
@@ -983,9 +1091,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="City"
                                                 value={father.city}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                className={`border border-gray-300 rounded px-2 py-1 flex-grow w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                onChange={(e) => updateFamilyData(fatherIndex, 'city', e.target.value)}
                                             />
                                         </div>
                                         <div>
@@ -994,9 +1103,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="State / Province"
                                                 value={father.stateProvince}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                className={`border border-gray-300 rounded px-2 py-1 flex-grow w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                onChange={(e) => updateFamilyData(fatherIndex, 'stateProvince', e.target.value)}
                                             />
                                         </div>
                                         <div>
@@ -1005,9 +1115,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Zip / Postal Code"
                                                 value={father.zipCode}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                className={`border border-gray-300 rounded px-2 py-1 flex-grow w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                onChange={(e) => updateFamilyData(fatherIndex, 'zipCode', e.target.value)}
                                             />
                                         </div>
                                     </div>
@@ -1019,9 +1130,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Educational Attainment / Course"
                                                 value={father.education}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                className={`border border-gray-300 rounded px-2 py-1 flex-grow w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                onChange={(e) => updateFamilyData(fatherIndex, 'education', e.target.value)}
                                             />
                                         </div>
                                         <div>
@@ -1030,9 +1142,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Occupational / Position Held"
                                                 value={father.occupation}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                className={`border border-gray-300 rounded px-2 py-1 flex-grow w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                onChange={(e) => updateFamilyData(fatherIndex, 'occupation', e.target.value)}
                                             />
                                         </div>
                                         <div>
@@ -1041,9 +1154,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Employer / Company"
                                                 value={father.company ?? ''}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                className={`border border-gray-300 rounded px-2 py-1 flex-grow w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                onChange={(e) => updateFamilyData(fatherIndex, 'company', e.target.value)}
                                             />
                                         </div>
                                     </div>
@@ -1055,9 +1169,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Company Address"
                                                 value={father.companyAddress ?? ''}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                className={`border border-gray-300 rounded px-2 py-1 flex-grow w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                onChange={(e) => updateFamilyData(fatherIndex, 'companyAddress', e.target.value)}
                                             />
                                         </div>
                                         <div>
@@ -1066,9 +1181,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="City"
                                                 value={father.companyCity ?? ''}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                className={`border border-gray-300 rounded px-2 py-1 flex-grow w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                onChange={(e) => updateFamilyData(fatherIndex, 'companyCity', e.target.value)}
                                             />
                                         </div>
                                         <div>
@@ -1077,9 +1193,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Business Telephone Number"
                                                 value={father.businessNumber ?? ''}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                className={`border border-gray-300 rounded px-2 py-1 flex-grow w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                onChange={(e) => updateFamilyData(fatherIndex, 'businessNumber', e.target.value)}
                                             />
                                         </div>
                                         <div>
@@ -1088,9 +1205,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Annual Income"
                                                 value={father.annualIncome ?? ''}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                className={`border border-gray-300 rounded px-2 py-1 flex-grow w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                onChange={(e) => updateFamilyData(fatherIndex, 'annualIncome', e.target.value)}
                                             />
                                         </div>
                                     </div>
@@ -1106,7 +1224,11 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 { label: "Widowed, Remarried", value: "WIDOWED_REMARRIED" },
                                                 { label: "Others: _______", value: "OTHERS" },
                                             ].map((status) => (
-                                                <div key={status.value} className="inline-flex items-center">
+                                                <div
+                                                    key={status.value}
+                                                    className={`inline-flex items-center ${isEditMode ? 'cursor-pointer' : ''}`}
+                                                    onClick={() => isEditMode && updateFamilyData(fatherIndex, 'statusOfParent', status.value)}
+                                                >
                                                     <div
                                                         className={`w-4 h-4 border border-gray-400 rounded-full mr-2 ${father.statusOfParent === status.value ? "bg-gray-800" : ""
                                                             }`}
@@ -1134,9 +1256,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Family Name"
                                                 value={mother.familyName}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(motherIndex, 'familyName', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1145,9 +1268,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="First Name"
                                                 value={mother.firstName}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(motherIndex, 'firstName', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1156,9 +1280,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Middle Name"
                                                 value={mother.middleName ?? ''}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(motherIndex, 'middleName', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                     </div>
@@ -1170,9 +1295,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Birth Date"
                                                 value={mother.birthDate}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(motherIndex, 'birthDate', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div className="md:col-span-2">
@@ -1181,9 +1307,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Place of Birth"
                                                 value={mother.placeOfBirth}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(motherIndex, 'placeOfBirth', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1192,9 +1319,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Age"
                                                 value={mother.age}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(motherIndex, 'age', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1203,9 +1331,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Nationality"
                                                 value={mother.nationality}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(motherIndex, 'nationality', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1214,9 +1343,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Religion"
                                                 value={mother.religion}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(motherIndex, 'religion', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                     </div>
@@ -1228,9 +1358,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Landline Number"
                                                 value={mother.landlineNumber ?? ''}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(motherIndex, 'landlineNumber', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1239,9 +1370,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Mobile Number"
                                                 value={mother.mobileNumber}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(motherIndex, 'mobileNumber', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1250,9 +1382,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="email"
                                                 placeholder="E-mail Address"
                                                 value={mother.email}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(motherIndex, 'email', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                     </div>
@@ -1264,9 +1397,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Home Address"
                                                 value={mother.homeAddress}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(motherIndex, 'homeAddress', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1275,9 +1409,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="City"
                                                 value={mother.city}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(motherIndex, 'city', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1286,9 +1421,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="State / Province"
                                                 value={mother.stateProvince}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(motherIndex, 'stateProvince', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1297,9 +1433,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Zip / Postal Code"
                                                 value={mother.zipCode}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(motherIndex, 'zipCode', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                     </div>
@@ -1311,9 +1448,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Educational Attainment / Course"
                                                 value={mother.education}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(motherIndex, 'education', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1322,9 +1460,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Occupational / Position Held"
                                                 value={mother.occupation}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(motherIndex, 'occupation', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1333,9 +1472,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Employer / Company"
                                                 value={mother.company ?? ''}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(motherIndex, 'company', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                     </div>
@@ -1347,9 +1487,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Company Address"
                                                 value={mother.companyAddress ?? ''}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(motherIndex, 'companyAddress', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1358,9 +1499,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="City"
                                                 value={mother.companyCity ?? ''}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(motherIndex, 'companyCity', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1369,9 +1511,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Business Telephone Number"
                                                 value={mother.businessNumber ?? ''}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(motherIndex, 'businessNumber', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1380,9 +1523,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Annual Income"
                                                 value={mother.annualIncome ?? ''}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(motherIndex, 'annualIncome', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                     </div>
@@ -1398,7 +1542,11 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 { label: "Widowed, Remarried", value: "WIDOWED_REMARRIED" },
                                                 { label: "Others: _______", value: "OTHERS" },
                                             ].map((status) => (
-                                                <div key={status.value} className="inline-flex items-center">
+                                                <div
+                                                    key={status.value}
+                                                    className={`inline-flex items-center ${isEditMode ? 'cursor-pointer' : ''}`}
+                                                    onClick={() => isEditMode && updateFamilyData(motherIndex, 'statusOfParent', status.value)}
+                                                >
                                                     <div
                                                         className={`w-4 h-4 border border-gray-400 rounded-full mr-2 ${mother.statusOfParent === status.value ? 'bg-gray-800' : ''
                                                             }`}
@@ -1426,9 +1574,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Family Name"
                                                 value={guardian.familyName}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(guardianIndex, 'familyName', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1437,9 +1586,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="First Name"
                                                 value={guardian.firstName}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(guardianIndex, 'firstName', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1448,9 +1598,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Middle Name"
                                                 value={guardian.middleName ?? ''}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(guardianIndex, 'middleName', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                     </div>
@@ -1462,9 +1613,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Birth Date"
                                                 value={guardian.birthDate}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(guardianIndex, 'birthDate', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div className="md:col-span-2">
@@ -1473,9 +1625,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Place of Birth"
                                                 value={guardian.placeOfBirth}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(guardianIndex, 'placeOfBirth', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1484,9 +1637,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Age"
                                                 value={guardian.age}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(guardianIndex, 'age', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1495,9 +1649,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Nationality"
                                                 value={guardian.nationality}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(guardianIndex, 'nationality', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1506,9 +1661,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Religion"
                                                 value={guardian.religion}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(guardianIndex, 'religion', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                     </div>
@@ -1520,9 +1676,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Landline Number"
                                                 value={guardian.landlineNumber ?? ''}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(guardianIndex, 'landlineNumber', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1531,9 +1688,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Mobile Number"
                                                 value={guardian.mobileNumber}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(guardianIndex, 'mobileNumber', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1542,9 +1700,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="email"
                                                 placeholder="E-mail Address"
                                                 value={guardian.email}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(guardianIndex, 'email', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                     </div>
@@ -1556,9 +1715,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Home Address"
                                                 value={guardian.homeAddress}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(guardianIndex, 'homeAddress', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1567,9 +1727,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="City"
                                                 value={guardian.city}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(guardianIndex, 'city', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1578,9 +1739,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="State / Province"
                                                 value={guardian.stateProvince}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(guardianIndex, 'stateProvince', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1589,9 +1751,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Zip / Postal Code"
                                                 value={guardian.zipCode}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(guardianIndex, 'zipCode', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                     </div>
@@ -1603,9 +1766,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Educational Attainment / Course"
                                                 value={guardian.education}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(guardianIndex, 'education', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1614,9 +1778,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Occupational / Position Held"
                                                 value={guardian.occupation}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(guardianIndex, 'occupation', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1625,9 +1790,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Employer / Company"
                                                 value={guardian.company ?? ''}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(guardianIndex, 'company', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                     </div>
@@ -1639,9 +1805,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Company Address"
                                                 value={guardian.companyAddress ?? ''}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(guardianIndex, 'companyAddress', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1650,9 +1817,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="City"
                                                 value={guardian.companyCity ?? ''}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(guardianIndex, 'companyCity', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1661,9 +1829,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Business Telephone Number"
                                                 value={guardian.businessNumber ?? ''}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(guardianIndex, 'businessNumber', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1672,9 +1841,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Annual Income"
                                                 value={guardian.annualIncome ?? ''}
-                                                disabled
-                                                readOnly
-                                                className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateFamilyData(guardianIndex, 'annualIncome', e.target.value)}
+                                                className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                     </div>
@@ -1690,7 +1860,11 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 { label: "Widowed, Remarried", value: "WIDOWED_REMARRIED" },
                                                 { label: "Others: _______", value: "OTHERS" },
                                             ].map((status) => (
-                                                <div key={status.value} className="inline-flex items-center">
+                                                <div
+                                                    key={status.value}
+                                                    className={`inline-flex items-center ${isEditMode ? 'cursor-pointer' : ''}`}
+                                                    onClick={() => isEditMode && updateFamilyData(guardianIndex, 'statusOfParent', status.value)}
+                                                >
                                                     <div
                                                         className={`w-4 h-4 border border-gray-400 rounded-full mr-2 ${guardian.statusOfParent === status.value ? 'bg-gray-800' : ''
                                                             }`}
@@ -1720,9 +1894,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                     <input
                                                         type="text"
                                                         value={sibling.familyName}
-                                                        disabled
-                                                        readOnly
-                                                        className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                        disabled={!isEditMode}
+                                                        readOnly={!isEditMode}
+                                                        onChange={(e) => updateSiblingData(index, 'familyName', e.target.value)}
+                                                        className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                                     />
                                                 </div>
                                                 <div>
@@ -1730,9 +1905,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                     <input
                                                         type="text"
                                                         value={sibling.firstName}
-                                                        disabled
-                                                        readOnly
-                                                        className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                        disabled={!isEditMode}
+                                                        readOnly={!isEditMode}
+                                                        onChange={(e) => updateSiblingData(index, 'firstName', e.target.value)}
+                                                        className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                                     />
                                                 </div>
                                                 <div>
@@ -1740,9 +1916,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                     <input
                                                         type="text"
                                                         value={sibling.middleName ?? ''}
-                                                        disabled
-                                                        readOnly
-                                                        className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                        disabled={!isEditMode}
+                                                        readOnly={!isEditMode}
+                                                        onChange={(e) => updateSiblingData(index, 'middleName', e.target.value)}
+                                                        className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                                     />
                                                 </div>
                                             </div>
@@ -1753,9 +1930,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                     <input
                                                         type="text"
                                                         value={sibling.birthDate}
-                                                        disabled
-                                                        readOnly
-                                                        className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                        disabled={!isEditMode}
+                                                        readOnly={!isEditMode}
+                                                        onChange={(e) => updateSiblingData(index, 'birthDate', e.target.value)}
+                                                        className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                                     />
                                                 </div>
                                                 <div>
@@ -1763,9 +1941,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                     <input
                                                         type="text"
                                                         value={sibling.age}
-                                                        disabled
-                                                        readOnly
-                                                        className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                        disabled={!isEditMode}
+                                                        readOnly={!isEditMode}
+                                                        onChange={(e) => updateSiblingData(index, 'age', e.target.value)}
+                                                        className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                                     />
                                                 </div>
                                                 <div>
@@ -1773,9 +1952,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                     <input
                                                         type="text"
                                                         value={sibling.gradeYearLevel}
-                                                        disabled
-                                                        readOnly
-                                                        className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                        disabled={!isEditMode}
+                                                        readOnly={!isEditMode}
+                                                        onChange={(e) => updateSiblingData(index, 'gradeYearLevel', e.target.value)}
+                                                        className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                                     />
                                                 </div>
                                                 <div>
@@ -1783,9 +1963,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                     <input
                                                         type="text"
                                                         value={sibling.schoolEmployer}
-                                                        disabled
-                                                        readOnly
-                                                        className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
+                                                        disabled={!isEditMode}
+                                                        readOnly={!isEditMode}
+                                                        onChange={(e) => updateSiblingData(index, 'schoolEmployer', e.target.value)}
+                                                        className={`border border-gray-300 rounded px-2 py-1 w-full ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                                     />
                                                 </div>
                                             </div>
@@ -1819,9 +2000,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                             type="text"
                                             placeholder="Answer Here..."
                                             value={educationalData.yearLevel ?? ''}
-                                            disabled
-                                            readOnly
-                                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                                            disabled={!isEditMode}
+                                            readOnly={!isEditMode}
+                                            onChange={(e) => updateEducationalData('yearLevel', e.target.value)}
+                                            className={`w-full border border-gray-300 rounded px-2 py-1 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                         />
                                     </div>
                                     <div>
@@ -1832,9 +2014,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                             type="text"
                                             placeholder="Answer Here..."
                                             value={educationalData.schoolName ?? ''}
-                                            disabled
-                                            readOnly
-                                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                                            disabled={!isEditMode}
+                                            readOnly={!isEditMode}
+                                            onChange={(e) => updateEducationalData('schoolName', e.target.value)}
+                                            className={`w-full border border-gray-300 rounded px-2 py-1 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                         />
                                     </div>
                                     <div>
@@ -1845,9 +2028,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                             type="text"
                                             placeholder="Answer Here..."
                                             value={educationalData.schoolAddress ?? ''}
-                                            disabled
-                                            readOnly
-                                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                                            disabled={!isEditMode}
+                                            readOnly={!isEditMode}
+                                            onChange={(e) => updateEducationalData('schoolAddress', e.target.value)}
+                                            className={`w-full border border-gray-300 rounded px-2 py-1 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                         />
                                     </div>
                                     <div>
@@ -1858,9 +2042,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                             type="text"
                                             placeholder="YYYY - YYYY"
                                             value={educationalData.inclusiveYearsAttended ?? ''}
-                                            disabled
-                                            readOnly
-                                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                                            disabled={!isEditMode}
+                                            readOnly={!isEditMode}
+                                            onChange={(e) => updateEducationalData('inclusiveYearsAttended', e.target.value)}
+                                            className={`w-full border border-gray-300 rounded px-2 py-1 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                         />
                                     </div>
                                 </div>
@@ -1873,10 +2058,11 @@ export default function StudentDetailPage({ params }: PageProps) {
                                         <textarea
                                             placeholder="Answer Here..."
                                             value={educationalData.honorsReceived.join(', ') ?? ''}
-                                            disabled
-                                            readOnly
+                                            disabled={!isEditMode}
+                                            readOnly={!isEditMode}
+                                            onChange={(e) => updateEducationalData('honorsReceived', e.target.value.split(',').map(honor => honor.trim()))}
                                             rows={6}
-                                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                                            className={`w-full border border-gray-300 rounded px-2 py-1 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                         />
                                     </div>
 
@@ -1889,9 +2075,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Yes/No"
                                                 value={educationalData.attendedSummerClasses ?? ''}
-                                                disabled
-                                                readOnly
-                                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateEducationalData('attendedSummerClasses', e.target.value)}
+                                                className={`w-full border border-gray-300 rounded px-2 py-1 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div>
@@ -1902,9 +2089,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                 type="text"
                                                 placeholder="Details..."
                                                 value={educationalData.summerClassDetails ?? ''}
-                                                disabled
-                                                readOnly
-                                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                onChange={(e) => updateEducationalData('summerClassDetails', e.target.value)}
+                                                className={`w-full border border-gray-300 rounded px-2 py-1 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                             />
                                         </div>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1916,9 +2104,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                     type="text"
                                                     placeholder="Answer Here..."
                                                     value={educationalData.yearRepeated ?? ''}
-                                                    disabled
-                                                    readOnly
-                                                    className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                                                    disabled={!isEditMode}
+                                                    readOnly={!isEditMode}
+                                                    onChange={(e) => updateEducationalData('yearRepeated', e.target.value)}
+                                                    className={`w-full border border-gray-300 rounded px-2 py-1 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                                 />
                                             </div>
                                             <div>
@@ -1929,9 +2118,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                     type="text"
                                                     placeholder="Answer Here..."
                                                     value={educationalData.numberOfSubjectsFailed ?? ''}
-                                                    disabled
-                                                    readOnly
-                                                    className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                                                    disabled={!isEditMode}
+                                                    readOnly={!isEditMode}
+                                                    onChange={(e) => updateEducationalData('numberOfSubjectsFailed', e.target.value)}
+                                                    className={`w-full border border-gray-300 rounded px-2 py-1 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                                 />
                                             </div>
                                         </div>
@@ -1955,9 +2145,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                         <input
                                                             type="text"
                                                             value={transfereeData.previousSchool.schoolName}
-                                                            disabled
-                                                            readOnly
-                                                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                                                            disabled={!isEditMode}
+                                                            readOnly={!isEditMode}
+                                                            onChange={(e) => updateTransfereeData('previousSchool.schoolName', e.target.value)}
+                                                            className={`w-full border border-gray-300 rounded px-2 py-1 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
                                                         />
                                                     </div>
                                                     <div>
@@ -1965,9 +2156,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                         <input
                                                             type="text"
                                                             value={transfereeData.previousSchool.schoolAddress}
-                                                            disabled
-                                                            readOnly
-                                                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                                                            disabled={!isEditMode}
+                                                            readOnly={!isEditMode}
+                                                            className={`w-full border border-gray-300 rounded px-2 py-1 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                            onChange={(e) => updateTransfereeData('previousSchool.schoolAddress', e.target.value)}
                                                         />
                                                     </div>
                                                     <div>
@@ -1975,9 +2167,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                         <input
                                                             type="text"
                                                             value={transfereeData.previousSchool.inclusiveYears}
-                                                            disabled
-                                                            readOnly
-                                                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                                                            disabled={!isEditMode}
+                                                            readOnly={!isEditMode}
+                                                            className={`w-full border border-gray-300 rounded px-2 py-1 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                            onChange={(e) => updateTransfereeData('previousSchool.inclusiveYears', e.target.value)}
                                                         />
                                                     </div>
                                                     <div>
@@ -1985,9 +2178,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                         <input
                                                             type="text"
                                                             value={transfereeData.previousSchool.reasonForLeaving ?? ''}
-                                                            disabled
-                                                            readOnly
-                                                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                                                            disabled={!isEditMode}
+                                                            readOnly={!isEditMode}
+                                                            className={`w-full border border-gray-300 rounded px-2 py-1 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                            onChange={(e) => updateTransfereeData('previousSchool.reasonForLeaving', e.target.value)}
                                                         />
                                                     </div>
                                                 </div>
@@ -2004,9 +2198,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                         <input
                                                             type="text"
                                                             value={transfereeData.presentSchool.schoolName}
-                                                            disabled
-                                                            readOnly
-                                                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                                                            disabled={!isEditMode}
+                                                            readOnly={!isEditMode}
+                                                            className={`w-full border border-gray-300 rounded px-2 py-1 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                            onChange={(e) => updateTransfereeData('presentSchool.schoolName', e.target.value)}
                                                         />
                                                     </div>
                                                     <div>
@@ -2014,9 +2209,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                         <input
                                                             type="text"
                                                             value={transfereeData.presentSchool.schoolAddress}
-                                                            disabled
-                                                            readOnly
-                                                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                                                            disabled={!isEditMode}
+                                                            readOnly={!isEditMode}
+                                                            className={`w-full border border-gray-300 rounded px-2 py-1 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                            onChange={(e) => updateTransfereeData('presentSchool.schoolAddress', e.target.value)}
                                                         />
                                                     </div>
                                                     <div>
@@ -2024,9 +2220,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                         <input
                                                             type="text"
                                                             value={transfereeData.presentSchool.inclusiveYears}
-                                                            disabled
-                                                            readOnly
-                                                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                                                            disabled={!isEditMode}
+                                                            readOnly={!isEditMode}
+                                                            className={`w-full border border-gray-300 rounded px-2 py-1 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                            onChange={(e) => updateTransfereeData('presentSchool.inclusiveYears', e.target.value)}
                                                         />
                                                     </div>
                                                     <div>
@@ -2034,9 +2231,10 @@ export default function StudentDetailPage({ params }: PageProps) {
                                                         <input
                                                             type="text"
                                                             value={transfereeData.presentSchool.reasonForLeaving ?? ''}
-                                                            disabled
-                                                            readOnly
-                                                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                                                            disabled={!isEditMode}
+                                                            readOnly={!isEditMode}
+                                                            className={`w-full border border-gray-300 rounded px-2 py-1 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                            onChange={(e) => updateTransfereeData('presentSchool.reasonForLeaving', e.target.value)}
                                                         />
                                                     </div>
                                                 </div>
@@ -2048,10 +2246,11 @@ export default function StudentDetailPage({ params }: PageProps) {
                                             <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Transferring:</label>
                                             <textarea
                                                 value={transfereeData.reasonForTransfer}
-                                                disabled
-                                                readOnly
                                                 rows={3}
-                                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
+                                                className={`w-full border border-gray-300 rounded px-2 py-1 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                onChange={(e) => updateTransfereeData('reasonForTransfer', e.target.value)}
                                             />
                                         </div>
 
@@ -2062,21 +2261,20 @@ export default function StudentDetailPage({ params }: PageProps) {
                                             </label>
                                             <textarea
                                                 value={transfereeData.disciplinaryRecord ?? ''}
-                                                disabled
-                                                readOnly
+                                                disabled={!isEditMode}
+                                                readOnly={!isEditMode}
                                                 rows={3}
-                                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
+                                                className={`w-full border border-gray-300 rounded px-2 py-1 text-sm ${isEditMode ? 'bg-white' : 'bg-gray-50'} text-gray-900`}
+                                                onChange={(e) => updateTransfereeData('disciplinaryRecord', e.target.value)}
                                             />
                                         </div>
                                     </>
                                 )}
-
                             </div>
                         </div>
                     </div>
                 )}
             </div>
-
         </div>
     );
 }

@@ -1,2162 +1,530 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Search, Edit, ChevronDown } from 'lucide-react';
-import { getStudentInformationTableData, getPersonalData, getHealthHistory} from '@/app/_actions/getStudentsList';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Eye, Edit, Archive, Search, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { getAllApprovedStudentApplications } from '@/app/_actions/getStudents';
 
-interface StudentList {
-    id: number;
-    applicationNumber: string | null;
-    fullName: string;
-    yearLevel: string;
-    createdAt: string;
-}
 
-interface StudentPersonalData {
-    id: number;
-    fullName: string;
-    applicationNumber: string | null;
-    yearLevel: string;
-    academicYear?: string;
-    admissionGradeYear?: string;
-    familyName?: string;
-    firstName?: string;
-    middleName?: string;
-    nickname?: string;
-    placeOfBirth?: string;
-    age?: string;
-    birthOrder?: string;
-    numberOfSiblings?: string;
-    nationality?: string;
-    religion?: string;
-    height?: string;
-    weight?: string;
-    bloodType?: string;
-    language?: string;
-    landlineNumber?: string;
-    mobileNumber?: string;
-    hobbiesInterests?: string;
-    talentsSpecialSkills?: string;
-    childStatus?: string;
-    biologicalRelationship?: string;
-    adoptedStatus?: string;
-    provincialAddress?: string;
-    gender: string;
-    emailAddress: string;
-    birthdate: string;
-    status: string;
-    homeAddress: string;
-    city: string;
-    stateProvince: string;
-    postalCode: string;
-    createdAt: string;
-    
-}
-
-interface StudentHealthData {
-    id: number;
-    applicatonId: number;
-    allergies: string | null;
-    childhoodDiseases: string | null;
-    medicalConditions: string | null;
-    immunizations: string | null;
-    physicalHandicap: string | null;
-    createdAt: string;
-}
-
-const tabs = [
-    { id: 'personal', label: <>Personal<span className="hidden md:inline"> Data</span></>, color: 'bg-red-800 text-white' },
-    { id: 'health', label: <>Health<span className="hidden md:inline"> History</span></>, color: 'bg-red-800 text-white' },
-    { id: 'familyBg', label: <>Family<span className="hidden md:inline"> Background</span></>, color: 'bg-red-800 text-white' },
-    { id: 'education', label: <>Education<span className="hidden md:inline"> Background</span></>, color: 'bg-red-800 text-white' },
-    { id: 'medical', label: <>Medical<span className="hidden md:inline"> History</span></>, color: 'bg-red-800 text-white' },
-];
+type SortField = 'studentNumber' | 'name' | 'schoolYear' | 'gradeLevel';
+type SortOrder = 'asc' | 'desc' | null;
 
 export default function StudentInformationPage() {
-    const [activeTab, setActiveTab] = useState('personal');
-    const [searchTerm, setSearchTerm] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
+    const router = useRouter();
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedGrades, setSelectedGrades] = useState<string[]>([]);
+    const [selectedSchoolYears, setSelectedSchoolYears] = useState<string[]>([]);
+    const [sortField, setSortField] = useState<SortField | null>(null);
+    const [sortOrder, setSortOrder] = useState<SortOrder>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [students, setStudents] = useState<any[]>([]);
 
-    const [studentList, setStudentList] = useState<StudentList[]>([]);
-    const [selectedStudent, setSelectedStudent] = useState<StudentList | null>(null);
-    const [personalData, setPersonalData] = useState<StudentPersonalData | null>(null);
-    const [healthData, setHealthData] = useState<StudentHealthData | null>(null);
-
-    // Fetch students on component mount
     useEffect(() => {
         const fetchStudents = async () => {
-            try {
-                const result = await getStudentInformationTableData();
-                if (result.success) {
-                    setStudentList(result.students);
-                    // Auto-select first student
-                    if (result.students.length > 0) {
-                        const firstStudent = result.students[0];
-                        setSelectedStudent(firstStudent);
-                        handleStudentSelect(result.students[0].id);
-                    }
-                } else {
-                    console.error('Failed to fetch students:');
-                }
-            } catch (error) {
-                console.error('Error fetching students:', error);
-            } finally {
-                setIsLoading(false);
+            const response = await getAllApprovedStudentApplications();
+            if (response && response.success && Array.isArray(response.applications)) {
+                setStudents(response.applications);
             }
+            console.log(response);
         };
-
         fetchStudents();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // Fetch health data when health tab is selected
-    useEffect(() => {
-        if (activeTab === 'health' && selectedStudent) {
-            const fetchHealthData = async () => {
-                try {
-                    const result = await getHealthHistory(selectedStudent.id);
-                    if (result && result.success && result.students) {
-                        setHealthData(result.students);
-                    } else {
-                        setHealthData(null);
-                        console.error('Failed to fetch health history');
-                    }
-                } catch (error) {
-                    console.error('Error fetching health history:', error);
-                }
-            };
-            fetchHealthData();
-        }
-    }, [activeTab, selectedStudent]);
 
-    // Filter students based on search term
-    const filteredStudents = studentList.filter(student =>
-        student.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.id.toString().includes(searchTerm.toLowerCase()) ||
-        (student.applicationNumber && student.applicationNumber.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    // Get unique grade levels and school years from data
+    const uniqueGradeLevels = useMemo(() => {
+        return Array.from(new Set(students.map(s => s.yearLevel?.name).filter(Boolean))).sort();
+    }, [students]);
 
-    const handleStudentSelect = async (studentId: number) => {
-        // Find and set the selected student from the list
-        const student = studentList.find(s => s.id === studentId);
-        if (student) {
-            setSelectedStudent(student);
-        }
+    const uniqueSchoolYears = useMemo(() => {
+        return Array.from(new Set(students.map(s => s.academicYear?.year).filter(Boolean))).sort();
+    }, [students]);
 
-        // Fetch personal data
-        try {
-            const result = await getPersonalData(studentId);
-            if (result && result.success && result.students) {
-                // Convert Date to string if needed
-                const studentData = {
-                    ...result.students,
-                    birthdate: typeof result.students.birthdate === 'string'
-                        ? result.students.birthdate
-                        : new Date(result.students.birthdate).toISOString().split('T')[0]
-                };
-                setPersonalData(studentData);
-            } else {
-                console.error('Failed to fetch students:');
+    // Handle sorting
+    const handleSort = (field: SortField) => {
+        if (sortField === field) {
+            // Cycle through: asc -> desc -> null
+            if (sortOrder === 'asc') {
+                setSortOrder('desc');
+            } else if (sortOrder === 'desc') {
+                setSortOrder(null);
+                setSortField(null);
             }
-        } catch (error) {
-            console.error('Error fetching students:', error);
+        } else {
+            setSortField(field);
+            setSortOrder('asc');
         }
     };
 
-    // STUDENT PERSONAL DATA
-    const renderPersonalData = () => {
-        if (!personalData) {
-            return (
-                <div className="flex items-center justify-center h-full text-gray-500">
-                    <p className="text-center">Please select a student to view their information</p>
-                </div>
-            );
+    // Get sort icon
+    const getSortIcon = (field: SortField) => {
+        if (sortField !== field) {
+            return <ArrowUpDown className="w-4 h-4" />;
+        }
+        if (sortOrder === 'asc') {
+            return <ArrowUp className="w-4 h-4" />;
+        }
+        return <ArrowDown className="w-4 h-4" />;
+    };
+
+    // Filter and sort students
+    const filteredAndSortedStudents = useMemo(() => {
+        const result = students.filter(student => {
+            const fullName = `${student.firstName} ${student.middleName || ''} ${student.familyName}`.toLowerCase();
+            const matchesSearch =
+                (student.applicationNumber || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                fullName.includes(searchQuery.toLowerCase());
+
+            const matchesGrade = selectedGrades.length === 0 || selectedGrades.includes(student.yearLevel?.name);
+            const matchesSchoolYear = selectedSchoolYears.length === 0 || selectedSchoolYears.includes(student.academicYear?.year);
+
+            return matchesSearch && matchesGrade && matchesSchoolYear;
+        });
+
+        // Apply sorting
+        if (sortField && sortOrder) {
+            result.sort((a, b) => {
+                let aValue: string;
+                let bValue: string;
+
+                if (sortField === 'name') {
+                    aValue = `${a.familyName} ${a.firstName} ${a.middleName || ''}`;
+                    bValue = `${b.familyName} ${b.firstName} ${b.middleName || ''}`;
+                } else if (sortField === 'gradeLevel') {
+                    // Extract numeric part for proper sorting
+                    const aGrade = a.yearLevel?.name || '';
+                    const bGrade = b.yearLevel?.name || '';
+                    const aNum = parseInt(aGrade.replace('Grade ', ''));
+                    const bNum = parseInt(bGrade.replace('Grade ', ''));
+                    return sortOrder === 'asc' ? aNum - bNum : bNum - aNum;
+                } else if (sortField === 'studentNumber') {
+                    aValue = a.applicationNumber || '';
+                    bValue = b.applicationNumber || '';
+                } else if (sortField === 'schoolYear') {
+                    aValue = a.academicYear?.year || '';
+                    bValue = b.academicYear?.year || '';
+                } else {
+                    aValue = a[sortField] || '';
+                    bValue = b[sortField] || '';
+                }
+
+                const comparison = aValue.localeCompare(bValue);
+                return sortOrder === 'asc' ? comparison : -comparison;
+            });
         }
 
-        return (
-            <div className="p-6 space-y-6">
-                {/* Academic Year and Admission */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Academic Year
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Answer Here..."
-                            value={personalData.academicYear || 'Not specified'}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Admission to Grade/ Year
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Answer Here..."
-                            value={personalData.admissionGradeYear || 'Not specified'}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                </div>
+        return result;
+    }, [searchQuery, selectedGrades, selectedSchoolYears, sortField, sortOrder, students]);
 
-                <hr className="my-4" />
+    // Pagination calculations
+    const totalPages = Math.ceil(filteredAndSortedStudents.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedStudents = filteredAndSortedStudents.slice(startIndex, endIndex);
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Family Name
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Answer Here..."
-                            value={personalData.familyName || 'Not specified'}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            First Name
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Answer Here..."
-                            value={personalData.firstName || 'Not specified'}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Middle Name
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Answer Here..."
-                            value={personalData.middleName || 'Not specified'}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Nickname
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Answer Here..."
-                            value={personalData.nickname || 'Not specified'}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                </div>
+    // Reset to first page when filters change
+    React.useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, selectedGrades, selectedSchoolYears]);
 
-                {/* Birth Information */}
-                <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-                    <div className="md:col-span-1">
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Birth Date
-                        </label>
-                        <input
-                            type="date"
-                            placeholder="MM/DD/YY"
-                            value={personalData.birthdate || 'Not specified'}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                    <div className="md:col-span-2">
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Place of Birth
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Answer Here..."
-                            value={personalData.placeOfBirth || 'Not specified'}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Age
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Answer Here..."
-                            value={personalData.age || ''}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Birth Order
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Answer Here..."
-                            value={personalData.birthOrder || 'Not specified'}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Number of Siblings
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Answer Here..."
-                            value={personalData.numberOfSiblings || 'Not specified'}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                </div>
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
-                {/* Nationality and Religion */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Nationality
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Answer Here..."
-                            value={personalData.nationality || 'Not specified'}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Religion
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Answer Here..."
-                            value={personalData.religion || 'Not specified'}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Languages/ Dialect spoken at home
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Answer Here..."
-                            value={personalData.language || 'Not specified'}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                    
-                </div>
+    const getPageNumbers = () => {
+        const pages = [];
+        const maxVisiblePages = 5;
+        
+        if (totalPages <= maxVisiblePages) {
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i);
+            }
+        } else {
+            if (currentPage <= 3) {
+                for (let i = 1; i <= 4; i++) pages.push(i);
+                pages.push('...');
+                pages.push(totalPages);
+            } else if (currentPage >= totalPages - 2) {
+                pages.push(1);
+                pages.push('...');
+                for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
+            } else {
+                pages.push(1);
+                pages.push('...');
+                pages.push(currentPage - 1);
+                pages.push(currentPage);
+                pages.push(currentPage + 1);
+                pages.push('...');
+                pages.push(totalPages);
+            }
+        }
+        
+        return pages;
+    };
 
-                {/* Physical Characteristics */}
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Height
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Answer Here..."
-                            value={personalData.height || 'Not specified'}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Weight
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Answer Here..."
-                            value={personalData.weight || 'Not specified'}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Blood Type
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Answer Here..."
-                            value={personalData.bloodType || 'Not specified'}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                    {/* Group Gender and Child Status together to reduce horizontal gap */}
-                    <div className="md:col-span-2 flex gap-8 items-start">
-                        <div className="flex-1">
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Gender
-                            </label>
-                            <div className="flex gap-4 mt-2">
-                                <label className="flex items-center">
-                                    <input type="radio" disabled checked={personalData.gender === 'Female'} className="mr-2" />
-                                    <span className="text-sm">Female</span>
-                                </label>
-                                <label className="flex items-center">
-                                    <input type="radio" disabled checked={personalData.gender === 'Male'} className="mr-2" />
-                                    <span className="text-sm">Male</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div className="flex-1">
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Child Status
-                            </label>
-                            <div className="flex gap-4 mt-2">
-                                <label className="flex items-center">
-                                    <input type="radio" disabled checked={personalData.childStatus === 'Legitimate'} className="mr-2" />
-                                    <span className="text-sm">Legitimate</span>
-                                </label>
-                                <label className="flex items-center">
-                                    <input type="radio" disabled checked={personalData.childStatus === 'Biological'} className="mr-2" />
-                                    <span className="text-sm">Biological</span>
-                                </label>
-                                <label className="flex items-center">
-                                    <input type="radio" disabled checked={personalData.childStatus === 'Adopted'} className="mr-2" />
-                                    <span className="text-sm">Adopted</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Contact Information */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Landline Number
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Answer Here..."
-                            value={personalData.landlineNumber || 'Not specified'}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Mobile Number
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Answer Here..."
-                            value={personalData.mobileNumber || 'Not specified'}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            E-mail Address
-                        </label>
-                        <input
-                            type="email"
-                            placeholder="Answer Here..."
-                            value={personalData.emailAddress || 'Not specified'}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                </div>
-
-                {/* Home Address */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Home Address
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Answer Here..."
-                            value={personalData.homeAddress || 'Not specified'}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            City
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Answer Here..."
-                            value={personalData.city || 'Not specified'}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                </div>
-
-                {/* Provincial Address */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Provincial Address
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Answer Here..."
-                            value={personalData.provincialAddress || 'Not specified'}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            City
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Answer Here..."
-                            value={personalData.city || 'Not specified'}
-                            disabled
-                            readOnly
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                    </div>
-                </div>
-                
-                <hr className="my-4" />
-
-                {/* Talents and Hobbies */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Talents/ Special Skills
-                        </label>
-                        <textarea
-                            placeholder="Answer Here..."
-                            value={personalData.talentsSpecialSkills || 'Not specified'}
-                            disabled
-                            readOnly
-                            rows={3}
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                        <div className="text-right text-xs text-gray-500 mt-1">150</div>
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Hobbies and interests
-                        </label>
-                        <textarea
-                            placeholder="Answer Here..."
-                            value={personalData.hobbiesInterests || 'Not specified'}
-                            disabled
-                            readOnly
-                            rows={3}
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 text-gray-900"
-                        />
-                        <div className="text-right text-xs text-gray-500 mt-1">150</div>
-                    </div>
-                </div>
-
-                <hr className="my-4" />
-            </div>
+    // Handle grade level selection
+    const toggleGradeLevel = (grade: string) => {
+        setSelectedGrades(prev =>
+            prev.includes(grade)
+                ? prev.filter(g => g !== grade)
+                : [...prev, grade]
         );
     };
 
-    // HEALTH HISTORY
-    const renderHealthHistory = () => {
-        if (!healthData) {
-            return (
-                <div className="flex items-center justify-center h-64 text-gray-500">
-                    <p className="text-center">Please select a student to view their health history</p>
-                </div>
-            );
-        }
-
-        return (
-            <div className="p-6 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Childhood Diseases
-                        </label>
-                        <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                            <p className="text-gray-900">{healthData.childhoodDiseases || 'Not specified'}</p>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Allergies
-                        </label>
-                        <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                            <p className="text-gray-900">{healthData.allergies}</p>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Other Medical Conditions
-                        </label>
-                        <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                            <p className="text-gray-900">{healthData.medicalConditions}</p>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Immunizations
-                        </label>
-                        <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                            <p className="text-gray-900">{healthData.immunizations}</p>
-                        </div>
-                    </div>
-
-                    <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Physical Handicaps/ Special Needs
-                        </label>
-                        <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                            <p className="text-gray-900">{healthData.physicalHandicap}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    // Handle school year selection
+    const toggleSchoolYear = (year: string) => {
+        setSelectedSchoolYears(prev =>
+            prev.includes(year)
+                ? prev.filter(y => y !== year)
+                : [...prev, year]
         );
     };
 
-    // FAMILY BACKGROUND
-    const renderFamBackground = () => {
-        // Placeholder father info data
-        const father = {
-            familyName: 'Doe',
-            firstName: 'John',
-            middleName: 'Michael',
-            birthDate: '01/01/1970',
-            placeOfBirth: 'Manila, Philippines',
-            age: '54',
-            nationality: 'Filipino',
-            religion: 'Catholic',
-            landlineNumber: '(02) 123-4567',
-            mobileNumber: '09171234567',
-            email: 'john.doe@example.com',
-            homeAddress: '123 Main Street',
-            city: 'Quezon City',
-            stateProvince: 'Metro Manila',
-            zipCode: '1100',
-            education: 'Bachelor of Science in Engineering',
-            occupation: 'Engineer',
-            company: 'ABC Construction Corp.',
-            companyAddress: '456 Corporate Avenue',
-            companyCity: 'Makati City',
-            businessNumber: '(02) 765-4321',
-            annualIncome: '₱1,200,000',
-            statusOfParent: 'Married',
-        };
-
-        // Placeholder mother info data
-        const mother = {
-            familyName: 'Smith',
-            firstName: 'Linda',
-            middleName: 'Marie',
-            birthDate: '1975-08-12',
-            placeOfBirth: 'Los Angeles, CA',
-            age: '49',
-            nationality: 'American',
-            religion: 'Christianity',
-            landlineNumber: '(213) 555-7890',
-            mobileNumber: '(310) 555-1234',
-            email: 'linda.smith@example.com',
-            homeAddress: '123 Maple Street',
-            city: 'Los Angeles',
-            stateProvince: 'California',
-            zipCode: '90001',
-            education: 'Bachelor of Arts in English',
-            occupation: 'Teacher',
-            company: 'LA Public Schools',
-            companyAddress: '456 Education Blvd',
-            companyCity: 'Los Angeles',
-            businessNumber: '(213) 555-4567',
-            annualIncome: '$50,000',
-            statusOfParent: 'Married',
-        };
-
-        // Placeholder guardian info data
-        const guardian = {
-            familyName: 'Johnson',
-            firstName: 'Mark',
-            middleName: 'Anthony',
-            birthDate: '1968-03-22',
-            placeOfBirth: 'Houston, TX',
-            age: '56',
-            nationality: 'American',
-            religion: 'Catholic',
-            landlineNumber: '(713) 555-9876',
-            mobileNumber: '(281) 555-6789',
-            email: 'mark.johnson@example.com',
-            homeAddress: '789 Oak Lane',
-            city: 'Houston',
-            stateProvince: 'Texas',
-            zipCode: '77002',
-            education: 'Master of Business Administration',
-            occupation: 'Financial Analyst',
-            company: 'Houston Finance Corp',
-            companyAddress: '1010 Market Street',
-            companyCity: 'Houston',
-            businessNumber: '(713) 555-1122',
-            annualIncome: '$75,000',
-            statusOfParent: 'Single Parent',
-            relationToApplicant: 'Uncle',
-        };
-
-        if (!selectedStudent) {
-            return (
-                <div className="flex items-center justify-center h-64 text-gray-500">
-                    <p className="text-center">Please select a student to view their family background</p>
-                </div>
-            );
-        }
-
-        return (
-            // ========================= FATHER =========================
-            <div className="p-6 space-y-6">
-                <h3 className="text-center font-bold mb-4 text-black border border-gray-300 rounded-md py-1">
-                    FATHER&apos;S BACKGROUND
-                </h3>
-                <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Family Name:</label>
-                            <input
-                                type="text"
-                                placeholder="Family Name"
-                                value={father.familyName}
-                                disabled
-                                readOnly
-                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">First Name:</label>
-                            <input
-                                type="text"
-                                placeholder="First Name"
-                                value={father.firstName}
-                                disabled
-                                readOnly
-                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Middle Name:</label>
-                            <input
-                                type="text"
-                                placeholder="Middle Name"
-                                value={father.middleName}
-                                disabled
-                                readOnly
-                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Birth Date:</label>
-                            <input
-                                type="text"
-                                placeholder="Birth Date"
-                                value={father.birthDate}
-                                disabled
-                                readOnly
-                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                        <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700">Place of Birth:</label>
-                            <input
-                                type="text"
-                                placeholder="Place of Birth"
-                                value={father.placeOfBirth}
-                                disabled
-                                readOnly
-                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Age:</label>
-                            <input
-                                type="text"
-                                placeholder="Age"
-                                value={father.age}
-                                disabled
-                                readOnly
-                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Nationality:</label>
-                            <input
-                                type="text"
-                                placeholder="Nationality"
-                                value={father.nationality}
-                                disabled
-                                readOnly
-                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Religion:</label>
-                            <input
-                                type="text"
-                                placeholder="Religion"
-                                value={father.religion}
-                                disabled
-                                readOnly
-                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Landline Number:</label>
-                            <input
-                                type="text"
-                                placeholder="Landline Number"
-                                value={father.landlineNumber}
-                                disabled
-                                readOnly
-                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Mobile Number:</label>
-                            <input
-                                type="text"
-                                placeholder="Mobile Number"
-                                value={father.mobileNumber}
-                                disabled
-                                readOnly
-                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">E-mail Address:</label>
-                            <input
-                                type="email"
-                                placeholder="E-mail Address"
-                                value={father.email}
-                                disabled
-                                readOnly
-                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                        <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700">Home Address:</label>
-                            <input
-                                type="text"
-                                placeholder="Home Address"
-                                value={father.homeAddress}
-                                disabled
-                                readOnly
-                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">City:</label>
-                            <input
-                                type="text"
-                                placeholder="City"
-                                value={father.city}
-                                disabled
-                                readOnly
-                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">State/ Province:</label>
-                            <input
-                                type="text"
-                                placeholder="State / Province"
-                                value={father.stateProvince}
-                                disabled
-                                readOnly
-                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Zip/ Postal Code:</label>
-                            <input
-                                type="text"
-                                placeholder="Zip / Postal Code"
-                                value={father.zipCode}
-                                disabled
-                                readOnly
-                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Educational Attainment/ Course:</label>
-                            <input
-                                type="text"
-                                placeholder="Educational Attainment / Course"
-                                value={father.education}
-                                disabled
-                                readOnly
-                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Occupational/ Position Held:</label>
-                            <input
-                                type="text"
-                                placeholder="Occupational / Position Held"
-                                value={father.occupation}
-                                disabled
-                                readOnly
-                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Employer/ Company:</label>
-                            <input
-                                type="text"
-                                placeholder="Employer / Company"
-                                value={father.company}
-                                disabled
-                                readOnly
-                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700">Company Address:</label>
-                            <input
-                                type="text"
-                                placeholder="Company Address"
-                                value={father.companyAddress}
-                                disabled
-                                readOnly
-                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">City:</label>
-                            <input
-                                type="text"
-                                placeholder="City"
-                                value={father.companyCity}
-                                disabled
-                                readOnly
-                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Business Telephone Number:</label>
-                            <input
-                                type="text"
-                                placeholder="Business Telephone Number"
-                                value={father.businessNumber}
-                                disabled
-                                readOnly
-                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Annual Income:</label>
-                            <input
-                                type="text"
-                                placeholder="Annual Income"
-                                value={father.annualIncome}
-                                disabled
-                                readOnly
-                                className="border border-gray-300 rounded px-2 py-1 flex-grow w-full bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Status of Parent:</label>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-black">
-                            {[
-                                "Married",
-                                "Single Parent",
-                                "Separated",
-                                "Widowed",
-                                "Widowed, Remarried",
-                                "Others: _______",
-                            ].map((status) => (
-                                <div key={status} className="inline-flex items-center">
-                                    <div
-                                        className={`w-4 h-4 border border-gray-400 rounded-full mr-2 ${father.statusOfParent === status ? "bg-gray-800" : ""
-                                            }`}
-                                    ></div>
-                                    <span>{status}</span>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* ===================== MOTHER ===================== */}
-                        <div className="p-6 space-y-6 my-5">
-                            <h3 className="text-center font-bold mb-4 text-black border border-gray-300 rounded-md py-1">
-                                MOTHER&apos;S BACKGROUND
-                            </h3>
-                            <div className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Family Name:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Family Name"
-                                            value={mother.familyName}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">First Name:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="First Name"
-                                            value={mother.firstName}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Middle Name:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Middle Name"
-                                            value={mother.middleName}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Birth Date:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Birth Date"
-                                            value={mother.birthDate}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-700">Place of Birth:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Place of Birth"
-                                            value={mother.placeOfBirth}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Age:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Age"
-                                            value={mother.age}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Nationality:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Nationality"
-                                            value={mother.nationality}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Religion:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Religion"
-                                            value={mother.religion}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Landline Number:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Landline Number"
-                                            value={mother.landlineNumber}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Mobile Number:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Mobile Number"
-                                            value={mother.mobileNumber}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">E-mail Address:</label>
-                                        <input
-                                            type="email"
-                                            placeholder="E-mail Address"
-                                            value={mother.email}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                                    <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-700">Home Address:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Home Address"
-                                            value={mother.homeAddress}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">City:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="City"
-                                            value={mother.city}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">State/ Province:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="State / Province"
-                                            value={mother.stateProvince}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Zip/ Postal Code:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Zip / Postal Code"
-                                            value={mother.zipCode}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Educational Attainment/ Course:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Educational Attainment / Course"
-                                            value={mother.education}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Occupational/ Position Held:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Occupational / Position Held"
-                                            value={mother.occupation}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Employer/ Company:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Employer / Company"
-                                            value={mother.company}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-700">Company Address:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Company Address"
-                                            value={mother.companyAddress}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">City:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="City"
-                                            value={mother.companyCity}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Business Telephone Number:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Business Telephone Number"
-                                            value={mother.businessNumber}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Annual Income:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Annual Income"
-                                            value={mother.annualIncome}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Status of Parent:</label>
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-black">
-                                        {[
-                                            'Married',
-                                            'Single Parent',
-                                            'Separated',
-                                            'Widowed',
-                                            'Widowed, Remarried',
-                                            'Others: _______',
-                                        ].map((status) => (
-                                            <div key={status} className="inline-flex items-center">
-                                                <div
-                                                    className={`w-4 h-4 border border-gray-400 rounded-full mr-2 ${mother.statusOfParent === status ? 'bg-gray-800' : ''
-                                                        }`}
-                                                ></div>
-                                                <span>{status}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* ===================== GUARDIAN ===================== */}
-                        <div className="p-6 space-y-6 my-2">
-                            <h3 className="text-center font-bold mb-4 text-black border border-gray-300 rounded-md py-1">
-                                GUARDIAN&apos;S BACKGROUND
-                            </h3>
-                            <div className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Family Name:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Family Name"
-                                            value={guardian.familyName}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">First Name:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="First Name"
-                                            value={guardian.firstName}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Middle Name:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Middle Name"
-                                            value={guardian.middleName}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Birth Date:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Birth Date"
-                                            value={guardian.birthDate}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-700">Place of Birth:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Place of Birth"
-                                            value={guardian.placeOfBirth}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Age:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Age"
-                                            value={guardian.age}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Nationality:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Nationality"
-                                            value={guardian.nationality}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Religion:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Religion"
-                                            value={guardian.religion}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Relation to Applicant:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Relation to Applicant"
-                                            value={guardian.relationToApplicant}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Landline Number:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Landline Number"
-                                            value={guardian.landlineNumber}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Mobile Number:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Mobile Number"
-                                            value={guardian.mobileNumber}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">E-mail Address:</label>
-                                        <input
-                                            type="email"
-                                            placeholder="E-mail Address"
-                                            value={guardian.email}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                                    <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-700">Home Address:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Home Address"
-                                            value={guardian.homeAddress}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">City:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="City"
-                                            value={guardian.city}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">State/ Province:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="State / Province"
-                                            value={guardian.stateProvince}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Zip/ Postal Code:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Zip / Postal Code"
-                                            value={guardian.zipCode}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Educational Attainment/ Course:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Educational Attainment / Course"
-                                            value={guardian.education}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Occupational/ Position Held:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Occupational / Position Held"
-                                            value={guardian.occupation}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Employer/ Company:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Employer / Company"
-                                            value={guardian.company}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-700">Company Address:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Company Address"
-                                            value={guardian.companyAddress}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">City:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="City"
-                                            value={guardian.companyCity}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Business Telephone Number:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Business Telephone Number"
-                                            value={guardian.businessNumber}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Annual Income:</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Annual Income"
-                                            value={guardian.annualIncome}
-                                            disabled
-                                            readOnly
-                                            className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-50 text-gray-900"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Status of Parent:</label>
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-black">
-                                        {[
-                                            'Married',
-                                            'Single Parent',
-                                            'Separated',
-                                            'Widowed',
-                                            'Widowed, Remarried',
-                                            'Others: _______',
-                                        ].map((status) => (
-                                            <div key={status} className="inline-flex items-center">
-                                                <div
-                                                    className={`w-4 h-4 border border-gray-400 rounded-full mr-2 ${guardian.statusOfParent === status ? 'bg-gray-800' : ''
-                                                        }`}
-                                                ></div>
-                                                <span>{status}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
+    const handleViewStudent = (applicationNumber: string) => {
+        router.push(`/registrar/student-information/${encodeURIComponent(applicationNumber)}`);
     };
 
-    // EDUCATIONAL BACKGROUND
-    const renderEducBackground = () => {
-        if (!selectedStudent) {
-            return (
-                <div className="flex items-center justify-center h-64 text-gray-500">
-                    <p className="text-center">Please select a student to view their educational background</p>
-                </div>
-            );
-        }
+    const handleEditStudent = (studentId: string) => {
+        console.log('Edit student:', studentId);
+        // TODO: Implement edit student functionality
+    };
 
-        const school = {
-            yearLevel: '',
-            schoolName: '',
-            schoolAddress: '',
-            honorsReceived: '',
-            inclusiveYearsAttended: '',
-            attendedSummerClasses: '',
-            summerClassDetails: '',
-        };
-
-        return (
-            <div className="p-6 space-y-6">
-                <div className="space-y-4">
-                    {/* School #1 */}
-                    <div className="text-sm font-medium text-gray-700 mb-4">School #1:</div>
-
-                    {/* First Row - Gr/Yr Level, School Name, Address, Inclusive Years */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Gr / Yr. Level:
-                            </label>
-                            <input
-                                type="text"
-                                placeholder="Answer Here..."
-                                defaultValue={school.yearLevel}
-                                disabled
-                                readOnly
-                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Name of School:
-                            </label>
-                            <input
-                                type="text"
-                                placeholder="Answer Here..."
-                                defaultValue={school.schoolName}
-                                disabled
-                                readOnly
-                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                School Address:
-                            </label>
-                            <input
-                                type="text"
-                                placeholder="Answer Here..."
-                                defaultValue={school.schoolAddress}
-                                disabled
-                                readOnly
-                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Inclusive Years:
-                            </label>
-                            <input
-                                type="text"
-                                placeholder="YYYY - YYYY"
-                                defaultValue={school.inclusiveYearsAttended}
-                                disabled
-                                readOnly
-                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Honors / Awards Received:
-                            </label>
-                            <textarea
-                                placeholder="Answer Here..."
-                                defaultValue={school.honorsReceived}
-                                disabled
-                                readOnly
-                                rows={6}
-                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
-                            />
-                        </div>
-
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Attended Summer Classes A.Y.:
-                                </label>
-                                <div className="flex gap-2">
-                                    <input
-                                        type="text"
-                                        placeholder="YYYY - YYYY"
-                                        defaultValue={school.summerClassDetails}
-                                        disabled
-                                        readOnly
-                                        className="flex-1 border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
-                                    />
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Gr / Yr. Level Repeated:
-                                    </label>
-                                    <input
-                                        type="text"
-                                        placeholder="Answer Here..."
-                                        disabled
-                                        readOnly
-                                        className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        No. of Subjects Failed:
-                                    </label>
-                                    <input
-                                        type="text"
-                                        placeholder="Answer Here..."
-                                        disabled
-                                        readOnly
-                                        className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* TRANSFEREES */}
-                    <h3 className="text-center font-bold mb-4 text-black border border-gray-300 rounded-md py-1">
-                        FOR TRANFEREES
-                    </h3>
-
-                    {/* Previous School */}
-                    <div className="border rounded-md p-4 mb-6">
-                        <div className="text-sm font-medium text-gray-700 mb-2">Previous School:</div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">School Name:</label>
-                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">School Address:</label>
-                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Gr. / Yr. Level:</label>
-                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Present School */}
-                    <div className="border rounded-md p-4 mb-6">
-                        <div className="text-sm font-medium text-gray-700 mb-2">Present School:</div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">School Name:</label>
-                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">School Address:</label>
-                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Gr. / Yr. Level:</label>
-                                <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Reason for Transferring */}
-                    <div className="mb-6">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Transferring:</label>
-                        <textarea placeholder="Answer Here..." disabled readOnly rows={3} className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                        <div className="text-right text-xs text-gray-400 mt-1">250</div>
-                    </div>
-
-                    {/* Disciplinary Actions */}
-                    <div className="mb-6">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Has the applicant been subjected to any disciplinary actions in school? If yes, please describe the action and the sanctions:</label>
-                        <textarea placeholder="Answer Here..." disabled readOnly rows={3} className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                        <div className="text-right text-xs text-gray-400 mt-1">250</div>
-                    </div>
-
-                </div>
-            </div>
-        );
-    }
-
-    // MEDICAL HISTORY
-    const renderMedicalHistory = () => {
-        if (!selectedStudent) {
-            return (
-                <div className="flex items-center justify-center h-64 text-gray-500">
-                    <p className="text-center">Please select a student to view their medical history</p>
-                </div>
-            );
-        }
-        return (
-            <div className="p-6 space-y-8">
-                {/* Medical History Form */}
-                <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Academic Year:</label>
-                            <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Admission to Grade/Year:</label>
-                            <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Family Name:</label>
-                            <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">First Name:</label>
-                            <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Middle Name:</label>
-                            <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Nickname:</label>
-                            <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                        </div>
-                        <div className="flex items-center gap-4 mt-6">
-                            <label className="block text-sm font-medium text-gray-700">Gender:</label>
-                            <div className="flex gap-2">
-                                <input type="radio" disabled readOnly /> <span>Female</span>
-                                <input type="radio" disabled readOnly /> <span>Male</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Birth Date:</label>
-                            <input type="text" placeholder="MM/DD/YY" disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Place of Birth:</label>
-                            <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Age:</label>
-                            <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Height:</label>
-                            <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Weight:</label>
-                            <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Parent/s / Guardian Name:</label>
-                            <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Landline Number:</label>
-                            <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number:</label>
-                            <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Home Address:</label>
-                            <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">City:</label>
-                            <select disabled className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900">
-                                <option>Answer Here...</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">State/Province:</label>
-                            <select disabled className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900">
-                                <option>Answer Here...</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Zip/Postal Code:</label>
-                            <input type="text" placeholder="Answer Here..." disabled readOnly className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Medical History Checklist */}
-                <div className="border rounded-md p-4 mt-8">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="col-span-2">
-                            <ul className="space-y-2 text-sm text-gray-700 mt-8">
-                                <li>1. Epilepsy for the 6 months</li>
-                                <li>2. Head injuries leading to loss of consciousness for the last 6 months</li>
-                                <li>3. Recurrent headache/migraine</li>
-                                <li>4. Diseases Nervous System (Multiple Sclerosis)</li>
-                                <li>5. Surgery</li>
-                                <li>6. Visual Diseases (blindness on one eye, blurred vision, glaucoma)</li>
-                                <li>7. Ear infection</li>
-                                <li>8. Vertigo or Dizziness</li>
-                                <li>9. Heart Diseases</li>
-                                <li>10. Asthma, Bronchitis, TB or Pneumonia</li>
-                                <li>11. Ulcer</li>
-                                <li>12. Liver Diseases or Hepatitis</li>
-                                <li>13. Problems with joints, bones or recurrent dislocation</li>
-                                <li>14. Allergic skin rashes</li>
-                                <li>15. Allergies</li>
-                            </ul>
-                        </div>
-                        <div className="col-span-1 w-full">
-                            <div className="flex flex-row gap-2 w-full">
-                                <div className="flex flex-col gap-2 flex-1">
-                                    <div className="font-semibold text-gray-700 mb-2 text-center">YES</div>
-                                    {[...Array(15)].map((_, i) => (
-                                        <input key={i} type="checkbox" disabled readOnly className="mb-2" />
-                                    ))}
-                                </div>
-                                <div className="flex flex-col gap-2 flex-1">
-                                    <div className="font-semibold text-gray-700 mb-2 text-center">NO</div>
-                                    {[...Array(15)].map((_, i) => (
-                                        <input key={i} type="checkbox" disabled readOnly className="mb-2" />
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">If you had surgery, please specify:</label>
-                            <textarea placeholder="Answer Here..." disabled readOnly rows={2} maxLength={100} className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">If you have heart diseases, please specify what:</label>
-                            <textarea placeholder="Answer Here..." disabled readOnly rows={2} maxLength={100} className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">For no. 10, please specify which:</label>
-                            <select disabled className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900">
-                                <option>Select Which</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">If you have allergies, please specify what:</label>
-                            <textarea placeholder="Answer Here..." disabled readOnly rows={2} maxLength={100} className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Do you have any medication that you&apos;re currently taking?</label>
-                            <textarea placeholder="Answer Here..." disabled readOnly rows={2} maxLength={100} className="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-gray-50 text-gray-900" />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Immunization Record */}
-                <div className="border rounded-md p-4 mt-8">
-                    <div className="font-bold text-center mb-4 text-black border border-gray-300 rounded-md py-1">IMMUNIZATION RECORD</div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Have you ever had the ff. Please select all that apply:</label>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                                {['Tetanus', 'DPT', 'HepB', 'Polio', 'Measles', 'BCC'].map((v, i) => (
-                                    <div key={i} className="flex items-center gap-2">
-                                        <input type="checkbox" disabled readOnly />
-                                        <span className="text-sm">{v}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Do you allow or school nurse to give first aid during sick days?</label>
-                            <div className="flex gap-4 mt-2">
-                                <div className="flex items-center gap-2">
-                                    <input type="checkbox" disabled readOnly />
-                                    <span className="text-sm">Yes</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <input type="checkbox" disabled readOnly />
-                                    <span className="text-sm">No</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    const renderTabContent = () => {
-        switch (activeTab) {
-            case 'personal':
-                return renderPersonalData();
-            case 'health':
-                return renderHealthHistory();
-            case 'familyBg':
-                return renderFamBackground();
-            case 'education':
-                return renderEducBackground();
-            case 'medical':
-                return renderMedicalHistory();
-            default:
-                return renderPersonalData();
-        }
+    const handleArchiveStudent = (studentId: string) => {
+        console.log('Archive student:', studentId);
+        // TODO: Implement archive student functionality
     };
 
     return (
-        <div className="h-screen bg-gray-100">
-            <div className="flex flex-col md:flex-row h-screen">
-                {/* Students List - Above on mobile, sidebar on desktop */}
-                <div className="w-full md:w-80 bg-white md:border-r border-gray-200 flex flex-col h-64 md:h-full">
-                    {/* Search Header */}
-                    <div className="p-4 border-b border-gray-200">
-                        <div className="relative">
-                            <div className="flex items-center">
-                                <Search className="w-4 h-4 text-gray-400 mr-2" />
-                                <input
-                                    type="text"
-                                    placeholder="Find Student"
-                                    value={searchTerm}
+        <div className="p-4 sm:p-6">
+            <div className="mx-auto">
+                <h1 className="text-2xl sm:text-3xl font-semibold text-black mb-6">Student Information</h1>
+
+                {/* Search and Filter Section */}
+                <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <div className="flex flex-col gap-4">
+                        {/* Search Input */}
+                        <div className="bg-white flex-1 relative">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black w-5 h-5" />
+                            <input
+                                type="text"
+                                placeholder="Search by student number or name..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="placeholder-gray text-black w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+
+                        {/* Filter Section */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {/* Grade Level Filter */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Grade Level
+                                </label>
+                                <div className="flex flex-wrap gap-2">
+                                    {uniqueGradeLevels.map((grade) => (
+                                        <button
+                                            key={grade}
+                                            onClick={() => toggleGradeLevel(grade)}
+                                            className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${selectedGrades.includes(grade)
+                                                    ? 'bg-blue-500 text-white border-blue-500'
+                                                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                                }`}
+                                        >
+                                            {grade}
+                                        </button>
+                                    ))}
+                                </div>
+                                {selectedGrades.length > 0 && (
+                                    <button
+                                        onClick={() => setSelectedGrades([])}
+                                        className="mt-2 text-sm text-blue-600 hover:text-blue-800"
+                                    >
+                                        Clear all
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* School Year Filter */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    School Year
+                                </label>
+                                <div className="flex flex-wrap gap-2">
+                                    {uniqueSchoolYears.map((year) => (
+                                        <button
+                                            key={year}
+                                            onClick={() => toggleSchoolYear(year)}
+                                            className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${selectedSchoolYears.includes(year)
+                                                    ? 'bg-green-500 text-white border-green-500'
+                                                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                                }`}
+                                        >
+                                            {year}
+                                        </button>
+                                    ))}
+                                </div>
+                                {selectedSchoolYears.length > 0 && (
+                                    <button
+                                        onClick={() => setSelectedSchoolYears([])}
+                                        className="mt-2 text-sm text-green-600 hover:text-green-800"
+                                    >
+                                        Clear all
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Results Count and Items Per Page */}
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                            <div className="text-sm text-gray-600">
+                                Showing {filteredAndSortedStudents.length === 0 ? 0 : startIndex + 1} to {Math.min(endIndex, filteredAndSortedStudents.length)} of {filteredAndSortedStudents.length} students
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <label className="text-sm text-gray-600">Items per page:</label>
+                                <select
+                                    value={itemsPerPage}
                                     onChange={(e) => {
-                                        setSearchTerm(e.target.value);
+                                        setItemsPerPage(Number(e.target.value));
+                                        setCurrentPage(1);
                                     }}
-                                    className="flex-1 border-none outline-none text-sm text-black placeholder-gray-500"
-                                />
-                                <ChevronDown className="w-4 h-4 text-gray-400" />
+                                    className="text-black px-3 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value={5}>5</option>
+                                    <option value={10}>10</option>
+                                    <option value={25}>25</option>
+                                    <option value={50}>50</option>
+                                </select>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    {/* Students Section */}
-                    <div className="flex-1 overflow-hidden">
-                        {/* Students List */}
-                        <div className="flex-1 overflow-y-auto">
-                            {isLoading ? (
-                                <div className="p-4 text-center text-gray-500">Loading students...</div>
-                            ) : filteredStudents.length === 0 ? (
-                                <div className="p-4 text-center text-gray-500">No students found</div>
-                            ) : (
-                                <div className="divide-y divide-gray-100">
-                                    {filteredStudents.map((student) => (
-                                        <div
-                                            key={student.id}
-                                            onClick={() => handleStudentSelect(student.id)}
-                                            className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${selectedStudent?.id === student.id ? 'bg-blue-50' : ''
-                                                }`}
-                                        >
-                                            <div className="text-sm font-medium text-gray-900">
-                                                {student.fullName}
+                {/* Students Table */}
+                <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                    {/* Mobile View - Cards */}
+                    <div className="block lg:hidden">
+                        {filteredAndSortedStudents.length === 0 ? (
+                            <div className="p-8 text-center text-gray-500">
+                                No students found matching your criteria.
+                            </div>
+                        ) : (
+                            <div className="divide-y divide-gray-200">
+                                {paginatedStudents.map((student) => (
+                                    <div key={student.id} className="p-4 hover:bg-gray-50">
+                                        <div className="space-y-2">
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <p className="font-semibold text-gray-900">
+                                                        {student.firstName} {student.middleName} {student.familyName}
+                                                    </p>
+                                                    <p className="text-sm text-gray-600">{student.applicationNumber}</p>
+                                                </div>
+                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                    {student.yearLevel?.name}
+                                                </span>
                                             </div>
-                                            <div className="text-xs text-gray-500 mt-1">
-                                                {student.yearLevel} • {student.applicationNumber || student.id}
+                                            <p className="text-sm text-gray-500">{student.academicYear?.year}</p>
+
+                                            {/* Action Buttons */}
+                                            <div className="flex gap-2 pt-2">
+                                                <button
+                                                    onClick={() => handleViewStudent(student.applicationNumber)}
+                                                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                                                >
+                                                    <Eye className="w-4 h-4" />
+                                                    <span>View</span>
+                                                </button>
+                                                <button
+                                                    onClick={() => handleEditStudent(student.id)}
+                                                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+                                                >
+                                                    <Edit className="w-4 h-4" />
+                                                    <span>Edit</span>
+                                                </button>
+                                                <button
+                                                    onClick={() => handleArchiveStudent(student.id)}
+                                                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm font-medium text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                                                >
+                                                    <Archive className="w-4 h-4" />
+                                                    <span>Archive</span>
+                                                </button>
                                             </div>
                                         </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Desktop View - Table */}
+                    <div className="hidden lg:block overflow-x-auto">
+                        {filteredAndSortedStudents.length === 0 ? (
+                            <div className="p-8 text-center text-gray-500">
+                                No students found matching your criteria.
+                            </div>
+                        ) : (
+                            <table className="w-full">
+                                <thead className="bg-gray-50 border-b border-gray-200">
+                                    <tr>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <button
+                                                onClick={() => handleSort('studentNumber')}
+                                                className="flex items-center gap-2 hover:text-gray-700 transition-colors"
+                                            >
+                                                <span>Student Number</span>
+                                                {getSortIcon('studentNumber')}
+                                            </button>
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <button
+                                                onClick={() => handleSort('name')}
+                                                className="flex items-center gap-2 hover:text-gray-700 transition-colors"
+                                            >
+                                                <span>Full Name</span>
+                                                {getSortIcon('name')}
+                                            </button>
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <button
+                                                onClick={() => handleSort('schoolYear')}
+                                                className="flex items-center gap-2 hover:text-gray-700 transition-colors"
+                                            >
+                                                <span>School Year</span>
+                                                {getSortIcon('schoolYear')}
+                                            </button>
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <button
+                                                onClick={() => handleSort('gradeLevel')}
+                                                className="flex items-center gap-2 hover:text-gray-700 transition-colors"
+                                            >
+                                                <span>Grade Level</span>
+                                                {getSortIcon('gradeLevel')}
+                                            </button>
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {paginatedStudents.map((student) => (
+                                        <tr key={student.id} className="hover:bg-gray-50 transition-colors">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                {student.applicationNumber}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {student.firstName} {student.middleName || ''} {student.familyName}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                {student.academicYear?.year}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                    {student.yearLevel?.name}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => handleViewStudent(student.applicationNumber)}
+                                                        className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                                                        title="View Student"
+                                                    >
+                                                        <Eye className="w-4 h-4" />
+                                                        <span>View</span>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleEditStudent(student.id)}
+                                                        className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+                                                        title="Edit Student"
+                                                    >
+                                                        <Edit className="w-4 h-4" />
+                                                        <span>Edit</span>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleArchiveStudent(student.id)}
+                                                        className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                                                        title="Archive Student"
+                                                    >
+                                                        <Archive className="w-4 h-4" />
+                                                        <span>Archive</span>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
                                     ))}
+                                </tbody>
+                            </table>
+                        )}
+                    </div>
+
+                    {/* Pagination Controls */}
+                    {filteredAndSortedStudents.length > 0 && (
+                        <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                                {/* Mobile pagination info */}
+                                <div className="text-sm text-gray-600 sm:hidden">
+                                    Page {currentPage} of {totalPages}
                                 </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
 
-                {/* Main Content Area - Below on mobile */}
-                <div className="flex-1 flex flex-col bg-white">
-                    {/* Tab Navigation */}
-                    <div className="flex flex-wrap items-center justify-between border-b border-gray-200">
-                        <div className="flex flex-nowrap md:flex-wrap">
-                            {tabs.map((tab) => (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => setActiveTab(tab.id)}
-                                    className={`px-4 py-3 md:px-8 md:py-2 text-[10px] md:text-base font-small transition-colors whitespace-nowrap ${activeTab === tab.id
-                                        ? 'bg-yellow-400 text-black border-b-2 border-transparent'
-                                        : 'bg-red-800 text-white hover:bg-red-700 border-b-2 border-transparent'
-                                        }`}
-                                >
-                                    {tab.label}
-                                </button>
-                            ))}
-                        </div>
+                                {/* Pagination buttons */}
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => handlePageChange(currentPage - 1)}
+                                        disabled={currentPage === 1}
+                                        className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    >
+                                        <ChevronLeft className="w-4 h-4 mr-1" />
+                                        Previous
+                                    </button>
 
-                        {/* Edit Button */}
-                        <div className="pr-6">
-                            <button
-                                className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-                                title="Edit Student Information"
-                            >
-                                <Edit className="w-5 h-5" />
-                            </button>
-                        </div>
-                    </div>
+                                    {/* Page numbers */}
+                                    <div className="hidden sm:flex items-center gap-1">
+                                        {getPageNumbers().map((page, index) => (
+                                            typeof page === 'number' ? (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => handlePageChange(page)}
+                                                    className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                                                        currentPage === page
+                                                            ? 'bg-blue-500 text-white'
+                                                            : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                                                    }`}
+                                                >
+                                                    {page}
+                                                </button>
+                                            ) : (
+                                                <span key={index} className="px-2 text-gray-500">
+                                                    {page}
+                                                </span>
+                                            )
+                                        ))}
+                                    </div>
 
-                    {/* Tab Content */}
-                    <div className="flex-1 overflow-y-auto">
-                        {renderTabContent()}
-                    </div>
+                                    <button
+                                        onClick={() => handlePageChange(currentPage + 1)}
+                                        disabled={currentPage === totalPages}
+                                        className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    >
+                                        Next
+                                        <ChevronRight className="w-4 h-4 ml-1" />
+                                    </button>
+                                </div>
+
+                                {/* Desktop pagination info */}
+                                <div className="hidden sm:block text-sm text-gray-600">
+                                    Page {currentPage} of {totalPages}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
-
-
         </div>
     );
 }

@@ -42,8 +42,8 @@ const NAVIGATION_ITEMS = [
         icon: BookMarked,
     },
     {
-        href: "/registrar/code-management",
-        label: "Code Management",
+        href: "/registrar/code-logs",
+        label: "Code Logs",
         icon: Newspaper,
     },
     // {
@@ -85,8 +85,8 @@ const PATH_ITEMS = [
         icon: BookMarked,
     },
     {
-        href: "/registrar/code-management",
-        label: "Code Management",
+        href: "/registrar/code-logs",
+        label: "Code Logs",
         icon: Newspaper,
     },
     {
