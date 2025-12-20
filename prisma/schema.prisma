@@ -1,13 +1,11 @@
 generator client {
-  provider      = "prisma-client-js"
+  provider      = "prisma-client"
   output        = "../src/generated/prisma"
   binaryTargets = ["native", "linux-musl", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
 }
 
 model User {
@@ -23,6 +21,8 @@ model User {
   familyName String        @db.VarChar(255)
   suffix     String?       @db.VarChar(50)
   student    Student?
+
+  notifications NotificationRecipient[]
 
   @@index([role, status])
   @@index([email, status])
@@ -490,11 +490,31 @@ model Grade {
 }
 
 model Notification {
-  id          Int      @id @default(autoincrement())
-  date        DateTime
+  id          Int       @id @default(autoincrement())
   title       String
   description String
-  createdAt   DateTime @default(now())
+  type        String // info, warning, system, etc.
+  scope       String // GENERAL, GROUP, USER
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  senderType String
+
+  recipients NotificationRecipient[]
+}
+
+model NotificationRecipient {
+  id             Int       @id @default(autoincrement())
+  notificationId Int
+  userId         Int
+  isRead         Boolean   @default(false)
+  readAt         DateTime?
+
+  notification Notification @relation(fields: [notificationId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+
+  @@unique([notificationId, userId])
 }
 
 enum Gender {
@@ -507,6 +527,7 @@ enum Gender {
 enum UserRole {
   STUDENT
   ADMIN
+  REGISTRAR
   TEACHER
   PARENT
   STAFF
@@ -546,7 +567,7 @@ enum RequirementStatus {
   APPROVED
   REJECTED
   INCOMPLETE
-    ARCHIVED
+  ARCHIVED
 }
 
 enum FeedbackType {

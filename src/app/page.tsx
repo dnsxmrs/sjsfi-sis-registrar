@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import RoleButton from '@/components/app/RoleButton';
+import RoleButton from '@/components/auth/RoleButton';
 import LoginFooter from '@/app/login/components/LoginFooter';
 
 

@@ -1,5 +1,6 @@
 import StatsCards from '@/components/registrar/StatsCards';
 import GradePieChart from '@/components/admin/PieChart';
+import QuickActions from '@/components/registrar/QuickActions';
 import { Users, FileText, CheckCircle, Clock } from 'lucide-react';
 
 export default function RegistrarHomePage() {
@@ -12,21 +13,25 @@ export default function RegistrarHomePage() {
             <StatsCards />
 
             <div className="grid lg:grid-cols-2 gap-6 mt-8 items-start">
-                <div className="bg-white rounded-2xl shadow-md border-2 border-indigo-200 overflow-hidden hover:shadow-lg transition-shadow">
-                    <div className="bg-white border-b-2 border-indigo-200 px-6 py-4">
-                        <div className="flex items-center gap-2">
-                            <div className="p-2 bg-indigo-100 rounded-lg">
-                                <Users className="w-5 h-5 text-indigo-600" />
-                            </div>
-                            <div>
-                                <h3 className="text-lg font-semibold text-gray-900">Student Distribution</h3>
-                                <p className="text-sm text-gray-600">Students enrolled per grade level</p>
+                <div className="space-y-6">
+                    <div className="bg-white rounded-2xl shadow-md border-2 border-indigo-200 overflow-hidden hover:shadow-lg transition-shadow">
+                        <div className="bg-white border-b-2 border-indigo-200 px-6 py-4">
+                            <div className="flex items-center gap-2">
+                                <div className="p-2 bg-indigo-100 rounded-lg">
+                                    <Users className="w-5 h-5 text-indigo-600" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900">Student Distribution</h3>
+                                    <p className="text-sm text-gray-600">Students enrolled per grade level</p>
+                                </div>
                             </div>
                         </div>
+                        <div className="p-6">
+                            <GradePieChart />
+                        </div>
                     </div>
-                    <div className="p-6">
-                        <GradePieChart />
-                    </div>
+
+                    <QuickActions />
                 </div>
 
                 <div className="space-y-6">
@@ -62,7 +67,7 @@ export default function RegistrarHomePage() {
                                 <CheckCircle className="w-5 h-5 text-emerald-600" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900">Approved Today</h3>
+                                <h3 className="text-lg font-semibold text-gray-900">Approved Since Today</h3>
                                 <p className="text-sm text-gray-600">Successfully processed</p>
                             </div>
                         </div>

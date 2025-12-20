@@ -1,4 +1,4 @@
-import SignOutHandler from '@/app/workaround/sign-out/components/SignOutHandler'
+import SignOutHandler from '@/app/logout/SignOutHandler'
 
 export default async function SignOutPage() {
     // await new Promise(resolve => setTimeout(resolve, 10000));
