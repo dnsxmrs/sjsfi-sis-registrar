@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import type { FamilyBackground, HonorsAwards } from '@/generated/prisma';
+import type { FamilyBackgroundModel, HonorsAwardsModel } from '@/generated/prisma/models';
 
 export interface StudentPersonalData {
     id: number;
@@ -239,7 +239,7 @@ export async function getStudentByNumber(studentNumber: string): Promise<Student
             : null;
 
         // Build family background data
-        const familyBackground: StudentFamilyBackground[] = studentApplication.familyBackgrounds.map((family: FamilyBackground) => ({
+        const familyBackground: StudentFamilyBackground[] = studentApplication.familyBackgrounds.map((family: FamilyBackgroundModel) => ({
             id: family.id,
             guardianType: family.guardianType,
             familyName: family.familyName,
@@ -277,7 +277,7 @@ export async function getStudentByNumber(studentNumber: string): Promise<Student
                 schoolName: educBg.schoolName,
                 schoolAddress: educBg.schoolAddress,
                 honorsReceived: (educBg.honorsAwards || []).map(
-                    (honor: HonorsAwards) => honor.description || ''
+                    (honor: HonorsAwardsModel) => honor.description || ''
                 ),
                 inclusiveYearsAttended: educBg.inclusiveYearsAttended,
                 attendedSummerClasses: educBg.attendedSummerClasses
