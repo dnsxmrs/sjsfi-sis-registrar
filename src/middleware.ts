@@ -39,13 +39,13 @@ function getRoleHomePage(userRoles: string[] | string): string {
     if (roles.includes("admin")) return "/forms/home";
     if (roles.includes("registrar")) return "/registrar/home";
 
-    return "/logout";
+    return "/sign-out";
 }
 
 const isPublicRoute = createRouteMatcher([
     "/",
-    "/login/(.*)",
-    "/logout"
+    "/sign-in/(.*)",
+    "/sign-out"
 ]);
 
 const isProtectedRoute = createRouteMatcher([
@@ -74,7 +74,7 @@ export default clerkMiddleware(
 
         // Case 3: Authenticated user accessing public routes (redirect to dashboard)
         if (isAuthenticated && isPublicRoute(req)) {
-            if (url.pathname === "/logout") {
+            if (url.pathname === "/sign-out") {
                 return NextResponse.next();
             }
 
@@ -86,8 +86,8 @@ export default clerkMiddleware(
                     | undefined;
 
                 if (!userRoles) {
-                    console.warn("⚠️ No roles found for user, redirecting to logout");
-                    return NextResponse.redirect(new URL("/logout", req.url));
+                    console.warn("⚠️ No roles found for user, redirecting to sign-out");
+                    return NextResponse.redirect(new URL("/sign-out", req.url));
                 }
 
                 const redirectUrl = getRoleHomePage(userRoles);
@@ -95,7 +95,7 @@ export default clerkMiddleware(
                 return NextResponse.redirect(new URL(redirectUrl, req.url));
             } catch (error) {
                 console.error("❌ Error checking user role:", error);
-                return NextResponse.redirect(new URL("/logout", req.url));
+                return NextResponse.redirect(new URL("/sign-out", req.url));
             }
         }
 
@@ -110,7 +110,7 @@ export default clerkMiddleware(
 
                 if (!userRoles) {
                     console.warn("⚠️ No roles defined for user accessing protected route");
-                    return NextResponse.redirect(new URL("/logout", req.url));
+                    return NextResponse.redirect(new URL("/sign-out", req.url));
                 }
 
                 const allowedForRoute = checkRoleForRoute(url.pathname, userRoles);
@@ -125,7 +125,7 @@ export default clerkMiddleware(
                 return NextResponse.next();
             } catch (error) {
                 console.error("❌ Error verifying roles for protected route:", error);
-                return NextResponse.redirect(new URL("/logout", req.url));
+                return NextResponse.redirect(new URL("/sign-out", req.url));
             }
         }
 

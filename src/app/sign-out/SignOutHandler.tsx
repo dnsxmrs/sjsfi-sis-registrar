@@ -29,7 +29,7 @@ export default function SignOutHandler({
                 return
             }
 
-            // Prevent multiple logout attempts
+            // Prevent multiple sign-out attempts
             if (isSigningOut) return
 
             setIsSigningOut(true)

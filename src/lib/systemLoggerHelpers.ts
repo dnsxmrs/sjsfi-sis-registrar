@@ -106,7 +106,7 @@ export async function logAuthEvent(params: {
     userId?: number;
     userName?: string;
     userRole?: string;
-    actionType: 'LOGIN' | 'LOGOUT' | 'PASSWORD_CHANGE';
+    actionType: 'SIGN-IN' | 'SIGN-OUT' | 'PASSWORD_CHANGE';
     success: boolean;
     errorMessage?: string;
     metadata?: LogData;

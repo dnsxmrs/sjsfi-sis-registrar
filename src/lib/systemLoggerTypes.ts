@@ -12,7 +12,7 @@ export interface LogSystemActionParams {
 
     // Action details (required)
     actionCategory: 'AUTH' | 'REGISTRATION' | 'ACADEMIC' | 'USER' | 'SYSTEM' | 'SECURITY';
-    actionType: 'CREATE' | 'UPDATE' | 'DELETE' | 'LOGIN' | 'LOGOUT' | 'EXPORT' | 'IMPORT' | 'VIEW' | 'PASSWORD_CHANGE' | 'UNAUTHORIZED_ACCESS' | 'SUSPICIOUS_ACTIVITY' | 'DATA_BREACH' | 'BRUTE_FORCE';
+    actionType: 'CREATE' | 'UPDATE' | 'DELETE' | 'SIGN-IN' | 'SIGN-OUT' | 'EXPORT' | 'IMPORT' | 'VIEW' | 'PASSWORD_CHANGE' | 'UNAUTHORIZED_ACCESS' | 'SUSPICIOUS_ACTIVITY' | 'DATA_BREACH' | 'BRUTE_FORCE';
     actionSubType?: string;
     actionDescription: string;
 
@@ -47,8 +47,8 @@ export interface LogSystemActionParams {
 // Predefined action types for consistency
 export const ACTION_TYPES = {
     AUTH: {
-        LOGIN: 'LOGIN',
-        LOGOUT: 'LOGOUT',
+        SIGN_IN: 'SIGN-IN',
+        SIGN_OUT: 'SIGN-OUT',
         PASSWORD_CHANGE: 'PASSWORD_CHANGE',
         FAILED_LOGIN: 'FAILED_LOGIN',
         ACCOUNT_LOCKED: 'ACCOUNT_LOCKED',

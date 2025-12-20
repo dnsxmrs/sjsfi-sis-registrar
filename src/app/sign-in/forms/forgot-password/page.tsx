@@ -1,7 +1,7 @@
 'use client';
 
-import InputField from '@/app/login/components/InputField';
-import LoginFooter from '@/app/login/components/LoginFooter';
+import InputField from '@/app/sign-in/components/InputField';
+import LoginFooter from '@/app/sign-in/components/LoginFooter';
 import { facultyEmailExists } from '../../actions/handleFacultyLogin';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
@@ -37,7 +37,7 @@ export default function FacultyForgotPassword() {
 
     useEffect(() => {
         if (isSignedIn) {
-            router.push('/registrar/home')
+            router.push('/forms/home')
         }
     }, [isSignedIn, router])
 
@@ -181,7 +181,7 @@ export default function FacultyForgotPassword() {
                                     className="mb-2"
                                 />
                                 <h1 className="text-3xl text-center text-[#000] w-full mb-1 mx-1">
-                                    <span className='font-bold text-[#800000]'>SJSFI-SIS </span>Registrar Module
+                                    <span className='font-bold text-[#800000]'>SJSFI-SIS </span>Forms Module
                                 </h1>
                                 <h3 className="text-2xl text-center text-[#800000] w-full mb-2 mx-1">
                                     Forgot Password
@@ -286,7 +286,7 @@ export default function FacultyForgotPassword() {
                                     )}
 
                                     <div className="mb-4 w-full">
-                                        <Link href="/auth/registrar" className="w-full inline-block">
+                                        <Link href="/auth/forms" className="w-full inline-block">
                                             <span
                                                 className={`bg-[#fff] text-[#800000] text-sm rounded-sm px-4 py-2 w-full block text-center transition duration-200 ease-in-out ${isLoading
                                                     ? 'opacity-50 cursor-not-allowed'

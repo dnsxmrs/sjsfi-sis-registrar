@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import RoleButton from '@/components/auth/RoleButton';
-import LoginFooter from '@/app/login/components/LoginFooter';
+import LoginFooter from '@/app/sign-in/components/LoginFooter';
 
 
 export default async function Home() {
@@ -46,7 +46,7 @@ export default async function Home() {
                     <RoleButton
                       label="Forms"
                       color="bg-[#800000]"
-                      href="/login/forms"
+                      href="/sign-in/forms"
                     />
                   </div>
                   <div className="mb-4 w-full">
@@ -54,7 +54,7 @@ export default async function Home() {
                       label="Registrar"
                       color="bg-[#ffd700]"
                       hoverClass="hover:bg-[#DAA520]"
-                      href="/login/registrar"
+                      href="/sign-in/registrar"
                     />
                   </div>
                   <LoginFooter />

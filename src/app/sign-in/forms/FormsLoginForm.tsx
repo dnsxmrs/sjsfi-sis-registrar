@@ -1,9 +1,9 @@
 "use client";
 
 import { facultyEmailExists } from "../actions/handleFacultyLogin";
-import InputField from "@/app/login/components/InputField";
-import LoginFooter from "@/app/login/components/LoginFooter";
-import ActionButton from "@/app/login/components/ActionButton";
+import InputField from "@/app/sign-in/components/InputField";
+import LoginFooter from "@/app/sign-in/components/LoginFooter";
+import ActionButton from "@/app/sign-in/components/ActionButton";
 import Link from "next/link";
 import { useState } from "react";
 import { useSignIn } from "@clerk/nextjs";
@@ -14,7 +14,7 @@ interface SetRoleResult {
     error?: string;
 }
 
-export default function RegistrarLoginForm() {
+export default function FormsLoginForm() {
     const [email_address, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -45,7 +45,7 @@ export default function RegistrarLoginForm() {
             // STEP 2: Check if the user exists with registrar access
             const facultyCheck = await facultyEmailExists(
                 email_address,
-                "registrar" // Changed from "faculty" to "registrar" for registrar login
+                "forms" // Changed from "faculty" to "forms" for forms login
             );
 
             if (!facultyCheck.success) {
@@ -92,7 +92,7 @@ export default function RegistrarLoginForm() {
                     return;
                 }
 
-                router.push(`/registrar/home`);
+                router.push(`/forms/home`);
             } else {
                 setError("Invalid credentials.");
             }
@@ -165,7 +165,7 @@ export default function RegistrarLoginForm() {
                     <span className="text-[#800000]">Forgot your password?</span> Contact the system administrator for assistance.
                 </p> */}
                 <Link
-                    href="/login/registrar/forgot-password"
+                    href="/sign-in/forms/forgot-password"
                     className="font-medium text-sm text-[#800000] hover:underline hover:text-[#800000]/80 transition duration-200 ease-in-out"
                 >
                     I forgot my password
