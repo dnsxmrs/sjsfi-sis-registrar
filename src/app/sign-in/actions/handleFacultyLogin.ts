@@ -29,8 +29,8 @@ async function logAuthAttempt(
 ) {
     await logSystemAction({
         actionCategory: "AUTH",
-        actionType: "LOGIN",
-        actionDescription: `Faculty login attempt from ${origin}`,
+        actionType: "SIGN-IN",
+        actionDescription: `Faculty sign-in attempt from ${origin}`,
         targetType: "USER",
         targetId: email,
         targetName: email,
