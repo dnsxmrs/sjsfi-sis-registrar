@@ -7,9 +7,8 @@ interface StudentNotificationData {
     studentNumber: string;
     firstName: string;
     middleName: string | null;
-    lastName: string;
+    familyName: string;
     email: string;
-    phoneNumber: string | null;
     missingRequirements?: string[];
 }
 
@@ -19,9 +18,10 @@ export async function getStudentForNotification(studentNumber: string): Promise<
     error?: string;
 }> {
     try {
-        const student = await prisma.user.findFirst({
+        // First, find the user with the student
+        const user = await prisma.user.findFirst({
             where: {
-                Student: {
+                student: {
                     studentNumber: studentNumber,
                 },
                 role: 'STUDENT',
@@ -31,58 +31,59 @@ export async function getStudentForNotification(studentNumber: string): Promise<
                 email: true,
                 firstName: true,
                 middleName: true,
-                lastName: true,
-                Student: {
+                familyName: true,
+                student: {
                     select: {
                         studentNumber: true,
-                        phoneNumber: true,
-                        StudentApplication: {
-                            select: {
-                                StudentApplicationRequirement: {
-                                    where: {
-                                        isSubmitted: false,
-                                    },
-                                    select: {
-                                        Requirement: {
-                                            select: {
-                                                name: true,
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                            orderBy: {
-                                createdAt: 'desc',
-                            },
-                            take: 1,
-                        },
                     },
                 },
             },
         });
 
-        if (!student || !student.Student) {
+        if (!user || !user.student) {
             return {
                 success: false,
                 error: 'Student not found',
             };
         }
 
+        // Find the most recent student application by email match
+        const studentApplication = await prisma.studentApplication.findFirst({
+            where: {
+                emailAddress: user.email,
+                deletedAt: null,
+            },
+            select: {
+                id: true,
+                requirements: {
+                    where: {
+                        status: {
+                            in: ['PENDING', 'REJECTED'],
+                        },
+                        deletedAt: null,
+                    },
+                    select: {
+                        requirementType: true,
+                    },
+                },
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+
         const missingRequirements =
-            student.Student.StudentApplication[0]?.StudentApplicationRequirement.map(
-                (req) => req.Requirement.name
-            ) || [];
+            studentApplication?.requirements.map((req) => req.requirementType) || [];
 
         return {
             success: true,
             student: {
-                id: student.id,
-                studentNumber: student.Student.studentNumber,
-                firstName: student.firstName,
-                middleName: student.middleName,
-                lastName: student.lastName,
-                email: student.email,
-                phoneNumber: student.Student.phoneNumber,
+                id: user.id,
+                studentNumber: user.student.studentNumber,
+                firstName: user.firstName,
+                middleName: user.middleName,
+                familyName: user.familyName,
+                email: user.email,
                 missingRequirements,
             },
         };
