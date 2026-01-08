@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Eye, Trash, X, Mail } from 'lucide-react';
-// import { getStudents } from '@/app/_actions/getStudents';
+import { Eye, Trash, X } from 'lucide-react';
 import { getStudentApplicationTableData } from '@/app/_actions/getStudentsList';
-import { sendMissingRequirementsNotification, getMissingRequirements } from '@/app/_actions/sendNotification';
+import { sendMissingRequirementsNotification } from '@/app/_actions/sendNotification';
 import { approveApplication } from '@/app/_actions/studentApplication';
 import toast from 'react-hot-toast';
+import { FileUpload } from '@/components/registrar/FileUpload';
 
 const RegisterCoursePage: React.FC = () => {
     const [studentID, setStudentID] = useState('');
@@ -21,17 +21,24 @@ const RegisterCoursePage: React.FC = () => {
     const [selectedApplication, setSelectedApplication] = useState<any>(null);
 
     const [isLoading, setIsLoading] = useState(true);
-    const [requirements, setRequirements] = useState({
-        birthCertificate: false,
-        f137: false,
-        f138: false,
-        goodMoral: false,
-        privacyForm: false,
+    const [requirementFiles, setRequirementFiles] = useState<{
+        birthCertificate: File | null;
+        f137: File | null;
+        f138: File | null;
+        goodMoral: File | null;
+        privacyForm: File | null;
+    }>({
+        birthCertificate: null,
+        f137: null,
+        f138: null,
+        goodMoral: null,
+        privacyForm: null,
     });
     const [isNotificationLoading, setIsNotificationLoading] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showApproveModal, setShowApproveModal] = useState(false);
     const [isApproving, setIsApproving] = useState(false);
+    const [fileUploadKey, setFileUploadKey] = useState(0); // Key to force remount of file inputs
     const [modalData, setModalData] = useState<{
         fullName: string;
         email: string;
@@ -68,10 +75,10 @@ const RegisterCoursePage: React.FC = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const handleRequirementChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setRequirements({
-            ...requirements,
-            [e.target.name]: e.target.checked,
+    const handleFileUpload = (requirementType: string, file: File | null) => {
+        setRequirementFiles({
+            ...requirementFiles,
+            [requirementType]: file,
         });
     };
 
@@ -94,20 +101,24 @@ const RegisterCoursePage: React.FC = () => {
         setIsApproving(true);
 
         try {
-            // Simulate registration logic
-            const result = await approveApplication(selectedApplication, requirements);
+            // Pass files directly to server action - it will handle uploads
+            toast.loading('Processing application approval...', { id: 'approval' });
+            
+            const result = await approveApplication(selectedApplication, requirementFiles);
+            
             if (result.success) {
-                toast.success('Student application approved successfully!');
+                toast.success('Student application approved successfully!', { id: 'approval' });
                 setShowApproveModal(false);
                 // refresh list
                 setIsLoading(true);
                 await fetchStudents();
                 setIsLoading(false);
             } else {
-                toast.error('Failed to approve application.');
+                toast.error(`Failed to approve application: ${result.error}`, { id: 'approval' });
             }
-        } catch {
-            toast.error('Failed to approve application. An error occurred.');
+        } catch (error) {
+            console.error('Approval error:', error);
+            toast.error('Failed to approve application. An error occurred.', { id: 'approval' });
         } finally {
             setIsApproving(false);
         }
@@ -120,8 +131,14 @@ const RegisterCoursePage: React.FC = () => {
             return;
         }
 
-        // Check if there are missing requirements
-        const missingReqs = await getMissingRequirements(requirements);
+        // Check if there are missing requirements (files not uploaded)
+        const missingReqs: string[] = [];
+        if (!requirementFiles.birthCertificate) missingReqs.push('Birth Certificate');
+        if (!requirementFiles.f137) missingReqs.push('F-137');
+        if (!requirementFiles.f138) missingReqs.push('F-138');
+        if (!requirementFiles.goodMoral) missingReqs.push('Good Moral');
+        if (!requirementFiles.privacyForm) missingReqs.push('Privacy Form');
+
         if (missingReqs.length === 0) {
             toast('This student has submitted all requirements. No notification needed.');
             return;
@@ -180,15 +197,17 @@ const RegisterCoursePage: React.FC = () => {
 
         setSelectedApplication(student);
 
-        // For requirements, we'll set them to false as default since we don't have this data
-        // You can modify this logic based on your actual data structure
-        setRequirements({
-            birthCertificate: false,
-            f137: false,
-            f138: true,
-            goodMoral: false,
-            privacyForm: false
+        // Reset file uploads for the new student
+        setRequirementFiles({
+            birthCertificate: null,
+            f137: null,
+            f138: null,
+            goodMoral: null,
+            privacyForm: null,
         });
+
+        // Force remount of file upload components to clear UI
+        setFileUploadKey(prev => prev + 1);
     };
 
     // Confirmation Modal Component for sending email
@@ -201,7 +220,6 @@ const RegisterCoursePage: React.FC = () => {
                     <div className="p-6">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-                                <Mail className="w-5 h-5 mr-2 text-blue-600" />
                                 Confirm Email Notification
                             </h3>
                             <button
@@ -215,7 +233,7 @@ const RegisterCoursePage: React.FC = () => {
 
                         <div className="mb-6">
                             <p className="text-gray-700 mb-4">
-                                Send missing requirements notification to <strong>{modalData.fullName}</strong>?
+                                Send missing requirements notification to <strong>{modalData.fullName}</strong> at <strong>{modalData.email}</strong>?
                             </p>
 
                             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
@@ -228,12 +246,6 @@ const RegisterCoursePage: React.FC = () => {
                                         </li>
                                     ))}
                                 </ul>
-                            </div>
-
-                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                                <p className="text-sm text-blue-700">
-                                    <strong>Email will be sent to:</strong> {modalData.email}
-                                </p>
                             </div>
                         </div>
 
@@ -257,7 +269,16 @@ const RegisterCoursePage: React.FC = () => {
                                     </>
                                 ) : (
                                     <>
-                                        <Mail className="w-4 h-4" />
+                                        <svg
+                                            className="w-4 h-4"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                        </svg>
                                         <span>Send Email</span>
                                     </>
                                 )}
@@ -274,11 +295,11 @@ const RegisterCoursePage: React.FC = () => {
         if (!showApproveModal) return null;
 
         const requirementsList = [
-            { key: 'birthCertificate', label: 'Birth Certificate', checked: requirements.birthCertificate },
-            { key: 'f137', label: 'F-137', checked: requirements.f137 },
-            { key: 'f138', label: 'F-138', checked: requirements.f138 },
-            { key: 'goodMoral', label: 'Good Moral', checked: requirements.goodMoral },
-            { key: 'privacyForm', label: 'Privacy Form', checked: requirements.privacyForm },
+            { key: 'birthCertificate', label: 'Birth Certificate', checked: !!requirementFiles.birthCertificate },
+            { key: 'f137', label: 'F-137', checked: !!requirementFiles.f137 },
+            { key: 'f138', label: 'F-138', checked: !!requirementFiles.f138 },
+            { key: 'goodMoral', label: 'Good Moral', checked: !!requirementFiles.goodMoral },
+            { key: 'privacyForm', label: 'Privacy Form', checked: !!requirementFiles.privacyForm },
         ];
 
         return (
@@ -287,16 +308,6 @@ const RegisterCoursePage: React.FC = () => {
                     <div className="p-6">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-                                <svg
-                                    className="w-6 h-6 mr-2 text-green-600"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
                                 Confirm Application Approval
                             </h3>
                             <button
@@ -333,29 +344,10 @@ const RegisterCoursePage: React.FC = () => {
                                         <span className="text-blue-700 font-medium">Email:</span>
                                         <p className="text-blue-900 truncate">{email || 'N/A'}</p>
                                     </div>
-                                </div>
-                            </div>
-
-                            {/* Status Change */}
-                            <div className="bg-gradient-to-r from-yellow-50 to-green-50 border border-gray-200 rounded-lg p-4">
-                                <h4 className="font-semibold text-gray-800 mb-2">Status Change</h4>
-                                <div className="flex items-center justify-center space-x-3">
-                                    <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">
-                                        PENDING
-                                    </span>
-                                    <svg
-                                        className="w-5 h-5 text-gray-500"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-                                    </svg>
-                                    <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
-                                        APPROVED
-                                    </span>
+                                    <div>
+                                        <span className="text-blue-700 font-medium">Status:</span>
+                                        <p className="text-blue-900 truncate">PENDING &nbsp; -&gt; &nbsp; APPROVED</p>
+                                    </div>
                                 </div>
                             </div>
 
@@ -456,8 +448,6 @@ const RegisterCoursePage: React.FC = () => {
             </div>
         );
     };
-
-
 
     return (
         <div className="min-h-screen bg-gray-100 p-6">
@@ -562,7 +552,7 @@ const RegisterCoursePage: React.FC = () => {
                                 <label className="block text-sm font-medium mb-1 text-black" htmlFor="gradeLevel">
                                     Grade Level
                                 </label>
-                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">
+                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center cursor-not-allowed">
                                     {gradeLevel || 'Not selected'}
                                 </div>
                             </div>
@@ -570,7 +560,7 @@ const RegisterCoursePage: React.FC = () => {
                                 <label className="block text-sm font-medium mb-1 text-black" htmlFor="status">
                                     Application Status
                                 </label>
-                                <div className={`w-full border border-gray-300 rounded px-3 py-2 text-sm ${status
+                                <div className={`w-full border border-gray-300 rounded px-3 py-2 text-sm cursor-not-allowed ${status
                                     ? 'bg-yellow-100 text-yellow-800 font-semibold'
                                     : 'bg-gray-100 text-black'
                                     }`}>
@@ -593,61 +583,46 @@ const RegisterCoursePage: React.FC = () => {
                             />
                         </div>
                         <div className="mb-4">
-                            <span className="block text-sm font-medium text-black">Requirements</span>
+                            <span className="block text-sm font-medium text-black mb-1">Requirements Documents</span>
                             <p className="text-xs text-gray-500 mb-2">
-                                Note: Make sure to click &apos;Approve Application&apos; to save the application and requirements.
+                                Upload the required documents. Each file should be in PDF, JPG, PNG, or Word format (max 10MB).
                             </p>
-                            <div className="flex flex-col space-y-1">
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        name="birthCertificate"
-                                        checked={requirements.birthCertificate}
-                                        onChange={handleRequirementChange}
-                                        className="form-checkbox"
-                                    />
-                                    <span className="ml-2 text-sm text-black">Birth Certificate</span>
-                                </label>
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        name="f137"
-                                        checked={requirements.f137}
-                                        onChange={handleRequirementChange}
-                                        className="form-checkbox"
-                                    />
-                                    <span className="ml-2 text-sm text-black">F-137</span>
-                                </label>
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        name="f138"
-                                        checked={requirements.f138}
-                                        onChange={handleRequirementChange}
-                                        className="form-checkbox"
-                                    />
-                                    <span className="ml-2 text-sm text-black">F-138</span>
-                                </label>
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        name="goodMoral"
-                                        checked={requirements.goodMoral}
-                                        onChange={handleRequirementChange}
-                                        className="form-checkbox"
-                                    />
-                                    <span className="ml-2 text-sm text-black">Good Moral</span>
-                                </label>
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        name="privacyForm"
-                                        checked={requirements.privacyForm}
-                                        onChange={handleRequirementChange}
-                                        className="form-checkbox"
-                                    />
-                                    <span className="ml-2 text-sm text-black">Privacy Form</span>
-                                </label>
+                            <div key={fileUploadKey} className="grid grid-cols-2 gap-4 mb-4 space-y-3">
+                                <FileUpload
+                                    label="Birth Certificate"
+                                    requirementType="birthCertificate"
+                                    studentId={studentID}
+                                    onFileSelect={(file) => handleFileUpload('birthCertificate', file)}
+                                    disabled={!studentID}
+                                />
+                                <FileUpload
+                                    label="F-137 (Permanent Record)"
+                                    requirementType="f137"
+                                    studentId={studentID}
+                                    onFileSelect={(file) => handleFileUpload('f137', file)}
+                                    disabled={!studentID}
+                                />
+                                <FileUpload
+                                    label="F-138 (Report Card)"
+                                    requirementType="f138"
+                                    studentId={studentID}
+                                    onFileSelect={(file) => handleFileUpload('f138', file)}
+                                    disabled={!studentID}
+                                />
+                                <FileUpload
+                                    label="Certificate of Good Moral"
+                                    requirementType="goodMoral"
+                                    studentId={studentID}
+                                    onFileSelect={(file) => handleFileUpload('goodMoral', file)}
+                                    disabled={!studentID}
+                                />
+                                <FileUpload
+                                    label="Privacy Consent Form"
+                                    requirementType="privacyForm"
+                                    studentId={studentID}
+                                    onFileSelect={(file) => handleFileUpload('privacyForm', file)}
+                                    disabled={!studentID}
+                                />
                             </div>
                         </div>
                         <div className="flex space-x-4">
@@ -693,21 +668,6 @@ const RegisterCoursePage: React.FC = () => {
                                     </>
                                 )}
                             </button>
-                            {/* <button
-                                onClick={handleClearForm}
-                                className="bg-gray-500 text-white px-4 py-2 rounded text-sm flex items-center space-x-2 hover:bg-gray-600"
-                            >
-                                <svg
-                                    className="w-4 h-4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>                                <span>Clear Form</span>
-                            </button> */}
                         </div>
                     </div>
                 </div>

@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function LoginFooter() {
     return (
-        <div className="flex items-center justify-center mb-4 w-full">
+        <div className="flex items-center justify-center mb-4 w-full mt-2">
             <p className="text-sm text-black text-center">
                 By using this service, you understood and agree to the
                 <span className="font-medium text-[#DAA520]"> SJSFI Online Services </span>

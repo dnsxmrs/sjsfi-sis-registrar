@@ -119,7 +119,7 @@ async function main() {
     console.log('📋 Creating general policies...');
     await prisma.generalPolicy.create({
         data: {
-            title: 'General Enrollment Policy',
+            title: 'General Policy',
             content: '<h3>Enrollment Requirements</h3><p>All students must submit complete documents during enrollment period.</p><h3>Payment Policy</h3><p>Tuition fees must be settled according to the selected payment plan.</p>'
         }
     });

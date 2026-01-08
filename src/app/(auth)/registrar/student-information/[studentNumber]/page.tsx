@@ -41,7 +41,7 @@ export default function StudentDetailPage({ params }: PageProps) {
         const fetchStudentData = async () => {
             setIsLoading(true);
             const data = await getStudentByNumber(studentNumber);
-            console.log(data)
+            // console.log(data)
 
             if (data) {
                 setPersonalData(data.personalData);

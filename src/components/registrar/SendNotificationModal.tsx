@@ -27,6 +27,7 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
     const [step, setStep] = useState<'scope' | 'details'>('scope');
     const [loading, setLoading] = useState(false);
     const [searchLoading, setSearchLoading] = useState(false);
+    const [isClosing, setIsClosing] = useState(false);
 
     // Form state
     const [scope, setScope] = useState<'GROUPS' | 'USER'>('GROUPS');
@@ -52,9 +53,17 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
                 setSearchQuery('');
                 setSearchResults([]);
                 setSelectedStudents([]);
+                setIsClosing(false);
             }, 300);
         }
     }, [isOpen]);
+
+    const handleClose = () => {
+        setIsClosing(true);
+        setTimeout(() => {
+            onClose();
+        }, 300);
+    };
 
     const toggleRoleSelection = (role: UserRole) => {
         setSelectedRoles(prev => {
@@ -140,7 +149,7 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
 
             if (response.success) {
                 toast.success(response.message);
-                onClose();
+                handleClose();
             } else {
                 toast.error(response.message);
             }
@@ -158,17 +167,21 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
             <div className="flex min-h-screen items-center justify-center p-4">
                 {/* Backdrop */}
                 <div
-                    className="fixed inset-0 bg-black/50 bg-opacity-50 transition-opacity"
-                    onClick={onClose}
+                    className={`fixed inset-0 bg-black/50 transition-opacity duration-300 ${
+                        isClosing ? 'opacity-0' : 'opacity-100'
+                    }`}
+                    onClick={handleClose}
                 />
 
                 {/* Modal */}
-                <div className="relative bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+                <div className={`relative bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden transition-all duration-300 ${
+                    isClosing ? 'opacity-0 scale-95 -translate-y-5' : 'opacity-100 scale-100 translate-y-0'
+                }`}>
                     {/* Header */}
                     <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
                         <h2 className="text-xl font-semibold text-gray-900">Send Notification</h2>
                         <button
-                            onClick={onClose}
+                            onClick={handleClose}
                             className="text-gray-400 hover:text-gray-600 transition-colors"
                         >
                             <X className="w-6 h-6" />
@@ -186,12 +199,12 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
                                         <button
                                             type="button"
                                             onClick={() => setScope('GROUPS')}
-                                            className={`p-4 rounded-lg border-2 transition-all ${scope === 'GROUPS'
-                                                    ? 'border-blue-600 bg-blue-50'
+                                            className={`p-4 rounded-lg border-2 transition-all duration-200 transform hover:scale-105 ${scope === 'GROUPS'
+                                                    ? 'border-blue-600 bg-blue-50 scale-105'
                                                     : 'border-gray-200 hover:border-gray-300'
                                                 }`}
                                         >
-                                            <Users className={`w-8 h-8 mx-auto mb-2 ${scope === 'GROUPS' ? 'text-blue-600' : 'text-gray-400'}`} />
+                                            <Users className={`w-8 h-8 mx-auto mb-2 transition-colors duration-200 ${scope === 'GROUPS' ? 'text-blue-600' : 'text-gray-400'}`} />
                                             <p className="text-sm font-medium text-center">All Users / Groups</p>
                                             <p className="text-xs text-gray-500 text-center mt-1">Select user groups</p>
                                         </button>
@@ -199,23 +212,23 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
                                         <button
                                             type="button"
                                             onClick={() => setScope('USER')}
-                                            className={`p-4 rounded-lg border-2 transition-all ${scope === 'USER'
-                                                    ? 'border-blue-600 bg-blue-50'
+                                            className={`p-4 rounded-lg border-2 transition-all duration-200 transform hover:scale-105 ${scope === 'USER'
+                                                    ? 'border-blue-600 bg-blue-50 scale-105'
                                                     : 'border-gray-200 hover:border-gray-300'
                                                 }`}
                                         >
-                                            <User className={`w-8 h-8 mx-auto mb-2 ${scope === 'USER' ? 'text-blue-600' : 'text-gray-400'}`} />
+                                            <User className={`w-8 h-8 mx-auto mb-2 transition-colors duration-200 ${scope === 'USER' ? 'text-blue-600' : 'text-gray-400'}`} />
                                             <p className="text-sm font-medium text-center">Specific Users</p>
                                             <p className="text-xs text-gray-500 text-center mt-1">Select individuals</p>
                                         </button>
                                     </div>
 
                                     {scope === 'GROUPS' && (
-                                        <div className="space-y-3">
+                                        <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
                                             <label className="block text-sm font-medium text-gray-700">
                                                 Select Groups (check all that apply)
                                             </label>
-                                            
+
                                             <div className="border border-gray-200 rounded-lg p-4 space-y-3">
                                                 <label className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded">
                                                     <input
@@ -264,7 +277,7 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
                                             </div>
 
                                             {selectedRoles.length > 0 && (
-                                                <div className="bg-blue-50 rounded-lg p-3">
+                                                <div className="bg-blue-50 rounded-lg p-3 animate-in fade-in slide-in-from-top-3 duration-300">
                                                     <p className="text-sm text-blue-900">
                                                         <span className="font-medium">Selected:</span>{' '}
                                                         {selectedRoles.length === 3 
@@ -281,7 +294,7 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
                                     )}
 
                                     {scope === 'USER' && (
-                                        <div className="space-y-3">
+                                        <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
                                             <label className="block text-sm font-medium text-gray-700">
                                                 Search Students
                                             </label>
@@ -305,7 +318,7 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
                                             </div>
 
                                             {searchResults.length > 0 && (
-                                                <div className="border border-gray-200 rounded-lg max-h-48 overflow-y-auto">
+                                                <div className="border border-gray-200 rounded-lg max-h-48 overflow-y-auto animate-in fade-in slide-in-from-top-3 duration-300">
                                                     {searchResults.map((student) => (
                                                         <div
                                                             key={student.id}
@@ -330,7 +343,7 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
                                             )}
 
                                             {selectedStudents.length > 0 && (
-                                                <div className="bg-blue-50 rounded-lg p-3">
+                                                <div className="bg-blue-50 rounded-lg p-3 animate-in fade-in slide-in-from-top-3 duration-300">
                                                     <p className="text-sm font-medium text-blue-900 mb-2">
                                                         Selected ({selectedStudents.length})
                                                     </p>

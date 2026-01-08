@@ -448,12 +448,12 @@ This is an automated message. For security reasons, please do not reply with you
     }
 }
 
-interface Requirements {
-    birthCertificate: boolean;
-    f137: boolean;
-    f138: boolean;
-    goodMoral: boolean;
-    privacyForm: boolean;
+interface RequirementFiles {
+    birthCertificate: File | null;
+    f137: File | null;
+    f138: File | null;
+    goodMoral: File | null;
+    privacyForm: File | null;
 }
 
 interface StudentApplication {
@@ -473,37 +473,117 @@ interface ApproveApplicationResult {
     emailSent?: boolean; // Indicates if welcome email was sent successfully
 }
 
-export async function approveApplication(student: StudentApplication, requirements: Requirements): Promise<ApproveApplicationResult> {
+export async function approveApplication(student: StudentApplication, requirementFiles: RequirementFiles): Promise<ApproveApplicationResult> {
     try {
-        // Use Prisma transaction to ensure all database operations succeed or rollback
-        const result = await prisma.$transaction(async (tx) => {
-            // Step 1: Get academic term and generate student number
-            const studentApplicationData = await tx.studentApplication.findUnique({
-                where: { id: student.id },
-                select: { academicYearId: true },
-            });
+        // Step 1: First get the application number (need it for file uploads)
+        const studentApplicationData = await prisma.studentApplication.findUnique({
+            where: { id: student.id },
+            select: {
+                academicYearId: true,
+                academicYear: {
+                    select: { year: true }
+                }
+            },
+        });
 
-            if (!studentApplicationData) {
-                throw new Error('Student application not found');
+        if (!studentApplicationData) {
+            throw new Error('Student application not found');
+        }
+
+        const year = studentApplicationData.academicYear?.year.split('-')[0] ?? new Date().getFullYear().toString();
+
+        // Find the highest application number for this academic year to avoid duplicates
+        const lastApprovedApplication = await prisma.studentApplication.findFirst({
+            where: {
+                academicYearId: studentApplicationData.academicYearId,
+                applicationNumber: {
+                    startsWith: `SJSFI-${year}-`
+                }
+            },
+            orderBy: {
+                applicationNumber: 'desc'
+            },
+            select: {
+                applicationNumber: true
             }
+        });
 
-            const academicTerm = await tx.academicTerm.findUnique({
-                where: { id: studentApplicationData.academicYearId },
-                select: { year: true },
-            });
+        let nextNumber = 0;
+        if (lastApprovedApplication?.applicationNumber) {
+            // Extract the number from the last application number (e.g., "SJSFI-2024-0004" -> 4)
+            const lastNumber = parseInt(lastApprovedApplication.applicationNumber.split('-')[2]);
+            nextNumber = lastNumber + 1;
+        }
 
-            const year = academicTerm ? academicTerm.year.split('-')[0] : new Date().getFullYear().toString();
+        const applicationNumber = `SJSFI-${year}-${String(nextNumber).padStart(4, '0')}`;
 
-            const approvedCount = await tx.studentApplication.count({
-                where: {
-                    academicYearId: studentApplicationData.academicYearId,
-                    status: 'APPROVED',
-                },
-            });
+        // Store old application number for potential rollback
+        const oldApplicationNumber = studentApplicationData.academicYearId ? 
+            (await prisma.studentApplication.findUnique({
+                where: { id: student.id },
+                select: { applicationNumber: true, status: true }
+            })) : null;
 
-            const applicationNumber = `SJSFI-${year}-${String(approvedCount).padStart(4, '0')}`;
+        // Step 2: Upload files to Supabase (BEFORE transaction, using generated application number)
+        const { uploadRequirementFile, deleteRequirementFile } = await import('@/lib/supabase');
+        const uploadedUrls: {
+            birthCertificate: string;
+            f137: string;
+            f138: string;
+            goodMoral: string;
+            privacyForm: string;
+        } = {
+            birthCertificate: '',
+            f137: '',
+            f138: '',
+            goodMoral: '',
+            privacyForm: '',
+        };
 
-            // Step 2: Update student application status to APPROVED and set application number (combined)
+        const fileTypes: Array<keyof RequirementFiles> = [
+            'birthCertificate',
+            'f137',
+            'f138',
+            'goodMoral',
+            'privacyForm',
+        ];
+
+        // Upload each file sequentially
+        try {
+            for (const fileType of fileTypes) {
+                const file = requirementFiles[fileType];
+                if (file) {
+                    console.log(`Uploading ${fileType} for ${applicationNumber}...`);
+
+                    const uploadResult = await uploadRequirementFile(
+                        file,
+                        applicationNumber,
+                        fileType
+                    );
+
+                    if (uploadResult.success && uploadResult.url) {
+                        uploadedUrls[fileType] = uploadResult.url;
+                        console.log(`${fileType} uploaded successfully`);
+                    } else {
+                        console.error(`Failed to upload ${fileType}:`, uploadResult.error);
+                        throw new Error(`Failed to upload ${fileType}: ${uploadResult.error}`);
+                    }
+                }
+            }
+        } catch (uploadError) {
+            // Clean up any uploaded files before throwing error
+            console.error('File upload failed, cleaning up uploaded files...');
+            for (const fileType of fileTypes) {
+                if (uploadedUrls[fileType]) {
+                    await deleteRequirementFile(uploadedUrls[fileType]);
+                }
+            }
+            throw uploadError;
+        }
+
+        // Step 3: Now do ALL database operations in a transaction (if this fails, files get cleaned up)
+        const result = await prisma.$transaction(async (tx) => {
+            // Update student application status to APPROVED and set application number
             const studentApplication = await tx.studentApplication.update({
                 where: { id: student.id },
                 data: {
@@ -512,13 +592,13 @@ export async function approveApplication(student: StudentApplication, requiremen
                 },
             });
 
-            // Step 3: Create requirement records
+            // Create requirement records with uploaded file URLs
             const requirementTypes = [
-                { type: 'Birth Certificate', submitted: requirements.birthCertificate },
-                { type: 'F137', submitted: requirements.f137 },
-                { type: 'F138', submitted: requirements.f138 },
-                { type: 'Good Moral', submitted: requirements.goodMoral },
-                { type: 'Privacy Form', submitted: requirements.privacyForm },
+                { type: 'Birth Certificate', fileUrl: uploadedUrls.birthCertificate },
+                { type: 'F137', fileUrl: uploadedUrls.f137 },
+                { type: 'F138', fileUrl: uploadedUrls.f138 },
+                { type: 'Good Moral', fileUrl: uploadedUrls.goodMoral },
+                { type: 'Privacy Form', fileUrl: uploadedUrls.privacyForm },
             ];
 
             for (const req of requirementTypes) {
@@ -526,12 +606,13 @@ export async function approveApplication(student: StudentApplication, requiremen
                     data: {
                         studentApplicationId: student.id,
                         requirementType: req.type,
-                        status: req.submitted ? 'SUBMITTED' : 'PENDING',
+                        status: req.fileUrl ? 'SUBMITTED' : 'PENDING',
+                        fileUrl: req.fileUrl || null,
                     },
                 });
             }
 
-            // Step 4: Create User record
+            // Create User record
             const user = await tx.user.create({
                 data: {
                     email: studentApplication.emailAddress,
@@ -546,7 +627,7 @@ export async function approveApplication(student: StudentApplication, requiremen
                 },
             });
 
-            // Step 5: Create Student record
+            // Create Student record
             await tx.student.create({
                 data: {
                     userId: user.id,
@@ -561,9 +642,18 @@ export async function approveApplication(student: StudentApplication, requiremen
         }, {
             maxWait: 10000, // Maximum time to wait for a transaction slot (10s)
             timeout: 20000, // Maximum time the transaction can run (20s)
+        }).catch(async (txError) => {
+            // If transaction fails, clean up uploaded files
+            console.error('Transaction failed, cleaning up uploaded files...');
+            for (const fileType of fileTypes) {
+                if (uploadedUrls[fileType]) {
+                    await deleteRequirementFile(uploadedUrls[fileType]);
+                }
+            }
+            throw txError;
         });
 
-        // Step 7: Create Clerk account (OUTSIDE transaction - needs manual cleanup if fails)
+        // Step 4: Create Clerk account (OUTSIDE transaction - needs manual cleanup if fails)
         const generatedPassword = generateSecurePassword();
         let clerkUserId: string | null = null;
 
@@ -622,15 +712,25 @@ export async function approveApplication(student: StudentApplication, requiremen
                     prisma.requirements.deleteMany({
                         where: { studentApplicationId: student.id }
                     }),
-                    // Revert application status back to PENDING and clear application number
+                    // Revert application status back to original state
                     prisma.studentApplication.update({
                         where: { id: student.id },
                         data: {
-                            status: 'PENDING',
-                            applicationNumber: null
+                            status: oldApplicationNumber?.status || 'PENDING',
+                            applicationNumber: oldApplicationNumber?.applicationNumber || null
                         },
                     }),
                 ]);
+
+                // Also clean up uploaded files
+                console.log('Cleaning up uploaded files after rollback...');
+                const { deleteRequirementFile } = await import('@/lib/supabase');
+                for (const fileType of fileTypes) {
+                    if (uploadedUrls[fileType]) {
+                        await deleteRequirementFile(uploadedUrls[fileType]);
+                    }
+                }
+
                 console.log('Database rollback completed successfully - all changes reverted to original state');
             } catch (rollbackError) {
                 console.error('CRITICAL: Rollback failed!', rollbackError);

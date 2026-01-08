@@ -16,6 +16,7 @@
     "@clerk/nextjs": "^6.23.1",
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
+    "@supabase/supabase-js": "^2.90.0",
     "@types/quill": "^2.0.14",
     "@vercel/speed-insights": "^1.2.0",
     "clsx": "^2.1.1",

@@ -286,11 +286,11 @@ export default function FacultyForgotPassword() {
                                     )}
 
                                     <div className="mb-4 w-full">
-                                        <Link href="/auth/forms" className="w-full inline-block">
+                                        <Link href="/sign-in/forms" className="w-full inline-block">
                                             <span
-                                                className={`bg-[#fff] text-[#800000] text-sm rounded-sm px-4 py-2 w-full block text-center transition duration-200 ease-in-out ${isLoading
+                                                className={`text-[#800000] text-sm rounded-sm w-full block text-center transition duration-200 ease-in-out ${isLoading
                                                     ? 'opacity-50 cursor-not-allowed'
-                                                    : 'hover:bg-[#fff]/80'
+                                                    : ''
                                                     }`}
                                             >
                                                 Back to Login
