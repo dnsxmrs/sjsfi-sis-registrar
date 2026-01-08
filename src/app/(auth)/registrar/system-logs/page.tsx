@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import { FileDown, Search, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
-import PDFmodal from "@/components/admin/PDFmodal";
 import toast from "react-hot-toast";
 import { getSystemLogs } from "@/app/_actions/getSystemLogs";
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface SystemLog {
   logNumber: string;
@@ -19,7 +20,6 @@ interface SystemLog {
 }
 
 export default function SystemLogsPage() {
-  const [PDFmodalOpen, setPDFmodalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [logs, setLogs] = useState<SystemLog[]>([]);
@@ -101,6 +101,94 @@ export default function SystemLogsPage() {
     }
   };
 
+  // PDF Export Function
+  const exportToPDF = () => {
+    try {
+      // Determine what data to export
+      let dataToExport: SystemLog[] = [];
+      let filename = "";
+      let title = "";
+
+      if (selectedRows.length > 0) {
+        // Export only selected rows
+        dataToExport = logs.filter(log => selectedRows.includes(log.logNumber));
+        filename = `system_logs_selected_${new Date().toISOString().split('T')[0]}.pdf`;
+        title = `System Logs - Selected (${dataToExport.length} logs)`;
+      } else if (search && filteredLogs.length > 0) {
+        // Export filtered results
+        dataToExport = filteredLogs;
+        filename = `system_logs_filtered_${new Date().toISOString().split('T')[0]}.pdf`;
+        title = `System Logs - Filtered Results (${dataToExport.length} logs)`;
+      } else {
+        // Export all logs
+        dataToExport = logs;
+        filename = `system_logs_all_${new Date().toISOString().split('T')[0]}.pdf`;
+        title = `System Logs - All Records (${dataToExport.length} logs)`;
+      }
+
+      if (dataToExport.length === 0) {
+        toast.error("No data to export");
+        return;
+      }
+
+      // Create PDF document
+      const doc = new jsPDF();
+
+      // Add title
+      doc.setFontSize(16);
+      doc.text(title, 14, 15);
+
+      // Add generation date
+      doc.setFontSize(10);
+      doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 22);
+
+      // Prepare table data
+      const tableData = dataToExport.map(log => [
+        log.logNumber,
+        log.timestamp,
+        log.user,
+        log.action,
+        log.status,
+        log.role
+      ]);
+
+      // Add table
+      autoTable(doc, {
+        head: [['Log Number', 'Timestamp', 'User', 'Action', 'Status', 'Role']],
+        body: tableData,
+        startY: 28,
+        theme: 'striped',
+        headStyles: { fillColor: [139, 0, 0] }, // Red color matching your theme
+        styles: { fontSize: 8, cellPadding: 2 },
+        columnStyles: {
+          0: { cellWidth: 25 },
+          1: { cellWidth: 35 },
+          2: { cellWidth: 30 },
+          3: { cellWidth: 50 },
+          4: { cellWidth: 20 },
+          5: { cellWidth: 25 }
+        }
+      });
+
+      // Save the PDF
+      doc.save(filename);
+
+      // Success message based on what was exported
+      if (selectedRows.length > 0) {
+        toast.success(`Exported ${dataToExport.length} selected log(s) to PDF`);
+      } else if (search) {
+        toast.success(`Exported ${dataToExport.length} filtered log(s) to PDF`);
+      } else {
+        toast.success(`Exported all ${dataToExport.length} log(s) to PDF`);
+      }
+
+      setExportDropdownOpen(false);
+    } catch (error) {
+      console.error("Error exporting PDF:", error);
+      toast.error("Failed to export PDF file");
+    }
+  };
+
   // Fetch system logs on component mount
   useEffect(() => {
     const fetchLogs = async () => {
@@ -164,13 +252,14 @@ export default function SystemLogsPage() {
 
   const handleHeaderCheckbox = () => {
     if (isAllSelected) {
-      setSelectedRows([]);
-      // alert(`0 logs selected`);
-      toast.error(`0 logs selected`);
+      // Remove only the current page's IDs from selected rows
+      setSelectedRows(prev => prev.filter(id => !allRowIds.includes(id)));
+      const remainingCount = selectedRows.length - allRowIds.length;
+      toast.error(remainingCount > 0 ? `${remainingCount} logs still selected` : `0 logs selected`);
     } else {
-      setSelectedRows(allRowIds);
-      // alert(`${allRowIds.length} log(s) selected`);
-      toast.success(`${allRowIds.length} log(s) selected`);
+      // Add the current page's IDs to existing selected rows
+      setSelectedRows(prev => [...new Set([...prev, ...allRowIds])]);
+      toast.success(`${selectedRows.length + allRowIds.filter(id => !selectedRows.includes(id)).length} log(s) selected`);
     }
   };
 
@@ -215,14 +304,20 @@ export default function SystemLogsPage() {
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
                 <div className="py-1">
                   <button
-                    onClick={() => {
-                      setPDFmodalOpen(true);
-                      setExportDropdownOpen(false);
-                    }}
+                    onClick={exportToPDF}
                     className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
                     <FileDown size={16} className="mr-2" />
-                    Export as PDF
+                    <div className="flex flex-col items-start">
+                      <span>Export as PDF</span>
+                      <span className="text-xs text-gray-500">
+                        {selectedRows.length > 0
+                          ? `${selectedRows.length} selected`
+                          : search
+                            ? `${filteredLogs.length} filtered`
+                            : `${logs.length} total`} rows
+                      </span>
+                    </div>
                   </button>
                   <button
                     onClick={exportToCSV}
@@ -271,14 +366,20 @@ export default function SystemLogsPage() {
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
                 <div className="py-1">
                   <button
-                    onClick={() => {
-                      setPDFmodalOpen(true);
-                      setExportDropdownOpen(false);
-                    }}
+                    onClick={exportToPDF}
                     className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
                     <FileDown size={16} className="mr-2" />
-                    Export as PDF
+                    <div className="flex flex-col items-start">
+                      <span>Export as PDF</span>
+                      <span className="text-xs text-gray-500">
+                        {selectedRows.length > 0
+                          ? `${selectedRows.length} selected`
+                          : search
+                            ? `${filteredLogs.length} filtered`
+                            : `${logs.length} total`} rows
+                      </span>
+                    </div>
                   </button>
                   <button
                     onClick={exportToCSV}
@@ -474,17 +575,6 @@ export default function SystemLogsPage() {
           </div>
         </div>
       )}
-
-      {/* PDF Modal */}
-      <PDFmodal
-        isOpen={PDFmodalOpen}
-        onCancel={() => setPDFmodalOpen(false)}
-        onConfirm={() => {
-          setPDFmodalOpen(false);
-          // Add router push here if needed, and import router
-          // router.push('/');
-        }}
-      />
     </div>
   );
 }
