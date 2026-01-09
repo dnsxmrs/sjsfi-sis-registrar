@@ -9,6 +9,177 @@ import toast from 'react-hot-toast';
 import { FileUpload } from '@/components/registrar/FileUpload';
 
 const RegisterCoursePage: React.FC = () => {
+    // Temporary data for Application Details sections (except Personal Data)
+    const temporaryHealthHistory = {
+        allergies: 'Peanuts, Shellfish, Penicillin',
+        medicalConditions: 'Asthma, Mild Allergies',
+        healthNotes: 'Regular check-ups required. Emergency contact: Mother'
+    };
+
+    const temporaryFamilyBackground = {
+        father: {
+            familyName: 'Doe',
+            firstName: 'John',
+            middleName: 'Smith',
+            nickname: 'Johnny',
+            birthDate: '1980-05-15',
+            placeOfBirth: 'Manila',
+            age: '43',
+            nationality: 'Filipino',
+            religion: 'Catholic',
+            height: '175 cm',
+            weight: '75 kg',
+            landline: '(02) 123-4567',
+            mobile: '09123456789',
+            email: 'john.doe@example.com',
+            homeAddress: '123 Main St, Barangay 1',
+            city: 'Manila',
+            stateProvince: 'Metro Manila',
+            zipPostalCode: '1000',
+            education: 'Bachelor of Science in Engineering',
+            occupation: 'Engineer',
+            employer: 'ABC Corporation',
+            businessPhone: '(02) 987-6543',
+            companyAddress: '456 Business Ave, Makati',
+            companyCity: 'Makati',
+            annualIncome: '500,000 PHP',
+            status: 'Living'
+        },
+        mother: {
+            familyName: 'Doe',
+            firstName: 'Jane',
+            middleName: 'Garcia',
+            nickname: 'Janie',
+            birthDate: '1982-08-20',
+            placeOfBirth: 'Cebu',
+            age: '41',
+            nationality: 'Filipino',
+            religion: 'Catholic',
+            height: '165 cm',
+            weight: '60 kg',
+            landline: '(02) 234-5678',
+            mobile: '09198765432',
+            email: 'jane.doe@example.com',
+            homeAddress: '123 Main St, Barangay 1',
+            city: 'Manila',
+            stateProvince: 'Metro Manila',
+            zipPostalCode: '1000',
+            education: 'Bachelor of Arts in Education',
+            occupation: 'Teacher',
+            employer: 'XYZ School',
+            businessPhone: '(02) 876-5432',
+            companyAddress: '789 Education Blvd, Quezon City',
+            companyCity: 'Quezon City',
+            annualIncome: '300,000 PHP',
+            status: 'Living'
+        },
+        guardian: {
+            relation: 'Aunt',
+            familyName: 'Smith',
+            firstName: 'Mary',
+            middleName: 'Johnson',
+            nickname: 'Aunt Mary',
+            birthDate: '1975-03-10',
+            placeOfBirth: 'Davao',
+            age: '48',
+            nationality: 'Filipino',
+            religion: 'Catholic',
+            height: '170 cm',
+            weight: '65 kg',
+            landline: '(02) 345-6789',
+            mobile: '09234567890',
+            email: 'mary.smith@example.com',
+            homeAddress: '456 Guardian St, Barangay 2',
+            city: 'Manila',
+            stateProvince: 'Metro Manila',
+            zipPostalCode: '1001',
+            education: 'Associate Degree in Nursing',
+            occupation: 'Nurse',
+            employer: 'City Hospital',
+            businessPhone: '(02) 765-4321',
+            companyAddress: '101 Health Rd, Pasig',
+            companyCity: 'Pasig',
+            annualIncome: '400,000 PHP',
+            status: 'Living'
+        },
+        siblings: [
+            {
+                familyName: 'Doe',
+                firstName: 'Michael',
+                middleName: 'Smith',
+                birthDate: '2005-01-15',
+                age: '18',
+                gradeOccupation: 'Grade 12',
+                schoolEmployer: 'St. Joseph High School'
+            },
+            {
+                familyName: 'Doe',
+                firstName: 'Sarah',
+                middleName: 'Garcia',
+                birthDate: '2008-06-22',
+                age: '15',
+                gradeOccupation: 'Grade 9',
+                schoolEmployer: 'Mary Immaculate Academy'
+            }
+        ]
+    };
+
+    const temporaryMedicalHistory = {
+        academicYear: '2024-2025',
+        admissionGrade: 'Grade 7',
+        familyName: 'Doe',
+        firstName: 'Juan',
+        middleName: 'Carlos',
+        nickname: 'JC',
+        birthDate: '2010-04-15',
+        placeOfBirth: 'Manila',
+        age: '13',
+        height: '150 cm',
+        weight: '45 kg',
+        sex: 'Male',
+        parentGuardianName: 'Jane Doe',
+        landlineNumber: '(02) 123-4567',
+        mobileNumber: '09123456789',
+        homeAddress: '123 Main St, Barangay 1, Manila',
+        city: 'Manila',
+        stateProvince: 'Metro Manila',
+        zipPostalCode: '1000',
+    surgery: 'Not provided',
+    herbalDiseases: 'Not provided',
+    allergiesSpecify: 'Peanuts, Shellfish',
+    otherIllnesses: 'Not provided',
+        currentMedication: 'None',
+        medicalHistoryChecklist: [], // Array of checked items (empty for now)
+        immunizationRecord: [], // Array of checked immunizations (empty for now)
+        firstAidPermission: false,
+        certificationChecked: false
+    };
+
+    const temporaryAgreement = {
+        parentGuardianName: 'Jane Doe',
+        parentGuardianRelation: 'Mother'
+    };
+
+    const temporaryEducationalBackground = {
+        lastGrade: 'Grade 6',
+        lastSchool: 'St. Mary Elementary School',
+        lastSchoolAddress: '456 Education St, Manila',
+        inclusiveYears: '2019 - 2023',
+        honors: 'Valedictorian, Math Award',
+        attendedSummerYears: '2020 - 2023'
+    };
+
+    const temporaryTransfereeDetails = {
+        transferReason: 'Family relocation',
+        previousSchool: 'Old School Name',
+        previousSchoolAddress: 'Old School Address',
+        previousSchoolGrade: 'Grade 6',
+        presentSchool: 'St. Joseph School of Fairview',
+        presentSchoolAddress: 'Fairview, Quezon City',
+        presentSchoolGrade: 'Grade 7',
+        disciplinaryActions: 'None'
+    };
+
     const [studentID, setStudentID] = useState('');
     const [fullName, setFullName] = useState('');
     const [gradeLevel, setGradeLevel] = useState('');
@@ -17,6 +188,7 @@ const RegisterCoursePage: React.FC = () => {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [students, setStudents] = useState<any[]>([]);
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [selectedApplication, setSelectedApplication] = useState<any>(null);
 
@@ -46,6 +218,17 @@ const RegisterCoursePage: React.FC = () => {
         email: string;
         missingReqs: string[];
     }>({ fullName: '', email: '', missingReqs: [] });
+
+    // Accordion state for view-only detailed sections
+    const [openSections, setOpenSections] = useState<string[]>([]);
+
+    const toggleSection = (key: string) => {
+        setOpenSections((prev) => (prev.includes(key) ? prev.filter((s) => s !== key) : [...prev, key]));
+    }; 
+
+    // Transferee section toggle: in production this should be `selectedApplication?.isTransferee`
+    // For now it's ON to show the section (see comment below where it's rendered).
+    const showTransfereeSection = true;
 
     const fetchStudents = async () => {
         try {
@@ -494,7 +677,7 @@ const RegisterCoursePage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gray-100 p-6">
-            <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-6 md:gap-8">
+            <div className="w-full flex flex-col md:flex-row gap-6 md:gap-8">
                 {/* First Column: Add Student Form + All Students Table */}
                 <div className="flex-1 space-y-6 order-2 md:order-1">
                     {/* All Students Table */}
@@ -709,9 +892,729 @@ const RegisterCoursePage: React.FC = () => {
                                 className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-100 cursor-not-allowed"
                             />
                         </div>
+                        {/* Collapsible, view-only accordion showing the full application details (non-editable) */}
+                        <div className="mb-4 text-black">
+                            <h3 className="text-base font-semibold mb-3 mt-7">Application Details</h3>
+
+                            {/* Accordion controls */}
+                            <div className="space-y-3">
+                                {/* Personal Data */}
+                                <div className="border rounded-lg bg-white">
+                                    <button
+                                        className="w-full text-left px-4 py-3 flex justify-between items-center"
+                                        onClick={() => toggleSection('personalData')}
+                                        type="button"
+                                    >
+                                        <span className="font-medium">Personal Data</span>
+                                        <span className="text-sm text-gray-500">{openSections.includes('personalData') ? '−' : '+'}</span>
+                                    </button>
+                                    {openSections.includes('personalData') && (
+                                        <div className="px-4 pb-4 pt-0 text-sm text-black">
+                                            {selectedApplication ? (
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <div>
+                                                        <div className="text-xs text-gray-500">Application ID</div>
+                                                        <div className="text-sm font-medium">{selectedApplication.applicationNumber || 'N/A'}</div>
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-xs text-gray-500">Full Name</div>
+                                                        <div className="text-sm font-medium">{selectedApplication.fullName || 'N/A'}</div>
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-xs text-gray-500">Grade Level</div>
+                                                        <div className="text-sm">{selectedApplication.gradeLevel || 'N/A'}</div>
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-xs text-gray-500">Email</div>
+                                                        <div className="text-sm">{selectedApplication.emailAddress || 'N/A'}</div>
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-xs text-gray-500">Status</div>
+                                                        <div className="text-sm">{selectedApplication.status || 'N/A'}</div>
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-xs text-gray-500">Applied At</div>
+                                                        <div className="text-sm">{selectedApplication.createdAt || 'N/A'}</div>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="text-sm text-gray-500">No application selected. Click View in the table to load details.</div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Health History */}
+                                <div className="border rounded-lg bg-white">
+                                    <button
+                                        className="w-full text-left px-4 py-3 flex justify-between items-center"
+                                        onClick={() => toggleSection('healthHistory')}
+                                        type="button"
+                                    >
+                                        <span className="font-medium">Health History</span>
+                                        <span className="text-sm text-gray-500">{openSections.includes('healthHistory') ? '−' : '+'}</span>
+                                    </button>
+                                    {openSections.includes('healthHistory') && (
+                                        <div className="px-4 pb-4 pt-0 text-sm text-black">
+                                            <div className="mt-1 grid grid-cols-2 gap-3">
+                                                <div>
+<div className="text-xs text-gray-500">Allergies</div>
+<div className="text-sm">{selectedApplication?.allergies?.trim() ? selectedApplication.allergies : temporaryHealthHistory.allergies}</div>
+                                                </div>
+                                                <div>
+<div className="text-xs text-gray-500">Medical Conditions</div>
+<div className="text-sm">{selectedApplication?.medicalConditions?.trim() ? selectedApplication.medicalConditions : temporaryHealthHistory.medicalConditions}</div>
+                                                </div>
+                                                <div className="col-span-2">
+<div className="text-xs text-gray-500">Notes</div>
+<div className="text-sm">{selectedApplication?.healthNotes?.trim() ? selectedApplication.healthNotes : temporaryHealthHistory.healthNotes}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Family Background - Father, Mother, Guardian, and Siblings */}
+                                <div className="border rounded-lg bg-white">
+                                    <button
+                                        className="w-full text-left px-4 py-3 flex justify-between items-center"
+                                        onClick={() => toggleSection('familyBackground')}
+                                        type="button"
+                                    >
+                                        <span className="font-medium">Family Background</span>
+                                        <span className="text-sm text-gray-500">{openSections.includes('familyBackground') ? '−' : '+'}</span>
+                                    </button>
+                                    {openSections.includes('familyBackground') && (
+                                        <div className="px-4 pb-4 pt-0 text-sm text-black space-y-4">
+                                            {['Father', 'Mother', 'Guardian'].map((role) => {
+                                                const key = role.toLowerCase() as 'father' | 'mother' | 'guardian';
+                                                return (
+                                                    <div key={role} className="border rounded bg-gray-50">
+                                                        <button
+                                                            className="w-full text-left px-3 py-2 flex justify-between items-center"
+                                                            onClick={() => toggleSection(key)}
+                                                            type="button"
+                                                        >
+                                                            <span className="font-medium">{role}</span>
+                                                            <span className="text-sm text-gray-500">{openSections.includes(key) ? '−' : '+'}</span>
+                                                        </button>
+                                                        {openSections.includes(key) && (
+                                                            <div className="px-3 pb-3 pt-0">
+                                                                {role === 'Guardian' && (
+                                                                    <div className="mb-3 text-sm text-black">Relation to Applicant: {selectedApplication?.guardianRelation || 'N/A'}</div>
+                                                                )}
+
+                                                                <div className="grid grid-cols-4 gap-3 text-sm text-black">
+                                                                    {/* Names */}
+                                                                    <div>
+<div className="text-xs text-gray-500">Family Name:</div>
+<div>{selectedApplication?.[`${key}FamilyName`] || temporaryFamilyBackground[key]?.familyName || 'N/A'}</div>
+                                                                    </div>
+                                                                    <div>
+<div className="text-xs text-gray-500">First Name:</div>
+<div>{selectedApplication?.[`${key}FirstName`] || temporaryFamilyBackground[key]?.firstName || 'N/A'}</div>
+                                                                    </div>
+                                                                    <div>
+<div className="text-xs text-gray-500">Middle Name:</div>
+<div>{selectedApplication?.[`${key}MiddleName`] || temporaryFamilyBackground[key]?.middleName || 'N/A'}</div>
+                                                                    </div>
+                                                                    <div>
+<div className="text-xs text-gray-500">Nickname:</div>
+<div>{selectedApplication?.[`${key}Nickname`] || temporaryFamilyBackground[key]?.nickname || 'N/A'}</div>
+                                                                    </div>
+
+                                                                    {/* Birth & Location */}
+                                                                    <div>
+<div className="text-xs text-gray-500">Birth Date:</div>
+<div>{selectedApplication?.[`${key}BirthDate`] || temporaryFamilyBackground[key]?.birthDate || 'N/A'}</div>
+                                                                    </div>
+                                                                    <div>
+<div className="text-xs text-gray-500">Place of Birth:</div>
+<div>{selectedApplication?.[`${key}PlaceOfBirth`] || temporaryFamilyBackground[key]?.placeOfBirth || 'N/A'}</div>
+                                                                    </div>
+                                                                    <div>
+<div className="text-xs text-gray-500">Age:</div>
+<div>{selectedApplication?.[`${key}Age`] || temporaryFamilyBackground[key]?.age || 'N/A'}</div>
+                                                                    </div>
+                                                                    <div>
+<div className="text-xs text-gray-500">Nationality:</div>
+<div>{selectedApplication?.[`${key}Nationality`] || temporaryFamilyBackground[key]?.nationality || 'N/A'}</div>
+                                                                    </div>
+
+                                                                    {/* Religion & Physical */}
+                                                                    <div>
+<div className="text-xs text-gray-500">Religion:</div>
+<div>{selectedApplication?.[`${key}Religion`] || temporaryFamilyBackground[key]?.religion || 'N/A'}</div>
+                                                                    </div>
+                                                                    <div>
+<div className="text-xs text-gray-500">Height:</div>
+<div>{selectedApplication?.[`${key}Height`] || temporaryFamilyBackground[key]?.height || 'N/A'}</div>
+                                                                    </div>
+                                                                    <div>
+<div className="text-xs text-gray-500">Weight:</div>
+<div>{selectedApplication?.[`${key}Weight`] || temporaryFamilyBackground[key]?.weight || 'N/A'}</div>
+                                                                    </div>
+                                                                    <div />
+
+                                                                    {/* Contact Info */}
+                                                                    <div>
+<div className="text-xs text-gray-500">Landline Number:</div>
+<div>{selectedApplication?.[`${key}Landline`] || temporaryFamilyBackground[key]?.landline || 'N/A'}</div>
+                                                                    </div>
+                                                                    <div>
+<div className="text-xs text-gray-500">Mobile Number:</div>
+<div>{selectedApplication?.[`${key}Mobile`] || temporaryFamilyBackground[key]?.mobile || 'N/A'}</div>
+                                                                    </div>
+                                                                    <div className="col-span-2">
+<div className="text-xs text-gray-500">E-mail Address:</div>
+<div>{selectedApplication?.[`${key}Email`] || temporaryFamilyBackground[key]?.email || 'N/A'}</div>
+                                                                    </div>
+
+                                                                    {/* Home Address */}
+                                                                    <div className="col-span-3">
+<div className="text-xs text-gray-500">Home Address:</div>
+<div>{selectedApplication?.[`${key}HomeAddress`] || temporaryFamilyBackground[key]?.homeAddress || 'N/A'}</div>
+                                                                    </div>
+                                                                    <div>
+<div className="text-xs text-gray-500">City:</div>
+<div>{selectedApplication?.[`${key}City`] || temporaryFamilyBackground[key]?.city || 'N/A'}</div>
+                                                                    </div>
+
+                                                                    <div className="col-span-2">
+<div className="text-xs text-gray-500">State/ Province:</div>
+<div>{selectedApplication?.[`${key}StateProvince`] || temporaryFamilyBackground[key]?.stateProvince || 'N/A'}</div>
+                                                                    </div>
+                                                                    <div>
+<div className="text-xs text-gray-500">Zip/ Postal Code:</div>
+<div>{selectedApplication?.[`${key}ZipPostalCode`] || temporaryFamilyBackground[key]?.zipPostalCode || 'N/A'}</div>
+                                                                    </div>
+                                                                    <div />
+
+                                                                    {/* Education & Occupation */}
+                                                                    <div className="col-span-2">
+<div className="text-xs text-gray-500">Educational Attainment/ Course:</div>
+<div>{selectedApplication?.[`${key}Education`] || temporaryFamilyBackground[key]?.education || 'N/A'}</div>
+                                                                    </div>
+                                                                    <div className="col-span-2">
+<div className="text-xs text-gray-500">Occupational/ Position Held:</div>
+<div>{selectedApplication?.[`${key}Occupation`] || temporaryFamilyBackground[key]?.occupation || 'N/A'}</div>
+                                                                    </div>
+
+                                                                    <div className="col-span-2">
+<div className="text-xs text-gray-500">Employer/ Company:</div>
+<div>{selectedApplication?.[`${key}Employer`] || temporaryFamilyBackground[key]?.employer || 'N/A'}</div>
+                                                                    </div>
+                                                                    <div className="col-span-2">
+<div className="text-xs text-gray-500">Business Telephone Number:</div>
+<div>{selectedApplication?.[`${key}BusinessPhone`] || temporaryFamilyBackground[key]?.businessPhone || 'N/A'}</div>
+                                                                    </div>
+
+                                                                    {/* Company Address */}
+                                                                    <div className="col-span-3">
+<div className="text-xs text-gray-500">Company Address:</div>
+<div>{selectedApplication?.[`${key}CompanyAddress`] || temporaryFamilyBackground[key]?.companyAddress || 'N/A'}</div>
+                                                                    </div>
+                                                                    <div>
+<div className="text-xs text-gray-500">City:</div>
+<div>{selectedApplication?.[`${key}CompanyCity`] || temporaryFamilyBackground[key]?.companyCity || 'N/A'}</div>
+                                                                    </div>
+
+                                                                    {/* Annual Income */}
+                                                                    <div>
+<div className="text-xs text-gray-500">Annual Income:</div>
+<div>{selectedApplication?.[`${key}AnnualIncome`] || temporaryFamilyBackground[key]?.annualIncome || 'N/A'}</div>
+                                                                    </div>
+
+                                                                    {/* Status of Parent */}
+                                                                    <div className="col-span-4 mt-2">
+                                                                        <div className="text-xs text-gray-500 font-medium">Status of Parent:</div>
+<div className="text-sm text-gray-700 mt-1">{selectedApplication?.[`${key}Status`] || temporaryFamilyBackground[key]?.status || 'N/A'}</div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
+                                            {/* Siblings */}
+                                            <div className="border rounded p-3 bg-gray-50">
+                                                <h4 className="font-semibold text-black mb-3">Sibling Details</h4>
+                                                <div className="text-sm text-black">
+                                                    {temporaryFamilyBackground.siblings.map((sibling, index) => (
+                                                        <div key={index} className="mb-4">
+                                                            <div className="mb-3 text-xs text-gray-500">Sibling #{index + 1}:</div>
+                                                            <div className="grid grid-cols-4 gap-3">
+                                                                <div>
+                                                                    <div className="text-xs text-gray-500">Family Name:</div>
+                                                                    <div>{selectedApplication?.[`sibling${index + 1}FamilyName`]?.trim() ? selectedApplication[`sibling${index + 1}FamilyName`] : sibling.familyName}</div>
+                                                                </div>
+                                                                <div>
+                                                                    <div className="text-xs text-gray-500">First Name:</div>
+                                                                    <div>{selectedApplication?.[`sibling${index + 1}FirstName`]?.trim() ? selectedApplication[`sibling${index + 1}FirstName`] : sibling.firstName}</div>
+                                                                </div>
+                                                                <div>
+                                                                    <div className="text-xs text-gray-500">Middle Name:</div>
+                                                                    <div>{selectedApplication?.[`sibling${index + 1}MiddleName`]?.trim() ? selectedApplication[`sibling${index + 1}MiddleName`] : sibling.middleName}</div>
+                                                                </div>
+                                                                <div>
+                                                                    <div className="text-xs text-gray-500">Birth Date:</div>
+                                                                    <div>{selectedApplication?.[`sibling${index + 1}BirthDate`]?.trim() ? selectedApplication[`sibling${index + 1}BirthDate`] : sibling.birthDate}</div>
+                                                                </div>
+                                                                <div>
+                                                                    <div className="text-xs text-gray-500">Age:</div>
+                                                                    <div>{selectedApplication?.[`sibling${index + 1}Age`]?.trim() ? selectedApplication[`sibling${index + 1}Age`] : sibling.age}</div>
+                                                                </div>
+                                                                <div>
+                                                                    <div className="text-xs text-gray-500">Gr./Yr. Level/Occupation:</div>
+                                                                    <div>{selectedApplication?.[`sibling${index + 1}GradeOccupation`]?.trim() ? selectedApplication[`sibling${index + 1}GradeOccupation`] : sibling.gradeOccupation}</div>
+                                                                </div>
+                                                                <div className="col-span-2">
+                                                                    <div className="text-xs text-gray-500">School/Employer:</div>
+                                                                    <div>{selectedApplication?.[`sibling${index + 1}SchoolEmployer`]?.trim() ? selectedApplication[`sibling${index + 1}SchoolEmployer`] : sibling.schoolEmployer}</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Educational Background */}
+                                <div className="border rounded-lg bg-white">
+                                    <button
+                                        className="w-full text-left px-4 py-3 flex justify-between items-center"
+                                        onClick={() => toggleSection('education')}
+                                        type="button"
+                                    >
+                                        <span className="font-medium">Educational Background</span>
+                                        <span className="text-sm text-gray-500">{openSections.includes('education') ? '−' : '+'}</span>
+                                    </button>
+                                    {openSections.includes('education') && (
+                                        <div className="px-4 pb-4 pt-0 text-sm text-black">
+                                            <div className="text-sm text-black">School #1:</div>
+                                            <div className="mt-2 grid grid-cols-4 gap-3 items-end">
+                                                <div>
+                                                    <div className="text-xs text-gray-500">Gr./ Yr. Level:</div>
+                                                    <div>{selectedApplication?.lastGrade || temporaryEducationalBackground.lastGrade}</div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs text-gray-500">Name of School:</div>
+                                                    <div>{selectedApplication?.lastSchool || temporaryEducationalBackground.lastSchool}</div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs text-gray-500">School Address:</div>
+                                                    <div>{selectedApplication?.lastSchoolAddress || temporaryEducationalBackground.lastSchoolAddress}</div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs text-gray-500">Inclusive Years</div>
+                                                    <div>{selectedApplication?.inclusiveYears || temporaryEducationalBackground.inclusiveYears}</div>
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-4 grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <div className="text-xs text-gray-500">Honors / Awards Received:</div>
+                                                    <div className="mt-1">{selectedApplication?.honors || temporaryEducationalBackground.honors}</div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs text-gray-500">Attended Summer Classes A.Y.</div>
+                                                    <div className="mt-1">{selectedApplication?.attendedSummerYears || temporaryEducationalBackground.attendedSummerYears}</div>
+                                                    <div className="mt-2 flex items-center space-x-4">
+                                                        <div className="text-xs text-gray-500">Yes</div>
+                                                        <div className="text-xs text-gray-500">No</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Medical History Questionnaire & Immunization */}
+                                <div className="border rounded-lg bg-white">
+                                    <button
+                                        className="w-full text-left px-4 py-3 flex justify-between items-center"
+                                        onClick={() => toggleSection('medical')}
+                                        type="button"
+                                    >
+                                        <span className="font-medium">Medical History / Immunization</span>
+                                        <span className="text-sm text-gray-500">{openSections.includes('medical') ? '−' : '+'}</span>
+                                    </button>
+                                    {openSections.includes('medical') && (
+                                        <div className="px-4 pb-4 pt-0 text-sm text-black">
+                                            <div className="grid grid-cols-4 gap-3 mb-4">
+                                                <div>
+<div className="text-xs text-gray-500">Academic Year:</div>
+<div>{selectedApplication?.academicYear?.trim() ? selectedApplication.academicYear : temporaryMedicalHistory.academicYear || 'N/A'}</div>
+                                                </div>
+                                                <div>
+<div className="text-xs text-gray-500">Admission to Grade/ Year:</div>
+<div>{selectedApplication?.admissionGrade?.trim() ? selectedApplication.admissionGrade : temporaryMedicalHistory.admissionGrade || 'N/A'}</div>
+                                                </div>
+                                                <div />
+                                                <div />
+                                            </div>
+
+                                            <div className="grid grid-cols-4 gap-3 mb-4">
+                                                <div>
+                                                    <div className="text-xs text-gray-500">Family Name:</div>
+                                                    <div>{selectedApplication?.medicalFamilyName?.trim() ? selectedApplication.medicalFamilyName : temporaryMedicalHistory.familyName || 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs text-gray-500">First Name:</div>
+                                                    <div>{selectedApplication?.medicalFirstName?.trim() ? selectedApplication.medicalFirstName : temporaryMedicalHistory.firstName || 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs text-gray-500">Middle Name:</div>
+                                                    <div>{selectedApplication?.medicalMiddleName?.trim() ? selectedApplication.medicalMiddleName : temporaryMedicalHistory.middleName || 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs text-gray-500">Nickname:</div>
+                                                    <div>{selectedApplication?.medicalNickname?.trim() ? selectedApplication.medicalNickname : temporaryMedicalHistory.nickname || 'N/A'}</div>
+                                                </div>
+
+                                                <div>
+                                                    <div className="text-xs text-gray-500">Birth Date:</div>
+                                                    <div>{selectedApplication?.medicalBirthDate?.trim() ? selectedApplication.medicalBirthDate : temporaryMedicalHistory.birthDate || 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs text-gray-500">Place of Birth:</div>
+                                                    <div>{selectedApplication?.medicalPlaceOfBirth?.trim() ? selectedApplication.medicalPlaceOfBirth : temporaryMedicalHistory.placeOfBirth || 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs text-gray-500">Age:</div>
+                                                    <div>{selectedApplication?.medicalAge?.trim() ? selectedApplication.medicalAge : temporaryMedicalHistory.age || 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs text-gray-500">Height:</div>
+                                                    <div>{selectedApplication?.medicalHeight?.trim() ? selectedApplication.medicalHeight : temporaryMedicalHistory.height || 'N/A'}</div>
+                                                </div>
+
+                                                <div>
+                                                    <div className="text-xs text-gray-500">Weight:</div>
+                                                    <div>{selectedApplication?.medicalWeight?.trim() ? selectedApplication.medicalWeight : temporaryMedicalHistory.weight || 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs text-gray-500">Sex:</div>
+                                                    <div>{selectedApplication?.medicalSex?.trim() ? selectedApplication.medicalSex : temporaryMedicalHistory.sex || 'N/A'}</div>
+                                                </div>
+                                                <div />
+                                                <div />
+                                            </div>
+
+                                            <div className="grid grid-cols-3 gap-3 mb-4">
+                                                <div>
+                                                    <div className="text-xs text-gray-500">Parent/ Guardian Name:</div>
+                                                    <div>{selectedApplication?.medicalParentGuardianName?.trim() ? selectedApplication.medicalParentGuardianName : temporaryMedicalHistory.parentGuardianName || 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs text-gray-500">Landline Number:</div>
+                                                    <div>{selectedApplication?.medicalLandlineNumber?.trim() ? selectedApplication.medicalLandlineNumber : temporaryMedicalHistory.landlineNumber || 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs text-gray-500">Mobile Number:</div>
+                                                    <div>{selectedApplication?.medicalMobileNumber?.trim() ? selectedApplication.medicalMobileNumber : temporaryMedicalHistory.mobileNumber || 'N/A'}</div>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-3 gap-3 mb-4">
+                                                <div className="col-span-2">
+                                                    <div className="text-xs text-gray-500">Home Address:</div>
+                                                    <div>{selectedApplication?.medicalHomeAddress?.trim() ? selectedApplication.medicalHomeAddress : temporaryMedicalHistory.homeAddress || 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs text-gray-500">City:</div>
+                                                    <div>{selectedApplication?.medicalCity?.trim() ? selectedApplication.medicalCity : temporaryMedicalHistory.city || 'N/A'}</div>
+                                                </div>
+
+                                                <div>
+                                                    <div className="text-xs text-gray-500">State/ Province:</div>
+                                                    <div>{selectedApplication?.medicalStateProvince?.trim() ? selectedApplication.medicalStateProvince : temporaryMedicalHistory.stateProvince || 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs text-gray-500">Zip/ Postal Code:</div>
+                                                    <div>{selectedApplication?.medicalZipPostalCode?.trim() ? selectedApplication.medicalZipPostalCode : temporaryMedicalHistory.zipPostalCode || 'N/A'}</div>
+                                                </div>
+                                            </div>
+
+                                            {/* Medical History Checklist */}
+                                            <div className="mb-4">
+                                                <div className="text-xs text-gray-500 font-medium mb-2">Medical History:</div>
+                                                <div className="grid grid-cols-2 gap-3 text-sm text-gray-700">
+{[
+'1. Influenza died in the last 8 months',
+'2. Heart murmur leading to loss of consciousness for the last 8 months',
+                                                        '3. Recurrent headaches/ migraines',
+                                                        '4. Disorders Nervous System (Multiple sclerosis)',
+                                                        '5. Digestive problems',
+                                                        '6. Visual Disorders (Blindness on one eye, blurred vision, glaucoma)',
+                                                        '7. Ear infections',
+                                                        '8. Herpes Disorders',
+                                                        '9. Arthritis, Bronchitis, TB or Pneumonia',
+                                                        '10. Ulcer',
+                                                        '11. Joint Disorders or hepatitis',
+                                                        '12. Problems with pus/les, boces or recurrent discoloration',
+                                                        '13. Allergic skin reaction',
+                                                        '14. Mental Illness',
+                                                        '15. Allergies'
+                                                    ].map((item, index) => (
+                                                        <div key={index} className="flex items-center space-x-2">
+                                                            <input
+                                                                type="checkbox"
+                                                                disabled
+                                                                checked={false}
+                                                                className="w-4 h-4 cursor-not-allowed"
+                                                            />
+                                                            <span>{item}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Right side - Additional questions */}
+                                            <div className="grid grid-cols-1 gap-4">
+                                                <div>
+                                                    <div className="text-xs text-gray-500">If you had surgery, please specify:</div>
+                                                    <div>{selectedApplication?.medicalSurgery || temporaryMedicalHistory.surgery || 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs text-gray-500">If you have herbal diseases, please specify what:</div>
+                                                    <div>{selectedApplication?.medicalHerbalDiseases || temporaryMedicalHistory.herbalDiseases || 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs text-gray-500">For no. 15, please specify which:</div>
+                                                    <div>{selectedApplication?.medicalAllergiesSpecify || temporaryMedicalHistory.allergiesSpecify || 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs text-gray-500">If you have other illnesses, please specify what:</div>
+                                                    <div>{selectedApplication?.medicalOtherIllnesses || temporaryMedicalHistory.otherIllnesses || 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs text-gray-500">Do you have any medication that you&apos;re currently taking?</div>
+                                                    <div>{selectedApplication?.medicalCurrentMedication || temporaryMedicalHistory.currentMedication || 'N/A'}</div>
+                                                </div>
+                                            </div>
+
+                                            {/* Immunization Record */}
+                                            <div className="mt-6 pt-4 border-t">
+                                                <div className="text-xs text-gray-500 font-medium mb-3">Immunization Record:</div>
+                                                <div className="text-sm text-gray-700">
+                                                    <div className="mb-3">Have you ever had the 16 Poises select all that apply:</div>
+                                                    <div className="grid grid-cols-3 gap-4 mb-4">
+                                                        <div className="space-y-2">
+                                                            <div className="flex items-center space-x-2">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    disabled
+                                                                    checked={false}
+                                                                    className="w-4 h-4 cursor-not-allowed"
+                                                                />
+                                                                <span>Tetanus</span>
+                                                            </div>
+                                                            <div className="flex items-center space-x-2">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    disabled
+                                                                    checked={false}
+                                                                    className="w-4 h-4 cursor-not-allowed"
+                                                                />
+                                                                <span>Polio</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <div className="flex items-center space-x-2">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    disabled
+                                                                    checked={false}
+                                                                    className="w-4 h-4 cursor-not-allowed"
+                                                                />
+                                                                <span>DPT</span>
+                                                            </div>
+                                                            <div className="flex items-center space-x-2">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    disabled
+                                                                    checked={false}
+                                                                    className="w-4 h-4 cursor-not-allowed"
+                                                                />
+                                                                <span>Measles</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <div className="flex items-center space-x-2">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    disabled
+                                                                    checked={false}
+                                                                    className="w-4 h-4 cursor-not-allowed"
+                                                                />
+                                                                <span>Hepatit</span>
+                                                            </div>
+                                                            <div className="flex items-center space-x-2">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    disabled
+                                                                    checked={false}
+                                                                    className="w-4 h-4 cursor-not-allowed"
+                                                                />
+                                                                <span>BCG</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="mt-3">
+                                                    <div className="text-xs text-gray-500 mb-2">Do you officer or schoolnurse to give first aid during sick days?</div>
+                                                    <div className="mt-1 text-sm text-gray-700 space-x-4">
+                                                        <div className="flex items-center space-x-2">
+                                                            <input
+                                                                type="checkbox"
+                                                                disabled
+                                                                checked={false}
+                                                                className="w-4 h-4 cursor-not-allowed"
+                                                            />
+                                                            <span>Yes</span>
+                                                        </div>
+                                                        <div className="flex items-center space-x-2">
+                                                            <input
+                                                                type="checkbox"
+                                                                disabled
+                                                                checked={false}
+                                                                className="w-4 h-4 cursor-not-allowed"
+                                                            />
+                                                            <span>No</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Certification */}
+                                            <div className="mt-4 pt-4 border-t text-sm text-gray-700">
+                                                <div className="flex items-start space-x-3">
+                                                    <input
+                                                        type="checkbox"
+                                                        disabled
+                                                        checked={false}
+                                                        className="w-4 h-4 cursor-not-allowed mt-0.5"
+                                                    />
+                                                    <span>I hereby certify that all the information applied therein are complete and accurate</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="border rounded-lg bg-white">
+                                    <button
+                                        className="w-full text-left px-4 py-3 flex justify-between items-center"
+                                        onClick={() => toggleSection('agreement')}
+                                        type="button"
+                                    >
+                                        <span className="font-medium">Agreement</span>
+                                        <span className="text-sm text-gray-500">{openSections.includes('agreement') ? '−' : '+'}</span>
+                                    </button>
+                                    {openSections.includes('agreement') && (
+                                        <div className="px-4 pb-4 pt-0 text-sm text-black">
+            {selectedApplication?.agreementText ? (
+                <div className="text-sm text-black">{selectedApplication.agreementText}</div>
+            ) : (
+                <div className="text-sm text-black">
+                    I wish to enroll my child {selectedApplication?.fullName || 'Student Full Name'} to your school, St. Joseph School of Fairview, and upon compliance with the entrance/re-admission requirements, I understand that he/she must:
+                    <br /><br />
+                    1. Comply with all the policies and procedures such as attendance and punctuality, scholastics/academic performance set by the school;
+                    <br />
+                    2. Attend and support all the activities duly organized by the school both in co-curricular and extra-curricular, particularly in the institutional activities such as School Orientation Day, Christmas party/Liturgical Activities, Educational Tour, Foundation Day, Retreat and Recollections, Community Outreach Program and JS Prom, etc.;
+                    <br />
+                    3. Abide by the behavioural standards and rules of discipline as specified in the student's handbook, e.g. wearing of prescribed uniform, behaviour within and out of the campus, etc.;
+                    <br />
+                    4. Conform to all rules and regulation set forth by the institution (including the increase in tuition/miscellaneous/other fees) now enforced or may be promulgated by the school from time to time.
+                    <br /><br />
+                    By affixing my name, {selectedApplication?.parentGuardianName || temporaryAgreement.parentGuardianName || 'N/A'}, I hereby waive my right in any form and commit myself towards the realization of the vision-mission of the institution, particularly the rules and regulation as stipulated in the Student's Handbook.
+                </div>
+            )}
+
+                                            <div className="mt-6 grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <div className="text-xs text-gray-500">Parent/ Guardian Name:</div>
+                                                    <div className="mt-1 text-sm text-black">{selectedApplication?.parentGuardianName || temporaryAgreement.parentGuardianName || 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs text-gray-500">Relationship to the Child:</div>
+                                                    <div className="mt-1 text-sm text-black">{selectedApplication?.parentGuardianRelation || selectedApplication?.guardianRelation || temporaryAgreement.parentGuardianRelation || 'N/A'}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Transferee-specific section (TOGGLE comment: replace `showTransfereeSection` with `selectedApplication?.isTransferee` to enable real conditional display) */}
+                                {showTransfereeSection && (
+                                    <div className="border rounded-lg bg-white">
+                                        <button
+                                            className="w-full text-left px-4 py-3 flex justify-between items-center"
+                                            onClick={() => toggleSection('transferee')}
+                                            type="button"
+                                        >
+                                            <span className="font-medium">Transferee Details</span>
+                                            <span className="text-sm text-gray-500">{openSections.includes('transferee') ? '−' : '+'}</span>
+                                        </button>
+                                        {openSections.includes('transferee') && (
+                                            <div className="px-4 pb-4 pt-0 text-sm text-black space-y-4">
+                                                <div>
+                                                    <div className="text-sm font-medium text-black">Previous School</div>
+                                                    <div className="mt-2 grid grid-cols-3 gap-3 items-end">
+                                                        <div>
+                                                            <div className="text-xs text-gray-500">School Name:</div>
+                                                            <div>{selectedApplication?.previousSchool?.trim() ? selectedApplication.previousSchool : temporaryTransfereeDetails.previousSchool || 'N/A'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-xs text-gray-500">School Address:</div>
+                                                            <div>{selectedApplication?.previousSchoolAddress?.trim() ? selectedApplication.previousSchoolAddress : temporaryTransfereeDetails.previousSchoolAddress || 'N/A'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-xs text-gray-500">Gr./ Yr. Level:</div>
+                                                            <div>{selectedApplication?.previousSchoolGrade?.trim() ? selectedApplication.previousSchoolGrade : temporaryTransfereeDetails.previousSchoolGrade || 'N/A'}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <div className="text-sm font-medium text-black">Present School</div>
+                                                    <div className="mt-2 grid grid-cols-3 gap-3 items-end">
+                                                        <div>
+                                                            <div className="text-xs text-gray-500">School Name:</div>
+                                                            <div>{selectedApplication?.presentSchool?.trim() ? selectedApplication.presentSchool : temporaryTransfereeDetails.presentSchool || 'N/A'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-xs text-gray-500">School Address:</div>
+                                                            <div>{selectedApplication?.presentSchoolAddress?.trim() ? selectedApplication.presentSchoolAddress : temporaryTransfereeDetails.presentSchoolAddress || 'N/A'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-xs text-gray-500">Gr./ Yr. Level:</div>
+                                                            <div>{selectedApplication?.presentSchoolGrade?.trim() ? selectedApplication.presentSchoolGrade : temporaryTransfereeDetails.presentSchoolGrade || 'N/A'}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <div className="text-xs text-gray-500">Reason for Transferring:</div>
+                                                    <div className="mt-1">{selectedApplication?.transferReason?.trim() ? selectedApplication.transferReason : temporaryTransfereeDetails.transferReason || 'N/A'}</div>
+                                                </div>
+
+                                                <div>
+                                                    <div className="text-xs text-gray-500">Has the applicant been subjected to any disciplinary actions in school? If yes, please describe the action and the sanctions:</div>
+                                                    <div className="mt-1">{selectedApplication?.disciplinaryActions?.trim() ? selectedApplication.disciplinaryActions : temporaryTransfereeDetails.disciplinaryActions || 'N/A'}</div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
                         <div className="mb-4">
-                            <span className="block text-sm font-medium text-black mb-1">Requirements Documents</span>
-                            <p className="text-xs text-gray-500 mb-2">
+                            <span className="block text-m font-medium text-black mb-1 mt-7">Requirements Documents</span>
+                            <p className="text-s text-gray-500 mb-5">
                                 Upload the required documents. Each file should be in PDF, JPG, PNG, or Word format (max 10MB).
                             </p>
                             <div key={fileUploadKey} className="grid grid-cols-2 gap-4 mb-4 space-y-3">
@@ -752,7 +1655,7 @@ const RegisterCoursePage: React.FC = () => {
                                 />
                             </div>
                         </div>
-                        <div className="flex space-x-4">
+                        <div className="flex space-x-4 mt-8 ">
                             <button
                                 onClick={handleRegister}
                                 className="bg-red-800 text-white px-4 py-2 rounded text-sm flex items-center space-x-2 hover:bg-red-900"

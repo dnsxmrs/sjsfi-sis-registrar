@@ -9,20 +9,19 @@ datasource db {
 }
 
 model User {
-  id         Int           @id @default(autoincrement())
-  email      String        @unique @db.VarChar(255)
-  role       UserRole      @default(STUDENT)
-  status     GeneralStatus @default(ACTIVE)
-  createdAt  DateTime      @default(now())
-  deletedAt  DateTime?
-  updatedAt  DateTime      @updatedAt
-  firstName  String        @db.VarChar(255)
-  middleName String?       @db.VarChar(255)
-  familyName String        @db.VarChar(255)
-  suffix     String?       @db.VarChar(50)
-  student    Student?
-
+  id            Int                     @id @default(autoincrement())
+  email         String                  @unique @db.VarChar(255)
+  role          UserRole                @default(STUDENT)
+  status        GeneralStatus           @default(ACTIVE)
+  createdAt     DateTime                @default(now())
+  deletedAt     DateTime?
+  updatedAt     DateTime                @updatedAt
+  firstName     String                  @db.VarChar(255)
+  middleName    String?                 @db.VarChar(255)
+  familyName    String                  @db.VarChar(255)
+  suffix        String?                 @db.VarChar(50)
   notifications NotificationRecipient[]
+  student       Student?
 
   @@index([role, status])
   @@index([email, status])
@@ -276,12 +275,12 @@ model FamilyBackground {
   companyCity           String?            @db.VarChar(100)
   businessNo            String?            @db.VarChar(50)
   annualIncome          Decimal?           @db.Decimal(12, 2)
-  relationToApplicant   String?            @db.VarChar(100)
   createdBy             Int
   createdAt             DateTime           @default(now())
   updatedAt             DateTime           @updatedAt
   deletedAt             DateTime?
   parentStatus          String             @db.VarChar(50)
+  relationToApplicant   String?            @db.VarChar(100)
   studentForm           StudentApplication @relation(fields: [studentFormId], references: [id], onDelete: Cascade)
 
   @@index([studentFormId, guardianType])
@@ -490,29 +489,26 @@ model Grade {
 }
 
 model Notification {
-  id          Int       @id @default(autoincrement())
+  id          Int                     @id @default(autoincrement())
   title       String
   description String
-  type        String // info, warning, system, etc.
-  scope       String // GENERAL, GROUP, USER
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime                @default(now())
   deletedAt   DateTime?
-
-  senderType String
-
-  recipients NotificationRecipient[]
+  scope       String
+  senderType  String
+  type        String
+  updatedAt   DateTime                @updatedAt
+  recipients  NotificationRecipient[]
 }
 
 model NotificationRecipient {
-  id             Int       @id @default(autoincrement())
+  id             Int          @id @default(autoincrement())
   notificationId Int
   userId         Int
-  isRead         Boolean   @default(false)
+  isRead         Boolean      @default(false)
   readAt         DateTime?
-
-  notification Notification @relation(fields: [notificationId], references: [id])
-  user         User         @relation(fields: [userId], references: [id])
+  notification   Notification @relation(fields: [notificationId], references: [id])
+  user           User         @relation(fields: [userId], references: [id])
 
   @@unique([notificationId, userId])
 }
@@ -527,10 +523,10 @@ enum Gender {
 enum UserRole {
   STUDENT
   ADMIN
-  REGISTRAR
   TEACHER
   PARENT
   STAFF
+  REGISTRAR
 }
 
 enum GeneralStatus {
