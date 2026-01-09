@@ -205,7 +205,7 @@ export default function AcademicSettingsPage() {
       }
     } catch (error) {
       console.error('Academic term action failed:', error);
-      alert('Action failed. Please try again.');
+      toast.error('Action failed. Please try again.');
     }
   };
 

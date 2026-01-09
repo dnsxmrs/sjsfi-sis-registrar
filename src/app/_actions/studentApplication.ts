@@ -518,7 +518,7 @@ export async function approveApplication(student: StudentApplication, requiremen
         const applicationNumber = `SJSFI-${year}-${String(nextNumber).padStart(4, '0')}`;
 
         // Store old application number for potential rollback
-        const oldApplicationNumber = studentApplicationData.academicYearId ? 
+        const oldApplicationNumber = studentApplicationData.academicYearId ?
             (await prisma.studentApplication.findUnique({
                 where: { id: student.id },
                 select: { applicationNumber: true, status: true }

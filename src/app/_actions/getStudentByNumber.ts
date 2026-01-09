@@ -158,7 +158,7 @@ export async function getStudentByNumber(studentNumber: string): Promise<Student
                 familyBackgrounds: true,
                 siblings: true,
                 requirements: {
-                    take: 4
+                    take: 5
                 },
                 educationalBackground: {
                     include: {

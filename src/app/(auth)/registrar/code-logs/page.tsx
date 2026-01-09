@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Search, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 import { getAllCodes } from '@/app/_actions/getRegistrationCodes';
 import { markCodeAsExpired } from '@/app/_actions/markCodeAsExpired';
+import toast from 'react-hot-toast';
 
 interface RegistrationCode {
     id: number;
@@ -153,11 +154,11 @@ export default function CodeManagement() {
                 });
             } else {
                 console.error('Failed to mark code as expired');
-                alert('Failed to mark code as expired. Please try again.');
+                toast.error('Failed to mark code as expired. Please try again.');
             }
         } catch (error) {
             console.error('Error marking code as expired:', error);
-            alert('An error occurred. Please try again.');
+            toast.error('An error occurred. Please try again.');
         } finally {
             setMarkingAsExpired(null);
         }

@@ -14,6 +14,8 @@ import {
     type StudentRequirement,
 } from '@/app/_actions/getStudentByNumber';
 import { saveStudentEdit, archiveStudent } from '@/app/_actions/getStudents';
+import { FileUpload } from '@/components/registrar/FileUpload';
+import toast from 'react-hot-toast';
 
 interface PageProps {
     params: Promise<{
@@ -36,6 +38,19 @@ export default function StudentDetailPage({ params }: PageProps) {
     const [requirementsData, setRequirementsData] = useState<StudentRequirement[]>([]);
     const [isEditMode, setIsEditMode] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [requirementFiles, setRequirementFiles] = useState<{
+        birthCertificate: File | null;
+        f137: File | null;
+        f138: File | null;
+        goodMoral: File | null;
+        privacyForm: File | null;
+    }>({
+        birthCertificate: null,
+        f137: null,
+        f138: null,
+        goodMoral: null,
+        privacyForm: null,
+    });
 
     useEffect(() => {
         const fetchStudentData = async () => {
@@ -82,6 +97,13 @@ export default function StudentDetailPage({ params }: PageProps) {
         setIsEditMode(false);
     };
 
+    const handleFileUpload = (requirementType: string, file: File | null) => {
+        setRequirementFiles({
+            ...requirementFiles,
+            [requirementType]: file,
+        });
+    };
+
     const handleSaveStudent = async () => {
         setIsSaving(true);
         try {
@@ -93,11 +115,22 @@ export default function StudentDetailPage({ params }: PageProps) {
                 educationalData,
                 transfereeData,
                 siblingsData,
+                requirementFiles,
             });
 
             if (result.success) {
-                alert('Student information updated successfully!');
+                // Success toast
+                toast.success("Student information updated successfully!")
+
                 setIsEditMode(false);
+                // Reset file inputs
+                setRequirementFiles({
+                    birthCertificate: null,
+                    f137: null,
+                    f138: null,
+                    goodMoral: null,
+                    privacyForm: null,
+                });
                 // Refetch data to show updated values
                 const data = await getStudentByNumber(studentNumber);
                 if (data) {
@@ -110,11 +143,11 @@ export default function StudentDetailPage({ params }: PageProps) {
                     setRequirementsData(data.requirements);
                 }
             } else {
-                alert(`Failed to save: ${result.error}`);
+                toast.error(`Failed to save: ${result.error}`);
             }
         } catch (error) {
             console.error('Error saving student:', error);
-            alert('Failed to save student information. Please try again.');
+            toast.error('Failed to save student information. Please try again.');
         } finally {
             setIsSaving(false);
         }
@@ -151,7 +184,7 @@ export default function StudentDetailPage({ params }: PageProps) {
     const updateTransfereeData = (field: string, value: string | null) => {
         setTransfereeData(prev => {
             if (!prev) return null;
-            
+
             // Handle nested fields for presentSchool and previousSchool
             if (field.startsWith('presentSchool.')) {
                 const schoolField = field.split('.')[1];
@@ -172,20 +205,21 @@ export default function StudentDetailPage({ params }: PageProps) {
                     } : null
                 };
             }
-            
+
             return { ...prev, [field]: value };
         });
     };
 
     const handleArchiveStudent = async () => {
+        // TODO: INSTEAD OF WINDOW, MAKE A MODAL
         const confirmed = window.confirm(
             `Are you sure you want to archive ${personalData?.firstName} ${personalData?.familyName}?`
         );
-        
+
         if (confirmed) {
             try {
                 const result = await archiveStudent(studentNumber);
-                
+
                 if (result.success) {
                     alert('Student archived successfully!');
                     // Redirect back to students list
@@ -238,7 +272,7 @@ export default function StudentDetailPage({ params }: PageProps) {
     const fatherIndex = familyData.findIndex((family) => family.guardianType === 'FATHER');
     const motherIndex = familyData.findIndex((family) => family.guardianType === 'MOTHER');
     const guardianIndex = familyData.findIndex((family) => family.guardianType === 'GUARDIAN');
-    
+
     const father = fatherIndex >= 0 ? familyData[fatherIndex] : null;
     const mother = motherIndex >= 0 ? familyData[motherIndex] : null;
     const guardian = guardianIndex >= 0 ? familyData[guardianIndex] : null;
@@ -292,7 +326,6 @@ export default function StudentDetailPage({ params }: PageProps) {
                 </div>
             </div>
 
-
             {/* Header Card */}
             <div className="bg-white rounded-lg shadow-md p-6">
                 <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
@@ -322,66 +355,122 @@ export default function StudentDetailPage({ params }: PageProps) {
                             <GraduationCap className="w-5 h-5" />
                             Requirements
                         </h3>
-                        <div className="space-y-4">
-                            {requirementsData.map((requirement) => (
-                                <div key={requirement.id} className="border border-gray-300 rounded-lg p-4 bg-gray-50">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Requirement Type:</label>
-                                            <input
-                                                type="text"
-                                                value={requirement.requirementType}
-                                                disabled
-                                                readOnly
-                                                className="w-full border border-gray-300 rounded px-2 py-1 bg-white text-gray-900"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Status:</label>
-                                            <input
-                                                type="text"
-                                                value={requirement.status}
-                                                disabled
-                                                readOnly
-                                                className={`w-full border border-gray-300 rounded px-2 py-1 text-gray-900 ${requirement.status === 'APPROVED' ? 'bg-green-100' :
-                                                    requirement.status === 'SUBMITTED' ? 'bg-blue-100' :
-                                                        requirement.status === 'REJECTED' ? 'bg-red-100' :
-                                                            requirement.status === 'INCOMPLETE' ? 'bg-yellow-100' :
-                                                                'bg-gray-100'
-                                                    }`}
-                                            />
-                                        </div>
-                                        {requirement.description && (
-                                            <div className="md:col-span-2">
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">Description:</label>
-                                                <textarea
-                                                    value={requirement.description}
-                                                    disabled
-                                                    readOnly
-                                                    rows={2}
-                                                    className="w-full border border-gray-300 rounded px-2 py-1 bg-white text-gray-900"
-                                                />
+                        
+                        {/* View Mode - Card Display */}
+                        {!isEditMode && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                                {requirementsData.map((requirement) => (
+                                    <div
+                                        key={requirement.id}
+                                        className={`border rounded-lg p-3 transition-all hover:shadow-md ${requirement.status === 'APPROVED'
+                                                ? 'bg-green-50 border-green-200'
+                                                : requirement.status === 'SUBMITTED'
+                                                    ? 'bg-blue-50 border-blue-200'
+                                                    : requirement.status === 'REJECTED'
+                                                        ? 'bg-red-50 border-red-200'
+                                                        : requirement.status === 'INCOMPLETE'
+                                                            ? 'bg-yellow-50 border-yellow-200'
+                                                            : 'bg-gray-50 border-gray-200'
+                                            }`}
+                                    >
+                                        <div className="space-y-2">
+                                            {/* Requirement Type Header */}
+                                            <div className="flex items-start justify-between gap-2">
+                                                <h4 className="font-semibold text-gray-900 text-sm line-clamp-2">
+                                                    {requirement.requirementType}
+                                                </h4>
+                                                <span className={`px-1.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0 ${requirement.status === 'APPROVED'
+                                                        ? 'bg-green-600 text-white'
+                                                        : requirement.status === 'SUBMITTED'
+                                                            ? 'bg-blue-600 text-white'
+                                                            : requirement.status === 'REJECTED'
+                                                                ? 'bg-red-600 text-white'
+                                                                : requirement.status === 'INCOMPLETE'
+                                                                    ? 'bg-yellow-600 text-white'
+                                                                    : 'bg-gray-600 text-white'
+                                                    }`}>
+                                                    {requirement.status}
+                                                </span>
                                             </div>
-                                        )}
-                                        {requirement.fileUrl && (
-                                            <div className="md:col-span-2">
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">File:</label>
+
+                                            {/* Description */}
+                                            {requirement.description && (
+                                                <p className="text-sm text-gray-600 line-clamp-1">
+                                                    {requirement.description}
+                                                </p>
+                                            )}
+
+                                            {/* File Link */}
+                                            {requirement.fileUrl ? (
                                                 <a
                                                     href={requirement.fileUrl}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="text-blue-600 hover:text-blue-800 underline"
+                                                    className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 hover:underline font-medium"
                                                 >
-                                                    View File
+                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                    View
                                                 </a>
-                                            </div>
-                                        )}
+                                            ) : (
+                                                <span className="text-sm text-gray-400 italic">No file</span>
+                                            )}
+                                        </div>
                                     </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Edit Mode - File Upload */}
+                        {isEditMode && (
+                            <div>
+                                <p className="text-xs text-gray-500 mb-4">
+                                    Upload or update the required documents. Each file should be in PDF, JPG, PNG, or Word format (max 10MB).
+                                </p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <FileUpload
+                                        label="Birth Certificate"
+                                        requirementType="birthCertificate"
+                                        studentId={studentNumber}
+                                        onFileSelect={(file) => handleFileUpload('birthCertificate', file)}
+                                        existingFileUrl={requirementsData.find(r => r.requirementType === 'Birth Certificate')?.fileUrl || undefined}
+                                    />
+                                    <FileUpload
+                                        label="F-137 (Permanent Record)"
+                                        requirementType="f137"
+                                        studentId={studentNumber}
+                                        onFileSelect={(file) => handleFileUpload('f137', file)}
+                                        existingFileUrl={requirementsData.find(r => r.requirementType === 'F137')?.fileUrl || undefined}
+                                    />
+                                    <FileUpload
+                                        label="F-138 (Report Card)"
+                                        requirementType="f138"
+                                        studentId={studentNumber}
+                                        onFileSelect={(file) => handleFileUpload('f138', file)}
+                                        existingFileUrl={requirementsData.find(r => r.requirementType === 'F138')?.fileUrl || undefined}
+                                    />
+                                    <FileUpload
+                                        label="Certificate of Good Moral"
+                                        requirementType="goodMoral"
+                                        studentId={studentNumber}
+                                        onFileSelect={(file) => handleFileUpload('goodMoral', file)}
+                                        existingFileUrl={requirementsData.find(r => r.requirementType === 'Good Moral')?.fileUrl || undefined}
+                                    />
+                                    <FileUpload
+                                        label="Privacy Consent Form"
+                                        requirementType="privacyForm"
+                                        studentId={studentNumber}
+                                        onFileSelect={(file) => handleFileUpload('privacyForm', file)}
+                                        existingFileUrl={requirementsData.find(r => r.requirementType === 'Privacy Form')?.fileUrl || undefined}
+                                    />
                                 </div>
-                            ))}
-                        </div>
+                            </div>
+                        )}
                     </div>
                 )}
+
                 {/* Personal Information */}
                 <div className="bg-white rounded-lg shadow-md p-6">
                     <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center gap-2">

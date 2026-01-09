@@ -306,6 +306,14 @@ export async function getAllApprovedStudentApplications() {
     }
 }
 
+interface RequirementFiles {
+    birthCertificate: File | null;
+    f137: File | null;
+    f138: File | null;
+    goodMoral: File | null;
+    privacyForm: File | null;
+}
+
 export async function saveStudentEdit(data: {
     studentNumber: string;
     personalData: StudentPersonalData | null;
@@ -314,6 +322,7 @@ export async function saveStudentEdit(data: {
     educationalData: StudentEducationalBackground | null;
     transfereeData: StudentTransfereeBackground | null;
     siblingsData: StudentSibling[];
+    requirementFiles?: RequirementFiles;
 }) {
     let logError: string | undefined = undefined;
     try {
@@ -328,6 +337,119 @@ export async function saveStudentEdit(data: {
 
         if (!studentApplication) {
             throw new Error('Student not found');
+        }
+
+        // Step 1: Validate files if any are provided (same validation as in studentApplication.ts)
+        const uploadedUrls: {
+            birthCertificate: string;
+            f137: string;
+            f138: string;
+            goodMoral: string;
+            privacyForm: string;
+        } = {
+            birthCertificate: '',
+            f137: '',
+            f138: '',
+            goodMoral: '',
+            privacyForm: '',
+        };
+
+        if (data.requirementFiles) {
+            const fileTypes: Array<keyof RequirementFiles> = [
+                'birthCertificate',
+                'f137',
+                'f138',
+                'goodMoral',
+                'privacyForm',
+            ];
+
+            // Validate each file BEFORE uploading
+            for (const fileType of fileTypes) {
+                const file = data.requirementFiles[fileType];
+                if (file) {
+                    // File type validation
+                    const allowedTypes = [
+                        'application/pdf',
+                        'image/jpeg',
+                        'image/jpg',
+                        'image/png',
+                        'application/msword',
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                    ];
+                    
+                    if (!allowedTypes.includes(file.type)) {
+                        throw new Error(
+                            `Invalid file type for ${fileType.replace(/([A-Z])/g, ' $1').trim()}. ` +
+                            `Allowed types: PDF, JPG, PNG, Word documents. ` +
+                            `Got: ${file.type}`
+                        );
+                    }
+
+                    // File size validation (10MB limit)
+                    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+                    if (file.size > maxSize) {
+                        throw new Error(
+                            `File size for ${fileType.replace(/([A-Z])/g, ' $1').trim()} exceeds 10MB limit. ` +
+                            `File size: ${(file.size / 1024 / 1024).toFixed(2)}MB`
+                        );
+                    }
+
+                    // File name validation (prevent directory traversal)
+                    if (file.name.includes('..') || file.name.includes('/') || file.name.includes('\\')) {
+                        throw new Error(
+                            `Invalid file name for ${fileType.replace(/([A-Z])/g, ' $1').trim()}. ` +
+                            `File name should not contain special characters.`
+                        );
+                    }
+
+                    console.log(`✓ Validation passed for ${fileType}: ${file.name} (${(file.size / 1024).toFixed(2)}KB)`);
+                }
+            }
+
+            // Step 2: Upload files to Supabase (after validation passes)
+            const { uploadRequirementFile, deleteRequirementFile } = await import('@/lib/supabase');
+            
+            try {
+                for (const fileType of fileTypes) {
+                    const file = data.requirementFiles[fileType];
+                    if (file) {
+                        console.log(`Uploading ${fileType} for ${data.studentNumber}...`);
+                        
+                        // Get student name for file naming
+                        const studentName = data.personalData 
+                            ? `${data.personalData.firstName}-${data.personalData.familyName}` 
+                            : 'Unknown';
+                        
+                        const result = await uploadRequirementFile(
+                            file,
+                            data.studentNumber,
+                            studentName,
+                            fileType
+                        );
+
+                        if (!result.success || !result.url) {
+                            throw new Error(`Failed to upload ${fileType}: ${result.error || 'Unknown error'}`);
+                        }
+
+                        uploadedUrls[fileType] = result.url;
+                        console.log(`✓ Uploaded ${fileType}: ${result.url}`);
+                    }
+                }
+            } catch (uploadError) {
+                // Clean up any uploaded files before throwing error
+                console.error('File upload failed, cleaning up uploaded files...');
+                for (const fileType of fileTypes) {
+                    if (uploadedUrls[fileType]) {
+                        try {
+                            await deleteRequirementFile(uploadedUrls[fileType]);
+                            console.log(`✓ Cleaned up ${fileType}`);
+                        } catch (deleteError) {
+                            console.error(`Failed to delete ${fileType}:`, deleteError);
+                        }
+                    }
+                }
+                throw uploadError;
+            }
         }
 
         // Update personal data
@@ -434,6 +556,52 @@ export async function saveStudentEdit(data: {
                             schoolEmployer: sibling.schoolEmployer,
                         },
                     });
+                }
+            }
+        }
+
+        // Step 3: Update requirements in database if files were uploaded
+        if (data.requirementFiles) {
+            const requirementMapping = [
+                { type: 'Birth Certificate', fileUrl: uploadedUrls.birthCertificate },
+                { type: 'F137', fileUrl: uploadedUrls.f137 },
+                { type: 'F138', fileUrl: uploadedUrls.f138 },
+                { type: 'Good Moral', fileUrl: uploadedUrls.goodMoral },
+                { type: 'Privacy Form', fileUrl: uploadedUrls.privacyForm },
+            ];
+
+            for (const req of requirementMapping) {
+                if (req.fileUrl) {
+                    // Check if requirement exists
+                    const existingRequirement = await prisma.requirements.findFirst({
+                        where: {
+                            studentApplicationId: studentApplication.id,
+                            requirementType: req.type,
+                        },
+                    });
+
+                    if (existingRequirement) {
+                        // Update existing requirement
+                        await prisma.requirements.update({
+                            where: { id: existingRequirement.id },
+                            data: {
+                                fileUrl: req.fileUrl,
+                                status: 'SUBMITTED',
+                            },
+                        });
+                        console.log(`✓ Updated requirement: ${req.type}`);
+                    } else {
+                        // Create new requirement
+                        await prisma.requirements.create({
+                            data: {
+                                studentApplicationId: studentApplication.id,
+                                requirementType: req.type,
+                                status: 'SUBMITTED',
+                                fileUrl: req.fileUrl,
+                            },
+                        });
+                        console.log(`✓ Created requirement: ${req.type}`);
+                    }
                 }
             }
         }

@@ -4,6 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Eye, Archive, Search, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getAllApprovedStudentApplications, archiveStudent } from '@/app/_actions/getStudents';
+import toast from 'react-hot-toast';
 
 
 type SortField = 'studentNumber' | 'name' | 'schoolYear' | 'gradeLevel';
@@ -201,9 +202,9 @@ export default function StudentInformationPage() {
             if (response && response.success && Array.isArray(response.applications)) {
                 setStudents(response.applications);
             }
-            alert('Student archived successfully');
+            toast.success('Student archived successfully');
         } else {
-            alert(`Failed to archive student: ${result.error}`);
+            toast.error(`Failed to archive student: ${result.error}`);
         }
     };
 
