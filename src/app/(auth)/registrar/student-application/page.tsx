@@ -21,6 +21,8 @@ const RegisterCoursePage: React.FC = () => {
     const [selectedApplication, setSelectedApplication] = useState<any>(null);
 
     const [isLoading, setIsLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
     const [requirementFiles, setRequirementFiles] = useState<{
         birthCertificate: File | null;
         f137: File | null;
@@ -61,6 +63,47 @@ const RegisterCoursePage: React.FC = () => {
         } catch (error) {
             console.error('Error fetching students:', error);
         }
+    };
+
+    // Pagination calculations
+    const totalPages = Math.ceil(students.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedStudents = students.slice(startIndex, endIndex);
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const getPageNumbers = () => {
+        const pages = [];
+        const maxVisiblePages = 5;
+        
+        if (totalPages <= maxVisiblePages) {
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i);
+            }
+        } else {
+            if (currentPage <= 3) {
+                for (let i = 1; i <= 4; i++) pages.push(i);
+                pages.push('...');
+                pages.push(totalPages);
+            } else if (currentPage >= totalPages - 2) {
+                pages.push(1);
+                pages.push('...');
+                for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
+            } else {
+                pages.push(1);
+                pages.push('...');
+                pages.push(currentPage - 1);
+                pages.push(currentPage);
+                pages.push(currentPage + 1);
+                pages.push('...');
+                pages.push(totalPages);
+            }
+        }
+        return pages;
     };
 
     // Fetch students on component mount
@@ -456,7 +499,30 @@ const RegisterCoursePage: React.FC = () => {
                 <div className="flex-1 space-y-6 order-2 md:order-1">
                     {/* All Students Table */}
                     <div className="bg-white p-6 rounded-lg shadow">
-                        <h2 className="text-lg font-semibold mb-4 text-black">Pending Applications</h2>
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-lg font-semibold text-black">Pending Applications</h2>
+                            <div className="flex items-center gap-2">
+                                <label className="text-sm text-gray-600">Items per page:</label>
+                                <select
+                                    value={itemsPerPage}
+                                    onChange={(e) => {
+                                        setItemsPerPage(Number(e.target.value));
+                                        setCurrentPage(1);
+                                    }}
+                                    className="text-black px-3 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value={5}>5</option>
+                                    <option value={10}>10</option>
+                                    <option value={25}>25</option>
+                                    <option value={50}>50</option>
+                                </select>
+                            </div>
+                        </div>
+                        {students.length > 0 && (
+                            <div className="text-sm text-gray-600 mb-4">
+                                Showing {students.length === 0 ? 0 : startIndex + 1} to {Math.min(endIndex, students.length)} of {students.length} applications
+                            </div>
+                        )}
                         {isLoading ? (
                             <div className="flex justify-center items-center py-8">
                                 <div className="text-gray-500">Loading students...</div>
@@ -479,7 +545,7 @@ const RegisterCoursePage: React.FC = () => {
                                             </td>
                                         </tr>
                                     ) : (
-                                        students.map((student) => (
+                                        paginatedStudents.map((student) => (
                                             <tr key={student.id} className="border-b border-gray-200 text-black hover:bg-gray-50">
                                                 <td className="py-2">{student.applicationNumber}</td>
                                                 <td className="py-2">{student.createdAt}</td>
@@ -510,6 +576,67 @@ const RegisterCoursePage: React.FC = () => {
                                     )}
                                 </tbody>
                             </table>
+                        )}
+                        {/* Pagination Controls */}
+                        {students.length > 0 && (
+                            <div className="mt-4 border-t border-gray-200 pt-4">
+                                <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                                    {/* Desktop pagination info */}
+                                    <div className="hidden sm:block text-sm text-gray-600">
+                                        Page {currentPage} of {totalPages}
+                                    </div>
+
+                                    {/* Pagination buttons */}
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={() => handlePageChange(currentPage - 1)}
+                                            disabled={currentPage === 1}
+                                            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                        >
+                                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                            </svg>
+                                            Previous
+                                        </button>
+
+                                        {/* Page numbers */}
+                                        <div className="hidden sm:flex items-center gap-1">
+                                            {getPageNumbers().map((page, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => typeof page === 'number' && handlePageChange(page)}
+                                                    disabled={page === '...'}
+                                                    className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                                                        page === currentPage
+                                                            ? 'bg-blue-600 text-white'
+                                                            : page === '...'
+                                                            ? 'cursor-default text-gray-400'
+                                                            : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                                                    }`}
+                                                >
+                                                    {page}
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        <button
+                                            onClick={() => handlePageChange(currentPage + 1)}
+                                            disabled={currentPage === totalPages}
+                                            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                        >
+                                            Next
+                                            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    {/* Mobile pagination info */}
+                                    <div className="text-sm text-gray-600 sm:hidden">
+                                        Page {currentPage} of {totalPages}
+                                    </div>
+                                </div>
+                            </div>
                         )}
                     </div>
                     {/* Add/Edit Student Form */}

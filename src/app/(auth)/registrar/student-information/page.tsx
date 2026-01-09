@@ -20,14 +20,17 @@ export default function StudentInformationPage() {
     const [itemsPerPage, setItemsPerPage] = useState(10);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [students, setStudents] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchStudents = async () => {
+            setIsLoading(true);
             const response = await getAllApprovedStudentApplications();
             if (response && response.success && Array.isArray(response.applications)) {
                 setStudents(response.applications);
             }
             console.log(response);
+            setIsLoading(false);
         };
         fetchStudents();
     }, []);
@@ -161,7 +164,6 @@ export default function StudentInformationPage() {
                 pages.push(totalPages);
             }
         }
-        
         return pages;
     };
 
@@ -315,7 +317,11 @@ export default function StudentInformationPage() {
                 <div className="bg-white rounded-lg shadow-md overflow-hidden">
                     {/* Mobile View - Cards */}
                     <div className="block lg:hidden">
-                        {filteredAndSortedStudents.length === 0 ? (
+                        {isLoading ? (
+                            <div className="flex justify-center items-center py-8">
+                                <div className="text-gray-500">Loading students...</div>
+                            </div>
+                        ) : filteredAndSortedStudents.length === 0 ? (
                             <div className="p-8 text-center text-gray-500">
                                 No students found matching your criteria.
                             </div>
@@ -370,7 +376,11 @@ export default function StudentInformationPage() {
 
                     {/* Desktop View - Table */}
                     <div className="hidden lg:block overflow-x-auto">
-                        {filteredAndSortedStudents.length === 0 ? (
+                        {isLoading ? (
+                            <div className="flex justify-center items-center py-8">
+                                <div className="text-gray-500">Loading students...</div>
+                            </div>
+                        ) : filteredAndSortedStudents.length === 0 ? (
                             <div className="p-8 text-center text-gray-500">
                                 No students found matching your criteria.
                             </div>

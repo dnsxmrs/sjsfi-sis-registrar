@@ -24,12 +24,14 @@ export const REQUIREMENTS_BUCKET = 'student-requirements';
  * Upload a file to Supabase Storage
  * @param file - The file to upload
  * @param studentId - The student's ID
+ * @param studentName - The student's name
  * @param requirementType - The type of requirement (birthCertificate, f137, etc.)
  * @returns The public URL of the uploaded file
  */
 export async function uploadRequirementFile(
     file: File,
     studentId: string,
+    studentName: string,
     requirementType: string
 ): Promise<{ success: boolean; url?: string; error?: string }> {
     try {
@@ -38,7 +40,7 @@ export async function uploadRequirementFile(
         // Formats to YYYYMMDD
         const readableTimestamp = now.toISOString().split('T')[0].replace(/-/g, '');
         const fileExtension = file.name.split('.').pop();
-        const fileName = `${studentId}/${requirementType}-${readableTimestamp}.${fileExtension}`;
+        const fileName = `${studentId}/${studentName}-${requirementType}-${readableTimestamp}.${fileExtension}`;
 
         // Upload file to Supabase Storage using admin client (bypasses RLS)
         const { data, error } = await supabaseAdmin.storage

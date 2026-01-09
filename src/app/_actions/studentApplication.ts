@@ -558,6 +558,7 @@ export async function approveApplication(student: StudentApplication, requiremen
                     const uploadResult = await uploadRequirementFile(
                         file,
                         applicationNumber,
+                        student.fullName,
                         fileType
                     );
 
