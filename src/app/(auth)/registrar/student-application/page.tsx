@@ -897,44 +897,225 @@ const RegisterCoursePage: React.FC = () => {
                             <h3 className="text-base font-semibold mb-3 mt-7">Application Details</h3>
 
                             {/* Accordion controls */}
-                            <div className="space-y-3">
+                            <div className="space-y-2">
                                 {/* Personal Data */}
-                                <div className="border rounded-lg bg-white">
+                                <div className="border border-gray-300 rounded-lg bg-white">
                                     <button
-                                        className="w-full text-left px-4 py-3 flex justify-between items-center"
+                                        className="w-full text-left px-4 py-3 flex justify-between items-center hover:bg-gray-50 transition-colors rounded-t-lg"
                                         onClick={() => toggleSection('personalData')}
                                         type="button"
                                     >
-                                        <span className="font-medium">Personal Data</span>
-                                        <span className="text-sm text-gray-500">{openSections.includes('personalData') ? '−' : '+'}</span>
+                                        <span className="font-semibold text-gray-800">Personal Data</span>
+                                        <span className="text-gray-400 text-lg">{openSections.includes('personalData') ? '−' : '+'}</span>
                                     </button>
                                     {openSections.includes('personalData') && (
-                                        <div className="px-4 pb-4 pt-0 text-sm text-black">
+                                        <div className="px-4 py-4 border-t border-gray-200 text-sm text-gray-700">
                                             {selectedApplication ? (
-                                                <div className="grid grid-cols-2 gap-3">
-                                                    <div>
-                                                        <div className="text-xs text-gray-500">Application ID</div>
-                                                        <div className="text-sm font-medium">{selectedApplication.applicationNumber || 'N/A'}</div>
+                                                <div className="space-y-4">
+                                                    {/* Top Row: Academic Year and Admission to Grade/Year */}
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">Academic Year</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.academicYear || 'N/A'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">Admission to Grade/Year</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.admissionGradeYear || 'N/A'}</div>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <div className="text-xs text-gray-500">Full Name</div>
-                                                        <div className="text-sm font-medium">{selectedApplication.fullName || 'N/A'}</div>
+
+                                                    {/* Names Row */}
+                                                    <div className="grid md:grid-cols-4 grid-cols-1 gap-3">
+                                                        <div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">Family Name</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.familyName || 'N/A'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">First Name</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.firstName || 'N/A'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">Middle Name</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.middleName || 'N/A'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">Nickname</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.nickname || 'N/A'}</div>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <div className="text-xs text-gray-500">Grade Level</div>
-                                                        <div className="text-sm">{selectedApplication.gradeLevel || 'N/A'}</div>
+
+                                                    {/* Birth, Personal Details, Siblings and Sex */}
+                                                    <div className="grid md:grid-cols-6 grid-cols-1 gap-3">
+                                                        <div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">Birth Date</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.birthDate || 'N/A'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">Place of Birth</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.placeOfBirth || 'N/A'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">Age</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.age || 'N/A'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">Birth Order</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.birthOrder || 'N/A'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">Number of Siblings</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.numberOfSiblings || 'N/A'}</div>
+                                                        </div>
+                                                        <div className="border border-gray-300 rounded-lg p-3 bg-white flex flex-col justify-center">
+                                                            <h4 className="font-semibold text-gray-800 mb-2 text-sm">Sex</h4>
+                                                            <div className="flex flex-row gap-3 flex-wrap justify-between items-center">
+                                                                <div className="flex items-center gap-2">
+                                                                    <input 
+                                                                        type="checkbox" 
+                                                                        checked={selectedApplication.sex === 'Male' || false} 
+                                                                        disabled 
+                                                                        className="w-4 h-4"
+                                                                    />
+                                                                    <label className="text-xs font-medium text-black">Male</label>
+                                                                </div>
+                                                                <div className="flex items-center gap-2">
+                                                                    <input 
+                                                                        type="checkbox" 
+                                                                        checked={selectedApplication.sex === 'Female' || false} 
+                                                                        disabled 
+                                                                        className="w-4 h-4"
+                                                                    />
+                                                                    <label className="text-xs font-medium text-black">Female</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <div className="text-xs text-gray-500">Email</div>
-                                                        <div className="text-sm">{selectedApplication.emailAddress || 'N/A'}</div>
+
+                                                    {/* Physical Characteristics and Status */}
+                                                    <div className="grid md:grid-cols-4 grid-cols-1 gap-3">
+                                                        <div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">Height</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.height || 'N/A'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">Weight</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.weight || 'N/A'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">Blood Type</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.bloodType || 'N/A'}</div>
+                                                        </div>
+                                                        <div className="border border-gray-300 rounded-lg p-3 bg-white flex flex-col justify-center">
+                                                            <h4 className="font-semibold text-gray-800 mb-2 text-sm">Status</h4>
+                                                            <div className="flex flex-row gap-3 flex-wrap justify-between items-center">
+                                                                <div className="flex items-center gap-2">
+                                                                    <input 
+                                                                        type="checkbox" 
+                                                                        checked={selectedApplication.legitimate || false} 
+                                                                        disabled 
+                                                                        className="w-4 h-4"
+                                                                    />
+                                                                    <label className="text-xs font-medium text-black">Legitimate</label>
+                                                                </div>
+                                                                <div className="flex items-center gap-2">
+                                                                    <input 
+                                                                        type="checkbox" 
+                                                                        checked={selectedApplication.biological || false} 
+                                                                        disabled 
+                                                                        className="w-4 h-4"
+                                                                    />
+                                                                    <label className="text-xs font-medium text-black">Biological</label>
+                                                                </div>
+                                                                <div className="flex items-center gap-2">
+                                                                    <input 
+                                                                        type="checkbox" 
+                                                                        checked={selectedApplication.adopted || false} 
+                                                                        disabled 
+                                                                        className="w-4 h-4"
+                                                                    />
+                                                                    <label className="text-xs font-medium text-black">Adopted</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <div className="text-xs text-gray-500">Status</div>
-                                                        <div className="text-sm">{selectedApplication.status || 'N/A'}</div>
+
+                                                    {/* Contact Information */}
+                                                    <div className="grid md:grid-cols-3 grid-cols-1 gap-3">
+                                                        <div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">Landline Number</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.landlineNumber || 'N/A'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">Mobile Number</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.mobileNumber || 'N/A'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">E-mail Address</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.emailAddress || 'N/A'}</div>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <div className="text-xs text-gray-500">Applied At</div>
-                                                        <div className="text-sm">{selectedApplication.createdAt || 'N/A'}</div>
+
+                                                    {/* Addresses */}
+                                                    <div className="space-y-4 pt-2">
+                                                        <div className="border border-gray-300 rounded-lg p-4 bg-white">
+                                                            <h4 className="font-semibold text-gray-800 mb-3">Home Address</h4>
+                                                            <div className="grid md:grid-cols-4 grid-cols-1 gap-3">
+                                                                <div>
+                                                                    <label className="block text-sm font-medium mb-1 text-black">Home Address</label>
+                                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.homeAddress || 'N/A'}</div>
+                                                                </div>
+                                                                <div>
+                                                                    <label className="block text-sm font-medium mb-1 text-black">City</label>
+                                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.homeCity || 'N/A'}</div>
+                                                                </div>
+                                                                <div>
+                                                                    <label className="block text-sm font-medium mb-1 text-black">State/Province</label>
+                                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.homeStateProvince || 'N/A'}</div>
+                                                                </div>
+                                                                <div>
+                                                                    <label className="block text-sm font-medium mb-1 text-black">Zip/Postal Code</label>
+                                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.homeZipPostalCode || 'N/A'}</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="border border-gray-300 rounded-lg p-4 bg-white">
+                                                            <h4 className="font-semibold text-gray-800 mb-3">Provincial Address</h4>
+                                                            <div className="grid md:grid-cols-4 grid-cols-1 gap-3">
+                                                                <div>
+                                                                    <label className="block text-sm font-medium mb-1 text-black">Provincial Address</label>
+                                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.provincialAddress || 'N/A'}</div>
+                                                                </div>
+                                                                <div>
+                                                                    <label className="block text-sm font-medium mb-1 text-black">City</label>
+                                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.provincialCity || 'N/A'}</div>
+                                                                </div>
+                                                                <div>
+                                                                    <label className="block text-sm font-medium mb-1 text-black">State/Province</label>
+                                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.provincialStateProvince || 'N/A'}</div>
+                                                                </div>
+                                                                <div>
+                                                                    <label className="block text-sm font-medium mb-1 text-black">Zip/Postal Code</label>
+                                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.provincialZipPostalCode || 'N/A'}</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Skills and Interests */}
+                                                    <div className="grid md:grid-cols-3 grid-cols-1 gap-3">
+                                                        <div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">Talents/Special Skills</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.talents || 'N/A'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">Hobbies and Interests</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.hobbies || 'N/A'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">Languages/Dialect spoken at home</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.languages || 'N/A'}</div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             ) : (
@@ -945,29 +1126,37 @@ const RegisterCoursePage: React.FC = () => {
                                 </div>
 
                                 {/* Health History */}
-                                <div className="border rounded-lg bg-white">
+                                <div className="border border-gray-300 rounded-lg bg-white">
                                     <button
-                                        className="w-full text-left px-4 py-3 flex justify-between items-center"
+                                        className="w-full text-left px-4 py-3 flex justify-between items-center hover:bg-gray-50 transition-colors rounded-t-lg"
                                         onClick={() => toggleSection('healthHistory')}
                                         type="button"
                                     >
-                                        <span className="font-medium">Health History</span>
-                                        <span className="text-sm text-gray-500">{openSections.includes('healthHistory') ? '−' : '+'}</span>
+                                        <span className="font-semibold text-gray-800">Health History</span>
+                                        <span className="text-gray-400 text-lg">{openSections.includes('healthHistory') ? '−' : '+'}</span>
                                     </button>
                                     {openSections.includes('healthHistory') && (
-                                        <div className="px-4 pb-4 pt-0 text-sm text-black">
-                                            <div className="mt-1 grid grid-cols-2 gap-3">
+                                        <div className="px-4 py-4 border-t border-gray-200 text-sm text-gray-700">
+                                            <div className="mt-1 grid md:grid-cols-2 grid-cols-1 gap-3">
                                                 <div>
-<div className="text-xs text-gray-500">Allergies</div>
-<div className="text-sm">{selectedApplication?.allergies?.trim() ? selectedApplication.allergies : temporaryHealthHistory.allergies}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Childhood Diseases</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.childhoodDiseases?.trim() ? selectedApplication.childhoodDiseases : 'N/A'}</div>
                                                 </div>
                                                 <div>
-<div className="text-xs text-gray-500">Medical Conditions</div>
-<div className="text-sm">{selectedApplication?.medicalConditions?.trim() ? selectedApplication.medicalConditions : temporaryHealthHistory.medicalConditions}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Allergies</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.allergies?.trim() ? selectedApplication.allergies : temporaryHealthHistory.allergies}</div>
                                                 </div>
-                                                <div className="col-span-2">
-<div className="text-xs text-gray-500">Notes</div>
-<div className="text-sm">{selectedApplication?.healthNotes?.trim() ? selectedApplication.healthNotes : temporaryHealthHistory.healthNotes}</div>
+                                                <div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Medical Conditions</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalConditions?.trim() ? selectedApplication.medicalConditions : temporaryHealthHistory.medicalConditions}</div>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Immunizations</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.immunizations?.trim() ? selectedApplication.immunizations : 'N/A'}</div>
+                                                </div>
+                                                <div className="md:col-span-2 col-span-1">
+                                                    <label className="block text-sm font-medium mb-1 text-black">Notes</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.healthNotes?.trim() ? selectedApplication.healthNotes : temporaryHealthHistory.healthNotes}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -975,256 +1164,267 @@ const RegisterCoursePage: React.FC = () => {
                                 </div>
 
                                 {/* Family Background - Father, Mother, Guardian, and Siblings */}
-                                <div className="border rounded-lg bg-white">
-                                    <button
-                                        className="w-full text-left px-4 py-3 flex justify-between items-center"
-                                        onClick={() => toggleSection('familyBackground')}
-                                        type="button"
-                                    >
-                                        <span className="font-medium">Family Background</span>
-                                        <span className="text-sm text-gray-500">{openSections.includes('familyBackground') ? '−' : '+'}</span>
-                                    </button>
-                                    {openSections.includes('familyBackground') && (
-                                        <div className="px-4 pb-4 pt-0 text-sm text-black space-y-4">
-                                            {['Father', 'Mother', 'Guardian'].map((role) => {
-                                                const key = role.toLowerCase() as 'father' | 'mother' | 'guardian';
-                                                return (
-                                                    <div key={role} className="border rounded bg-gray-50">
-                                                        <button
-                                                            className="w-full text-left px-3 py-2 flex justify-between items-center"
-                                                            onClick={() => toggleSection(key)}
-                                                            type="button"
-                                                        >
-                                                            <span className="font-medium">{role}</span>
-                                                            <span className="text-sm text-gray-500">{openSections.includes(key) ? '−' : '+'}</span>
-                                                        </button>
-                                                        {openSections.includes(key) && (
-                                                            <div className="px-3 pb-3 pt-0">
-                                                                {role === 'Guardian' && (
-                                                                    <div className="mb-3 text-sm text-black">Relation to Applicant: {selectedApplication?.guardianRelation || 'N/A'}</div>
-                                                                )}
+                                    <div className="border border-gray-300 rounded-lg bg-white">
+                                        <button
+                                            className="w-full text-left px-4 py-3 flex justify-between items-center hover:bg-gray-50 transition-colors rounded-t-lg"
+                                            onClick={() => toggleSection('familyBackground')}
+                                            type="button"
+                                        >
+                                            <span className="font-semibold text-gray-800">Family Background</span>
+                                            <span className="text-gray-400 text-lg">{openSections.includes('familyBackground') ? '−' : '+'}</span>
+                                        </button>
+                                        {openSections.includes('familyBackground') && (
+                                            <div className="px-4 py-4 border-t border-gray-200 text-sm text-gray-700 space-y-4">
+                                                {['Father', 'Mother', 'Guardian'].map((role) => {
+                                                    const key = role.toLowerCase() as 'father' | 'mother' | 'guardian';
+                                                    return (
+                                                        <div key={role} className="border border-gray-300 rounded-lg bg-white">
+                                                            <button
+                                                                className="w-full text-left px-3 py-2.5 flex justify-between items-center hover:bg-gray-50 transition-colors rounded-t-lg"
+                                                                onClick={() => toggleSection(key)}
+                                                                type="button"
+                                                            >
+                                                                <span className="font-semibold text-gray-700">{role}</span>
+                                                                <span className="text-gray-400 text-base">{openSections.includes(key) ? '−' : '+'}</span>
+                                                            </button>
+                                                            {openSections.includes(key) && (
+                                                                <div className="px-3 py-3 border-t border-gray-200">
+                                                                    {role === 'Guardian' && (
+                                                                        <div className="mb-3 text-sm text-gray-700">Relation to Applicant: {selectedApplication?.guardianRelation || 'N/A'}</div>
+                                                                    )}
 
-                                                                <div className="grid grid-cols-4 gap-3 text-sm text-black">
-                                                                    {/* Names */}
-                                                                    <div>
-<div className="text-xs text-gray-500">Family Name:</div>
-<div>{selectedApplication?.[`${key}FamilyName`] || temporaryFamilyBackground[key]?.familyName || 'N/A'}</div>
-                                                                    </div>
-                                                                    <div>
-<div className="text-xs text-gray-500">First Name:</div>
-<div>{selectedApplication?.[`${key}FirstName`] || temporaryFamilyBackground[key]?.firstName || 'N/A'}</div>
-                                                                    </div>
-                                                                    <div>
-<div className="text-xs text-gray-500">Middle Name:</div>
-<div>{selectedApplication?.[`${key}MiddleName`] || temporaryFamilyBackground[key]?.middleName || 'N/A'}</div>
-                                                                    </div>
-                                                                    <div>
-<div className="text-xs text-gray-500">Nickname:</div>
-<div>{selectedApplication?.[`${key}Nickname`] || temporaryFamilyBackground[key]?.nickname || 'N/A'}</div>
-                                                                    </div>
+                                                                    {/* Main Grid - Stacked on mobile (cols-1), 4 cols on desktop */}
+                                                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 text-sm text-gray-700">
+                                                                        {/* Names */}
+                                                                        <div>
+                                                                            <label className="block text-sm font-medium mb-1 text-black">Family Name</label>
+                                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}FamilyName`] || temporaryFamilyBackground[key]?.familyName || 'N/A'}</div>
+                                                                        </div>
+                                                                        <div>
+                                                                            <label className="block text-sm font-medium mb-1 text-black">First Name</label>
+                                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}FirstName`] || temporaryFamilyBackground[key]?.firstName || 'N/A'}</div>
+                                                                        </div>
+                                                                        <div>
+                                                                            <label className="block text-sm font-medium mb-1 text-black">Middle Name</label>
+                                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}MiddleName`] || temporaryFamilyBackground[key]?.middleName || 'N/A'}</div>
+                                                                        </div>
+                                                                        <div>
+                                                                            <label className="block text-sm font-medium mb-1 text-black">Nickname</label>
+                                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}Nickname`] || temporaryFamilyBackground[key]?.nickname || 'N/A'}</div>
+                                                                        </div>
 
-                                                                    {/* Birth & Location */}
-                                                                    <div>
-<div className="text-xs text-gray-500">Birth Date:</div>
-<div>{selectedApplication?.[`${key}BirthDate`] || temporaryFamilyBackground[key]?.birthDate || 'N/A'}</div>
-                                                                    </div>
-                                                                    <div>
-<div className="text-xs text-gray-500">Place of Birth:</div>
-<div>{selectedApplication?.[`${key}PlaceOfBirth`] || temporaryFamilyBackground[key]?.placeOfBirth || 'N/A'}</div>
-                                                                    </div>
-                                                                    <div>
-<div className="text-xs text-gray-500">Age:</div>
-<div>{selectedApplication?.[`${key}Age`] || temporaryFamilyBackground[key]?.age || 'N/A'}</div>
-                                                                    </div>
-                                                                    <div>
-<div className="text-xs text-gray-500">Nationality:</div>
-<div>{selectedApplication?.[`${key}Nationality`] || temporaryFamilyBackground[key]?.nationality || 'N/A'}</div>
-                                                                    </div>
+                                                                        {/* Birth & Location - 1 col mobile, 5 cols desktop */}
+                                                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 col-span-1 md:col-span-4">
+                                                                            <div>
+                                                                                <label className="block text-sm font-medium mb-1 text-black">Birth Date</label>
+                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}BirthDate`] || temporaryFamilyBackground[key]?.birthDate || 'N/A'}</div>
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-sm font-medium mb-1 text-black">Place of Birth</label>
+                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}PlaceOfBirth`] || temporaryFamilyBackground[key]?.placeOfBirth || 'N/A'}</div>
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-sm font-medium mb-1 text-black">Age</label>
+                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}Age`] || temporaryFamilyBackground[key]?.age || 'N/A'}</div>
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-sm font-medium mb-1 text-black">Nationality</label>
+                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}Nationality`] || temporaryFamilyBackground[key]?.nationality || 'N/A'}</div>
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-sm font-medium mb-1 text-black">Religion</label>
+                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}Religion`] || temporaryFamilyBackground[key]?.religion || 'N/A'}</div>
+                                                                            </div>
+                                                                        </div>
 
-                                                                    {/* Religion & Physical */}
-                                                                    <div>
-<div className="text-xs text-gray-500">Religion:</div>
-<div>{selectedApplication?.[`${key}Religion`] || temporaryFamilyBackground[key]?.religion || 'N/A'}</div>
-                                                                    </div>
-                                                                    <div>
-<div className="text-xs text-gray-500">Height:</div>
-<div>{selectedApplication?.[`${key}Height`] || temporaryFamilyBackground[key]?.height || 'N/A'}</div>
-                                                                    </div>
-                                                                    <div>
-<div className="text-xs text-gray-500">Weight:</div>
-<div>{selectedApplication?.[`${key}Weight`] || temporaryFamilyBackground[key]?.weight || 'N/A'}</div>
-                                                                    </div>
-                                                                    <div />
+                                                                        {/* Contact Info - 1 col mobile, 3 cols desktop */}
+                                                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 col-span-1 md:col-span-4">
+                                                                            <div>
+                                                                                <label className="block text-sm font-medium mb-1 text-black">Landline Number</label>
+                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}Landline`] || temporaryFamilyBackground[key]?.landline || 'N/A'}</div>
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-sm font-medium mb-1 text-black">Mobile Number</label>
+                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}Mobile`] || temporaryFamilyBackground[key]?.mobile || 'N/A'}</div>
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-sm font-medium mb-1 text-black">E-mail Address</label>
+                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}Email`] || temporaryFamilyBackground[key]?.email || 'N/A'}</div>
+                                                                            </div>
+                                                                        </div>
 
-                                                                    {/* Contact Info */}
-                                                                    <div>
-<div className="text-xs text-gray-500">Landline Number:</div>
-<div>{selectedApplication?.[`${key}Landline`] || temporaryFamilyBackground[key]?.landline || 'N/A'}</div>
-                                                                    </div>
-                                                                    <div>
-<div className="text-xs text-gray-500">Mobile Number:</div>
-<div>{selectedApplication?.[`${key}Mobile`] || temporaryFamilyBackground[key]?.mobile || 'N/A'}</div>
-                                                                    </div>
-                                                                    <div className="col-span-2">
-<div className="text-xs text-gray-500">E-mail Address:</div>
-<div>{selectedApplication?.[`${key}Email`] || temporaryFamilyBackground[key]?.email || 'N/A'}</div>
-                                                                    </div>
+                                                                        {/* Home Address - 1 col mobile, 4 cols desktop */}
+                                                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 col-span-1 md:col-span-4">
+                                                                            <div>
+                                                                                <label className="block text-sm font-medium mb-1 text-black">Home Address</label>
+                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}HomeAddress`] || temporaryFamilyBackground[key]?.homeAddress || 'N/A'}</div>
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-sm font-medium mb-1 text-black">City</label>
+                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}City`] || temporaryFamilyBackground[key]?.city || 'N/A'}</div>
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-sm font-medium mb-1 text-black">State/ Province</label>
+                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}StateProvince`] || temporaryFamilyBackground[key]?.stateProvince || 'N/A'}</div>
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-sm font-medium mb-1 text-black">Zip/ Postal Code</label>
+                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}ZipPostalCode`] || temporaryFamilyBackground[key]?.zipPostalCode || 'N/A'}</div>
+                                                                            </div>
+                                                                        </div>
 
-                                                                    {/* Home Address */}
-                                                                    <div className="col-span-3">
-<div className="text-xs text-gray-500">Home Address:</div>
-<div>{selectedApplication?.[`${key}HomeAddress`] || temporaryFamilyBackground[key]?.homeAddress || 'N/A'}</div>
-                                                                    </div>
-                                                                    <div>
-<div className="text-xs text-gray-500">City:</div>
-<div>{selectedApplication?.[`${key}City`] || temporaryFamilyBackground[key]?.city || 'N/A'}</div>
-                                                                    </div>
+                                                                        {/* Education & Occupation */}
+                                                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 col-span-1 md:col-span-4">
+                                                                            <div>
+                                                                                <label className="block text-sm font-medium mb-1 text-black">Educational Attainment</label>
+                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}Education`] || temporaryFamilyBackground[key]?.education || 'N/A'}</div>
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-sm font-medium mb-1 text-black">Occupation</label>
+                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}Occupation`] || temporaryFamilyBackground[key]?.occupation || 'N/A'}</div>
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-sm font-medium mb-1 text-black">Employer/ Company</label>
+                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}Employer`] || temporaryFamilyBackground[key]?.employer || 'N/A'}</div>
+                                                                            </div>
+                                                                        </div>
 
-                                                                    <div className="col-span-2">
-<div className="text-xs text-gray-500">State/ Province:</div>
-<div>{selectedApplication?.[`${key}StateProvince`] || temporaryFamilyBackground[key]?.stateProvince || 'N/A'}</div>
-                                                                    </div>
-                                                                    <div>
-<div className="text-xs text-gray-500">Zip/ Postal Code:</div>
-<div>{selectedApplication?.[`${key}ZipPostalCode`] || temporaryFamilyBackground[key]?.zipPostalCode || 'N/A'}</div>
-                                                                    </div>
-                                                                    <div />
+                                                                        {/* Company Address */}
+                                                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 col-span-1 md:col-span-4">
+                                                                            <div>
+                                                                                <label className="block text-sm font-medium mb-1 text-black">Company Address</label>
+                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}CompanyAddress`] || temporaryFamilyBackground[key]?.companyAddress || 'N/A'}</div>
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-sm font-medium mb-1 text-black">Business Tel.</label>
+                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}BusinessPhone`] || temporaryFamilyBackground[key]?.businessPhone || 'N/A'}</div>
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-sm font-medium mb-1 text-black">City</label>
+                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}CompanyCity`] || temporaryFamilyBackground[key]?.companyCity || 'N/A'}</div>
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-sm font-medium mb-1 text-black">Annual Income</label>
+                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}AnnualIncome`] || temporaryFamilyBackground[key]?.annualIncome || 'N/A'}</div>
+                                                                            </div>
+                                                                        </div>
 
-                                                                    {/* Education & Occupation */}
-                                                                    <div className="col-span-2">
-<div className="text-xs text-gray-500">Educational Attainment/ Course:</div>
-<div>{selectedApplication?.[`${key}Education`] || temporaryFamilyBackground[key]?.education || 'N/A'}</div>
-                                                                    </div>
-                                                                    <div className="col-span-2">
-<div className="text-xs text-gray-500">Occupational/ Position Held:</div>
-<div>{selectedApplication?.[`${key}Occupation`] || temporaryFamilyBackground[key]?.occupation || 'N/A'}</div>
-                                                                    </div>
-
-                                                                    <div className="col-span-2">
-<div className="text-xs text-gray-500">Employer/ Company:</div>
-<div>{selectedApplication?.[`${key}Employer`] || temporaryFamilyBackground[key]?.employer || 'N/A'}</div>
-                                                                    </div>
-                                                                    <div className="col-span-2">
-<div className="text-xs text-gray-500">Business Telephone Number:</div>
-<div>{selectedApplication?.[`${key}BusinessPhone`] || temporaryFamilyBackground[key]?.businessPhone || 'N/A'}</div>
-                                                                    </div>
-
-                                                                    {/* Company Address */}
-                                                                    <div className="col-span-3">
-<div className="text-xs text-gray-500">Company Address:</div>
-<div>{selectedApplication?.[`${key}CompanyAddress`] || temporaryFamilyBackground[key]?.companyAddress || 'N/A'}</div>
-                                                                    </div>
-                                                                    <div>
-<div className="text-xs text-gray-500">City:</div>
-<div>{selectedApplication?.[`${key}CompanyCity`] || temporaryFamilyBackground[key]?.companyCity || 'N/A'}</div>
-                                                                    </div>
-
-                                                                    {/* Annual Income */}
-                                                                    <div>
-<div className="text-xs text-gray-500">Annual Income:</div>
-<div>{selectedApplication?.[`${key}AnnualIncome`] || temporaryFamilyBackground[key]?.annualIncome || 'N/A'}</div>
-                                                                    </div>
-
-                                                                    {/* Status of Parent */}
-                                                                    <div className="col-span-4 mt-2">
-                                                                        <div className="text-xs text-gray-500 font-medium">Status of Parent:</div>
-<div className="text-sm text-gray-700 mt-1">{selectedApplication?.[`${key}Status`] || temporaryFamilyBackground[key]?.status || 'N/A'}</div>
+                                                                        {/* Status of Parent */}
+                                                                        <div className="col-span-1 md:col-span-4 mt-2">
+                                                                            <label className="block text-sm font-medium mb-1 text-black">Status of Parent</label>
+                                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700">
+                                                                                    {[
+                                                                                    'Married', 
+                                                                                    'Widowed',
+                                                                                    'Single Parent',
+                                                                                    'Widowed, Remmaried',
+                                                                                    'Separated',
+                                                                                    'Other: ________',
+                                                                                ].map((item, index) => (
+                                                                                    <div key={index} className="flex items-center space-x-2">
+                                                                                        <input
+                                                                                            type="checkbox"
+                                                                                            disabled
+                                                                                            checked={false}
+                                                                                            className="w-4 h-4 cursor-not-allowed"
+                                                                                        />
+                                                                                        <span>{item}</span>
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                );
-                                            })}
-                                            {/* Siblings */}
-                                            <div className="border rounded p-3 bg-gray-50">
-                                                <h4 className="font-semibold text-black mb-3">Sibling Details</h4>
-                                                <div className="text-sm text-black">
-                                                    {temporaryFamilyBackground.siblings.map((sibling, index) => (
-                                                        <div key={index} className="mb-4">
-                                                            <div className="mb-3 text-xs text-gray-500">Sibling #{index + 1}:</div>
-                                                            <div className="grid grid-cols-4 gap-3">
-                                                                <div>
-                                                                    <div className="text-xs text-gray-500">Family Name:</div>
-                                                                    <div>{selectedApplication?.[`sibling${index + 1}FamilyName`]?.trim() ? selectedApplication[`sibling${index + 1}FamilyName`] : sibling.familyName}</div>
-                                                                </div>
-                                                                <div>
-                                                                    <div className="text-xs text-gray-500">First Name:</div>
-                                                                    <div>{selectedApplication?.[`sibling${index + 1}FirstName`]?.trim() ? selectedApplication[`sibling${index + 1}FirstName`] : sibling.firstName}</div>
-                                                                </div>
-                                                                <div>
-                                                                    <div className="text-xs text-gray-500">Middle Name:</div>
-                                                                    <div>{selectedApplication?.[`sibling${index + 1}MiddleName`]?.trim() ? selectedApplication[`sibling${index + 1}MiddleName`] : sibling.middleName}</div>
-                                                                </div>
-                                                                <div>
-                                                                    <div className="text-xs text-gray-500">Birth Date:</div>
-                                                                    <div>{selectedApplication?.[`sibling${index + 1}BirthDate`]?.trim() ? selectedApplication[`sibling${index + 1}BirthDate`] : sibling.birthDate}</div>
-                                                                </div>
-                                                                <div>
-                                                                    <div className="text-xs text-gray-500">Age:</div>
-                                                                    <div>{selectedApplication?.[`sibling${index + 1}Age`]?.trim() ? selectedApplication[`sibling${index + 1}Age`] : sibling.age}</div>
-                                                                </div>
-                                                                <div>
-                                                                    <div className="text-xs text-gray-500">Gr./Yr. Level/Occupation:</div>
-                                                                    <div>{selectedApplication?.[`sibling${index + 1}GradeOccupation`]?.trim() ? selectedApplication[`sibling${index + 1}GradeOccupation`] : sibling.gradeOccupation}</div>
-                                                                </div>
-                                                                <div className="col-span-2">
-                                                                    <div className="text-xs text-gray-500">School/Employer:</div>
-                                                                    <div>{selectedApplication?.[`sibling${index + 1}SchoolEmployer`]?.trim() ? selectedApplication[`sibling${index + 1}SchoolEmployer`] : sibling.schoolEmployer}</div>
-                                                                </div>
-                                                            </div>
+                                                            )}
                                                         </div>
-                                                    ))}
+                                                    );
+                                                })}
+                                                
+                                                {/* Siblings */}
+                                                <div className="border border-gray-300 rounded-lg p-4 bg-white">
+                                                    <h4 className="font-semibold text-gray-800 mb-3">Sibling Details</h4>
+                                                    <div className="text-sm text-gray-700">
+                                                        {temporaryFamilyBackground.siblings.map((sibling, index) => (
+                                                            <div key={index} className="mb-6 border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+                                                                <div className="mb-3 font-medium text-black">Sibling #{index + 1}</div>
+                                                                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                                                    <div>
+                                                                        <label className="block text-sm font-medium mb-1 text-black">Family Name</label>
+                                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`sibling${index + 1}FamilyName`]?.trim() ? selectedApplication[`sibling${index + 1}FamilyName`] : sibling.familyName}</div>
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="block text-sm font-medium mb-1 text-black">First Name</label>
+                                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`sibling${index + 1}FirstName`]?.trim() ? selectedApplication[`sibling${index + 1}FirstName`] : sibling.firstName}</div>
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="block text-sm font-medium mb-1 text-black">Middle Name</label>
+                                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`sibling${index + 1}MiddleName`]?.trim() ? selectedApplication[`sibling${index + 1}MiddleName`] : sibling.middleName}</div>
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="block text-sm font-medium mb-1 text-black">Birth Date</label>
+                                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`sibling${index + 1}BirthDate`]?.trim() ? selectedApplication[`sibling${index + 1}BirthDate`] : sibling.birthDate}</div>
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="block text-sm font-medium mb-1 text-black">Age</label>
+                                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`sibling${index + 1}Age`]?.trim() ? selectedApplication[`sibling${index + 1}Age`] : sibling.age}</div>
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="block text-sm font-medium mb-1 text-black">Grade/Occupation</label>
+                                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`sibling${index + 1}GradeOccupation`]?.trim() ? selectedApplication[`sibling${index + 1}GradeOccupation`] : sibling.gradeOccupation}</div>
+                                                                    </div>
+                                                                    <div className="col-span-1 md:col-span-2">
+                                                                        <label className="block text-sm font-medium mb-1 text-black">School/Employer</label>
+                                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`sibling${index + 1}SchoolEmployer`]?.trim() ? selectedApplication[`sibling${index + 1}SchoolEmployer`] : sibling.schoolEmployer}</div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    )}
-                                </div>
+                                        )}
+                                    </div>
 
                                 {/* Educational Background */}
-                                <div className="border rounded-lg bg-white">
+                                <div className="border border-gray-300 rounded-lg bg-white">
                                     <button
-                                        className="w-full text-left px-4 py-3 flex justify-between items-center"
+                                        className="w-full text-left px-4 py-3 flex justify-between items-center hover:bg-gray-50 transition-colors rounded-t-lg"
                                         onClick={() => toggleSection('education')}
                                         type="button"
                                     >
-                                        <span className="font-medium">Educational Background</span>
-                                        <span className="text-sm text-gray-500">{openSections.includes('education') ? '−' : '+'}</span>
+                                        <span className="font-semibold text-gray-800">Educational Background</span>
+                                        <span className="text-gray-400 text-lg">{openSections.includes('education') ? '−' : '+'}</span>
                                     </button>
                                     {openSections.includes('education') && (
-                                        <div className="px-4 pb-4 pt-0 text-sm text-black">
-                                            <div className="text-sm text-black">School #1:</div>
+                                        <div className="px-4 py-4 border-t border-gray-200 text-sm text-gray-700">
+                                            <div className="text-sm font-medium text-gray-800">School #1:</div>
                                             <div className="mt-2 grid grid-cols-4 gap-3 items-end">
                                                 <div>
-                                                    <div className="text-xs text-gray-500">Gr./ Yr. Level:</div>
-                                                    <div>{selectedApplication?.lastGrade || temporaryEducationalBackground.lastGrade}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Gr./ Yr. Level</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.lastGrade || temporaryEducationalBackground.lastGrade}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-xs text-gray-500">Name of School:</div>
-                                                    <div>{selectedApplication?.lastSchool || temporaryEducationalBackground.lastSchool}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Name of School</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.lastSchool || temporaryEducationalBackground.lastSchool}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-xs text-gray-500">School Address:</div>
-                                                    <div>{selectedApplication?.lastSchoolAddress || temporaryEducationalBackground.lastSchoolAddress}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">School Address</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.lastSchoolAddress || temporaryEducationalBackground.lastSchoolAddress}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-xs text-gray-500">Inclusive Years</div>
-                                                    <div>{selectedApplication?.inclusiveYears || temporaryEducationalBackground.inclusiveYears}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Inclusive Years</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.inclusiveYears || temporaryEducationalBackground.inclusiveYears}</div>
                                                 </div>
                                             </div>
 
                                             <div className="mt-4 grid grid-cols-2 gap-4">
                                                 <div>
-                                                    <div className="text-xs text-gray-500">Honors / Awards Received:</div>
-                                                    <div className="mt-1">{selectedApplication?.honors || temporaryEducationalBackground.honors}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Honors / Awards Received</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center mt-1">{selectedApplication?.honors || temporaryEducationalBackground.honors}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-xs text-gray-500">Attended Summer Classes A.Y.</div>
-                                                    <div className="mt-1">{selectedApplication?.attendedSummerYears || temporaryEducationalBackground.attendedSummerYears}</div>
-                                                    <div className="mt-2 flex items-center space-x-4">
-                                                        <div className="text-xs text-gray-500">Yes</div>
-                                                        <div className="text-xs text-gray-500">No</div>
-                                                    </div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Attended Summer Classes A.Y.</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center mt-1">{selectedApplication?.attendedSummerYears || temporaryEducationalBackground.attendedSummerYears}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -1232,25 +1432,25 @@ const RegisterCoursePage: React.FC = () => {
                                 </div>
 
                                 {/* Medical History Questionnaire & Immunization */}
-                                <div className="border rounded-lg bg-white">
+                                <div className="border border-gray-300 rounded-lg bg-white">
                                     <button
-                                        className="w-full text-left px-4 py-3 flex justify-between items-center"
+                                        className="w-full text-left px-4 py-3 flex justify-between items-center hover:bg-gray-50 transition-colors rounded-t-lg"
                                         onClick={() => toggleSection('medical')}
                                         type="button"
                                     >
-                                        <span className="font-medium">Medical History / Immunization</span>
-                                        <span className="text-sm text-gray-500">{openSections.includes('medical') ? '−' : '+'}</span>
+                                        <span className="font-semibold text-gray-800">Medical History / Immunization</span>
+                                        <span className="text-gray-400 text-lg">{openSections.includes('medical') ? '−' : '+'}</span>
                                     </button>
                                     {openSections.includes('medical') && (
-                                        <div className="px-4 pb-4 pt-0 text-sm text-black">
+                                        <div className="px-4 py-4 border-t border-gray-200 text-sm text-gray-700">
                                             <div className="grid grid-cols-4 gap-3 mb-4">
                                                 <div>
-<div className="text-xs text-gray-500">Academic Year:</div>
-<div>{selectedApplication?.academicYear?.trim() ? selectedApplication.academicYear : temporaryMedicalHistory.academicYear || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Academic Year</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.academicYear?.trim() ? selectedApplication.academicYear : temporaryMedicalHistory.academicYear || 'N/A'}</div>
                                                 </div>
                                                 <div>
-<div className="text-xs text-gray-500">Admission to Grade/ Year:</div>
-<div>{selectedApplication?.admissionGrade?.trim() ? selectedApplication.admissionGrade : temporaryMedicalHistory.admissionGrade || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Admission to Grade/ Year</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.admissionGrade?.trim() ? selectedApplication.admissionGrade : temporaryMedicalHistory.admissionGrade || 'N/A'}</div>
                                                 </div>
                                                 <div />
                                                 <div />
@@ -1258,46 +1458,46 @@ const RegisterCoursePage: React.FC = () => {
 
                                             <div className="grid grid-cols-4 gap-3 mb-4">
                                                 <div>
-                                                    <div className="text-xs text-gray-500">Family Name:</div>
-                                                    <div>{selectedApplication?.medicalFamilyName?.trim() ? selectedApplication.medicalFamilyName : temporaryMedicalHistory.familyName || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Family Name</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalFamilyName?.trim() ? selectedApplication.medicalFamilyName : temporaryMedicalHistory.familyName || 'N/A'}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-xs text-gray-500">First Name:</div>
-                                                    <div>{selectedApplication?.medicalFirstName?.trim() ? selectedApplication.medicalFirstName : temporaryMedicalHistory.firstName || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">First Name</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalFirstName?.trim() ? selectedApplication.medicalFirstName : temporaryMedicalHistory.firstName || 'N/A'}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-xs text-gray-500">Middle Name:</div>
-                                                    <div>{selectedApplication?.medicalMiddleName?.trim() ? selectedApplication.medicalMiddleName : temporaryMedicalHistory.middleName || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Middle Name</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalMiddleName?.trim() ? selectedApplication.medicalMiddleName : temporaryMedicalHistory.middleName || 'N/A'}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-xs text-gray-500">Nickname:</div>
-                                                    <div>{selectedApplication?.medicalNickname?.trim() ? selectedApplication.medicalNickname : temporaryMedicalHistory.nickname || 'N/A'}</div>
-                                                </div>
-
-                                                <div>
-                                                    <div className="text-xs text-gray-500">Birth Date:</div>
-                                                    <div>{selectedApplication?.medicalBirthDate?.trim() ? selectedApplication.medicalBirthDate : temporaryMedicalHistory.birthDate || 'N/A'}</div>
-                                                </div>
-                                                <div>
-                                                    <div className="text-xs text-gray-500">Place of Birth:</div>
-                                                    <div>{selectedApplication?.medicalPlaceOfBirth?.trim() ? selectedApplication.medicalPlaceOfBirth : temporaryMedicalHistory.placeOfBirth || 'N/A'}</div>
-                                                </div>
-                                                <div>
-                                                    <div className="text-xs text-gray-500">Age:</div>
-                                                    <div>{selectedApplication?.medicalAge?.trim() ? selectedApplication.medicalAge : temporaryMedicalHistory.age || 'N/A'}</div>
-                                                </div>
-                                                <div>
-                                                    <div className="text-xs text-gray-500">Height:</div>
-                                                    <div>{selectedApplication?.medicalHeight?.trim() ? selectedApplication.medicalHeight : temporaryMedicalHistory.height || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Nickname</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalNickname?.trim() ? selectedApplication.medicalNickname : temporaryMedicalHistory.nickname || 'N/A'}</div>
                                                 </div>
 
                                                 <div>
-                                                    <div className="text-xs text-gray-500">Weight:</div>
-                                                    <div>{selectedApplication?.medicalWeight?.trim() ? selectedApplication.medicalWeight : temporaryMedicalHistory.weight || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Birth Date</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalBirthDate?.trim() ? selectedApplication.medicalBirthDate : temporaryMedicalHistory.birthDate || 'N/A'}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-xs text-gray-500">Sex:</div>
-                                                    <div>{selectedApplication?.medicalSex?.trim() ? selectedApplication.medicalSex : temporaryMedicalHistory.sex || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Place of Birth</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalPlaceOfBirth?.trim() ? selectedApplication.medicalPlaceOfBirth : temporaryMedicalHistory.placeOfBirth || 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Age</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalAge?.trim() ? selectedApplication.medicalAge : temporaryMedicalHistory.age || 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Height</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalHeight?.trim() ? selectedApplication.medicalHeight : temporaryMedicalHistory.height || 'N/A'}</div>
+                                                </div>
+
+                                                <div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Weight</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalWeight?.trim() ? selectedApplication.medicalWeight : temporaryMedicalHistory.weight || 'N/A'}</div>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Sex</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalSex?.trim() ? selectedApplication.medicalSex : temporaryMedicalHistory.sex || 'N/A'}</div>
                                                 </div>
                                                 <div />
                                                 <div />
@@ -1305,36 +1505,36 @@ const RegisterCoursePage: React.FC = () => {
 
                                             <div className="grid grid-cols-3 gap-3 mb-4">
                                                 <div>
-                                                    <div className="text-xs text-gray-500">Parent/ Guardian Name:</div>
-                                                    <div>{selectedApplication?.medicalParentGuardianName?.trim() ? selectedApplication.medicalParentGuardianName : temporaryMedicalHistory.parentGuardianName || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Parent/ Guardian Name</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalParentGuardianName?.trim() ? selectedApplication.medicalParentGuardianName : temporaryMedicalHistory.parentGuardianName || 'N/A'}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-xs text-gray-500">Landline Number:</div>
-                                                    <div>{selectedApplication?.medicalLandlineNumber?.trim() ? selectedApplication.medicalLandlineNumber : temporaryMedicalHistory.landlineNumber || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Landline Number</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalLandlineNumber?.trim() ? selectedApplication.medicalLandlineNumber : temporaryMedicalHistory.landlineNumber || 'N/A'}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-xs text-gray-500">Mobile Number:</div>
-                                                    <div>{selectedApplication?.medicalMobileNumber?.trim() ? selectedApplication.medicalMobileNumber : temporaryMedicalHistory.mobileNumber || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Mobile Number</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalMobileNumber?.trim() ? selectedApplication.medicalMobileNumber : temporaryMedicalHistory.mobileNumber || 'N/A'}</div>
                                                 </div>
                                             </div>
 
                                             <div className="grid grid-cols-3 gap-3 mb-4">
                                                 <div className="col-span-2">
-                                                    <div className="text-xs text-gray-500">Home Address:</div>
-                                                    <div>{selectedApplication?.medicalHomeAddress?.trim() ? selectedApplication.medicalHomeAddress : temporaryMedicalHistory.homeAddress || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Home Address</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalHomeAddress?.trim() ? selectedApplication.medicalHomeAddress : temporaryMedicalHistory.homeAddress || 'N/A'}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-xs text-gray-500">City:</div>
-                                                    <div>{selectedApplication?.medicalCity?.trim() ? selectedApplication.medicalCity : temporaryMedicalHistory.city || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">City</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalCity?.trim() ? selectedApplication.medicalCity : temporaryMedicalHistory.city || 'N/A'}</div>
                                                 </div>
 
                                                 <div>
-                                                    <div className="text-xs text-gray-500">State/ Province:</div>
-                                                    <div>{selectedApplication?.medicalStateProvince?.trim() ? selectedApplication.medicalStateProvince : temporaryMedicalHistory.stateProvince || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">State/ Province</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalStateProvince?.trim() ? selectedApplication.medicalStateProvince : temporaryMedicalHistory.stateProvince || 'N/A'}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-xs text-gray-500">Zip/ Postal Code:</div>
-                                                    <div>{selectedApplication?.medicalZipPostalCode?.trim() ? selectedApplication.medicalZipPostalCode : temporaryMedicalHistory.zipPostalCode || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Zip/ Postal Code</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalZipPostalCode?.trim() ? selectedApplication.medicalZipPostalCode : temporaryMedicalHistory.zipPostalCode || 'N/A'}</div>
                                                 </div>
                                             </div>
 
@@ -1375,24 +1575,24 @@ const RegisterCoursePage: React.FC = () => {
                                             {/* Right side - Additional questions */}
                                             <div className="grid grid-cols-1 gap-4">
                                                 <div>
-                                                    <div className="text-xs text-gray-500">If you had surgery, please specify:</div>
-                                                    <div>{selectedApplication?.medicalSurgery || temporaryMedicalHistory.surgery || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">If you had surgery, please specify</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalSurgery || temporaryMedicalHistory.surgery || 'N/A'}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-xs text-gray-500">If you have herbal diseases, please specify what:</div>
-                                                    <div>{selectedApplication?.medicalHerbalDiseases || temporaryMedicalHistory.herbalDiseases || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">If you have herbal diseases, please specify what</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalHerbalDiseases || temporaryMedicalHistory.herbalDiseases || 'N/A'}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-xs text-gray-500">For no. 15, please specify which:</div>
-                                                    <div>{selectedApplication?.medicalAllergiesSpecify || temporaryMedicalHistory.allergiesSpecify || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">For no. 15, please specify which</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalAllergiesSpecify || temporaryMedicalHistory.allergiesSpecify || 'N/A'}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-xs text-gray-500">If you have other illnesses, please specify what:</div>
-                                                    <div>{selectedApplication?.medicalOtherIllnesses || temporaryMedicalHistory.otherIllnesses || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">If you have other illnesses, please specify what</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalOtherIllnesses || temporaryMedicalHistory.otherIllnesses || 'N/A'}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-xs text-gray-500">Do you have any medication that you&apos;re currently taking?</div>
-                                                    <div>{selectedApplication?.medicalCurrentMedication || temporaryMedicalHistory.currentMedication || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Do you have any medication that you&apos;re currently taking?</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalCurrentMedication || temporaryMedicalHistory.currentMedication || 'N/A'}</div>
                                                 </div>
                                             </div>
 
@@ -1504,43 +1704,43 @@ const RegisterCoursePage: React.FC = () => {
                                         </div>
                                     )}
                                 </div>
-                                <div className="border rounded-lg bg-white">
+                                <div className="border border-gray-300 rounded-lg bg-white">
                                     <button
-                                        className="w-full text-left px-4 py-3 flex justify-between items-center"
+                                        className="w-full text-left px-4 py-3 flex justify-between items-center hover:bg-gray-50 transition-colors rounded-t-lg"
                                         onClick={() => toggleSection('agreement')}
                                         type="button"
                                     >
-                                        <span className="font-medium">Agreement</span>
-                                        <span className="text-sm text-gray-500">{openSections.includes('agreement') ? '−' : '+'}</span>
+                                        <span className="font-semibold text-gray-800">Agreement</span>
+                                        <span className="text-gray-400 text-lg">{openSections.includes('agreement') ? '−' : '+'}</span>
                                     </button>
                                     {openSections.includes('agreement') && (
-                                        <div className="px-4 pb-4 pt-0 text-sm text-black">
-            {selectedApplication?.agreementText ? (
-                <div className="text-sm text-black">{selectedApplication.agreementText}</div>
-            ) : (
-                <div className="text-sm text-black">
-                    I wish to enroll my child {selectedApplication?.fullName || 'Student Full Name'} to your school, St. Joseph School of Fairview, and upon compliance with the entrance/re-admission requirements, I understand that he/she must:
-                    <br /><br />
-                    1. Comply with all the policies and procedures such as attendance and punctuality, scholastics/academic performance set by the school;
-                    <br />
-                    2. Attend and support all the activities duly organized by the school both in co-curricular and extra-curricular, particularly in the institutional activities such as School Orientation Day, Christmas party/Liturgical Activities, Educational Tour, Foundation Day, Retreat and Recollections, Community Outreach Program and JS Prom, etc.;
-                    <br />
-                    3. Abide by the behavioural standards and rules of discipline as specified in the student's handbook, e.g. wearing of prescribed uniform, behaviour within and out of the campus, etc.;
-                    <br />
-                    4. Conform to all rules and regulation set forth by the institution (including the increase in tuition/miscellaneous/other fees) now enforced or may be promulgated by the school from time to time.
-                    <br /><br />
-                    By affixing my name, {selectedApplication?.parentGuardianName || temporaryAgreement.parentGuardianName || 'N/A'}, I hereby waive my right in any form and commit myself towards the realization of the vision-mission of the institution, particularly the rules and regulation as stipulated in the Student's Handbook.
-                </div>
-            )}
+                                        <div className="px-4 py-4 border-t border-gray-200 text-sm text-gray-700">
+                                            {selectedApplication?.agreementText ? (
+                                                <div className="text-sm text-gray-700">{selectedApplication.agreementText}</div>
+                                            ) : (
+                                                <div className="text-sm text-gray-700">
+                                                    I wish to enroll my child {selectedApplication?.fullName || 'Student Full Name'} to your school, St. Joseph School of Fairview, and upon compliance with the entrance/re-admission requirements, I understand that he/she must:
+                                                    <br /><br />
+                                                    1. Comply with all the policies and procedures such as attendance and punctuality, scholastics/academic performance set by the school;
+                                                    <br />
+                                                    2. Attend and support all the activities duly organized by the school both in co-curricular and extra-curricular, particularly in the institutional activities such as School Orientation Day, Christmas party/Liturgical Activities, Educational Tour, Foundation Day, Retreat and Recollections, Community Outreach Program and JS Prom, etc.;
+                                                    <br />
+                                                    3. Abide by the behavioural standards and rules of discipline as specified in the student's handbook, e.g. wearing of prescribed uniform, behaviour within and out of the campus, etc.;
+                                                    <br />
+                                                    4. Conform to all rules and regulation set forth by the institution (including the increase in tuition/miscellaneous/other fees) now enforced or may be promulgated by the school from time to time.
+                                                    <br /><br />
+                                                    By affixing my name, {selectedApplication?.parentGuardianName || temporaryAgreement.parentGuardianName || 'N/A'}, I hereby waive my right in any form and commit myself towards the realization of the vision-mission of the institution, particularly the rules and regulation as stipulated in the Student's Handbook.
+                                                </div>
+                                            )}
 
                                             <div className="mt-6 grid grid-cols-2 gap-4">
                                                 <div>
-                                                    <div className="text-xs text-gray-500">Parent/ Guardian Name:</div>
-                                                    <div className="mt-1 text-sm text-black">{selectedApplication?.parentGuardianName || temporaryAgreement.parentGuardianName || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Parent/ Guardian Name</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.parentGuardianName || temporaryAgreement.parentGuardianName || 'N/A'}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-xs text-gray-500">Relationship to the Child:</div>
-                                                    <div className="mt-1 text-sm text-black">{selectedApplication?.parentGuardianRelation || selectedApplication?.guardianRelation || temporaryAgreement.parentGuardianRelation || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Relationship to the Child</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.parentGuardianRelation || selectedApplication?.guardianRelation || temporaryAgreement.parentGuardianRelation || 'N/A'}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -1549,61 +1749,61 @@ const RegisterCoursePage: React.FC = () => {
 
                                 {/* Transferee-specific section (TOGGLE comment: replace `showTransfereeSection` with `selectedApplication?.isTransferee` to enable real conditional display) */}
                                 {showTransfereeSection && (
-                                    <div className="border rounded-lg bg-white">
+                                    <div className="border border-gray-300 rounded-lg bg-white">
                                         <button
-                                            className="w-full text-left px-4 py-3 flex justify-between items-center"
+                                            className="w-full text-left px-4 py-3 flex justify-between items-center hover:bg-gray-50 transition-colors rounded-t-lg"
                                             onClick={() => toggleSection('transferee')}
                                             type="button"
                                         >
-                                            <span className="font-medium">Transferee Details</span>
-                                            <span className="text-sm text-gray-500">{openSections.includes('transferee') ? '−' : '+'}</span>
+                                            <span className="font-semibold text-gray-800">Transferee Details</span>
+                                            <span className="text-gray-400 text-lg">{openSections.includes('transferee') ? '−' : '+'}</span>
                                         </button>
                                         {openSections.includes('transferee') && (
-                                            <div className="px-4 pb-4 pt-0 text-sm text-black space-y-4">
+                                            <div className="px-4 py-4 border-t border-gray-200 text-sm text-gray-700 space-y-4">
                                                 <div>
-                                                    <div className="text-sm font-medium text-black">Previous School</div>
+                                                    <div className="text-sm font-semibold text-gray-800">Previous School</div>
                                                     <div className="mt-2 grid grid-cols-3 gap-3 items-end">
                                                         <div>
-                                                            <div className="text-xs text-gray-500">School Name:</div>
-                                                            <div>{selectedApplication?.previousSchool?.trim() ? selectedApplication.previousSchool : temporaryTransfereeDetails.previousSchool || 'N/A'}</div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">School Name</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.previousSchool?.trim() ? selectedApplication.previousSchool : temporaryTransfereeDetails.previousSchool || 'N/A'}</div>
                                                         </div>
                                                         <div>
-                                                            <div className="text-xs text-gray-500">School Address:</div>
-                                                            <div>{selectedApplication?.previousSchoolAddress?.trim() ? selectedApplication.previousSchoolAddress : temporaryTransfereeDetails.previousSchoolAddress || 'N/A'}</div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">School Address</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.previousSchoolAddress?.trim() ? selectedApplication.previousSchoolAddress : temporaryTransfereeDetails.previousSchoolAddress || 'N/A'}</div>
                                                         </div>
                                                         <div>
-                                                            <div className="text-xs text-gray-500">Gr./ Yr. Level:</div>
-                                                            <div>{selectedApplication?.previousSchoolGrade?.trim() ? selectedApplication.previousSchoolGrade : temporaryTransfereeDetails.previousSchoolGrade || 'N/A'}</div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">Gr./ Yr. Level</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.previousSchoolGrade?.trim() ? selectedApplication.previousSchoolGrade : temporaryTransfereeDetails.previousSchoolGrade || 'N/A'}</div>
                                                         </div>
                                                     </div>
                                                 </div>
 
                                                 <div>
-                                                    <div className="text-sm font-medium text-black">Present School</div>
+                                                    <div className="text-sm font-semibold text-gray-800">Present School</div>
                                                     <div className="mt-2 grid grid-cols-3 gap-3 items-end">
                                                         <div>
-                                                            <div className="text-xs text-gray-500">School Name:</div>
-                                                            <div>{selectedApplication?.presentSchool?.trim() ? selectedApplication.presentSchool : temporaryTransfereeDetails.presentSchool || 'N/A'}</div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">School Name</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.presentSchool?.trim() ? selectedApplication.presentSchool : temporaryTransfereeDetails.presentSchool || 'N/A'}</div>
                                                         </div>
                                                         <div>
-                                                            <div className="text-xs text-gray-500">School Address:</div>
-                                                            <div>{selectedApplication?.presentSchoolAddress?.trim() ? selectedApplication.presentSchoolAddress : temporaryTransfereeDetails.presentSchoolAddress || 'N/A'}</div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">School Address</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.presentSchoolAddress?.trim() ? selectedApplication.presentSchoolAddress : temporaryTransfereeDetails.presentSchoolAddress || 'N/A'}</div>
                                                         </div>
                                                         <div>
-                                                            <div className="text-xs text-gray-500">Gr./ Yr. Level:</div>
-                                                            <div>{selectedApplication?.presentSchoolGrade?.trim() ? selectedApplication.presentSchoolGrade : temporaryTransfereeDetails.presentSchoolGrade || 'N/A'}</div>
+                                                            <label className="block text-sm font-medium mb-1 text-black">Gr./ Yr. Level</label>
+                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.presentSchoolGrade?.trim() ? selectedApplication.presentSchoolGrade : temporaryTransfereeDetails.presentSchoolGrade || 'N/A'}</div>
                                                         </div>
                                                     </div>
                                                 </div>
 
                                                 <div>
-                                                    <div className="text-xs text-gray-500">Reason for Transferring:</div>
-                                                    <div className="mt-1">{selectedApplication?.transferReason?.trim() ? selectedApplication.transferReason : temporaryTransfereeDetails.transferReason || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Reason for Transferring</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.transferReason?.trim() ? selectedApplication.transferReason : temporaryTransfereeDetails.transferReason || 'N/A'}</div>
                                                 </div>
 
                                                 <div>
-                                                    <div className="text-xs text-gray-500">Has the applicant been subjected to any disciplinary actions in school? If yes, please describe the action and the sanctions:</div>
-                                                    <div className="mt-1">{selectedApplication?.disciplinaryActions?.trim() ? selectedApplication.disciplinaryActions : temporaryTransfereeDetails.disciplinaryActions || 'N/A'}</div>
+                                                    <label className="block text-sm font-medium mb-1 text-black">Has the applicant been subjected to any disciplinary actions in school? If yes, please describe the action and the sanctions</label>
+                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.disciplinaryActions?.trim() ? selectedApplication.disciplinaryActions : temporaryTransfereeDetails.disciplinaryActions || 'N/A'}</div>
                                                 </div>
                                             </div>
                                         )}
