@@ -29,7 +29,7 @@ export default function QuickActions({ className = '' }: QuickActionsProps) {
                 <div className="p-6">
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+                        className="w-full bg-blue-600 hover:bg-blue-700 cursor-pointer text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
                     >
                         <Send className="w-4 h-4" />
                         Send Notification

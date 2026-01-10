@@ -124,41 +124,41 @@ const RegisterCoursePage: React.FC = () => {
         ]
     };
 
-    const temporaryMedicalHistory = {
-        academicYear: '2024-2025',
-        admissionGrade: 'Grade 7',
-        familyName: 'Doe',
-        firstName: 'Juan',
-        middleName: 'Carlos',
-        nickname: 'JC',
-        birthDate: '2010-04-15',
-        placeOfBirth: 'Manila',
-        age: '13',
-        height: '150 cm',
-        weight: '45 kg',
-        sex: 'Male',
-        parentGuardianName: 'Jane Doe',
-        landlineNumber: '(02) 123-4567',
-        mobileNumber: '09123456789',
-        homeAddress: '123 Main St, Barangay 1, Manila',
-        city: 'Manila',
-        stateProvince: 'Metro Manila',
-        zipPostalCode: '1000',
-    surgery: 'Not provided',
-    herbalDiseases: 'Not provided',
-    allergiesSpecify: 'Peanuts, Shellfish',
-    otherIllnesses: 'Not provided',
-        currentMedication: 'None',
-        medicalHistoryChecklist: [], // Array of checked items (empty for now)
-        immunizationRecord: [], // Array of checked immunizations (empty for now)
-        firstAidPermission: false,
-        certificationChecked: false
-    };
+    // const temporaryMedicalHistory = {
+    //     academicYear: '2024-2025',
+    //     admissionGrade: 'Grade 7',
+    //     familyName: 'Doe',
+    //     firstName: 'Juan',
+    //     middleName: 'Carlos',
+    //     nickname: 'JC',
+    //     birthDate: '2010-04-15',
+    //     placeOfBirth: 'Manila',
+    //     age: '13',
+    //     height: '150 cm',
+    //     weight: '45 kg',
+    //     sex: 'Male',
+    //     parentGuardianName: 'Jane Doe',
+    //     landlineNumber: '(02) 123-4567',
+    //     mobileNumber: '09123456789',
+    //     homeAddress: '123 Main St, Barangay 1, Manila',
+    //     city: 'Manila',
+    //     stateProvince: 'Metro Manila',
+    //     zipPostalCode: '1000',
+    // surgery: 'Not provided',
+    // herbalDiseases: 'Not provided',
+    // allergiesSpecify: 'Peanuts, Shellfish',
+    // otherIllnesses: 'Not provided',
+    //     currentMedication: 'None',
+    //     medicalHistoryChecklist: [], // Array of checked items (empty for now)
+    //     immunizationRecord: [], // Array of checked immunizations (empty for now)
+    //     firstAidPermission: false,
+    //     certificationChecked: false
+    // };
 
-    const temporaryAgreement = {
-        parentGuardianName: 'Jane Doe',
-        parentGuardianRelation: 'Mother'
-    };
+    // const temporaryAgreement = {
+    //     parentGuardianName: 'Jane Doe',
+    //     parentGuardianRelation: 'Mother'
+    // };
 
     const temporaryEducationalBackground = {
         lastGrade: 'Grade 6',
@@ -899,19 +899,19 @@ const RegisterCoursePage: React.FC = () => {
                         </div>
                         {/* Collapsible, view-only accordion showing the full application details (non-editable) */}
                         <div className="mb-4 text-black">
-                            <h3 className="text-base font-semibold mb-3 mt-7">Application Details</h3>
+                            <h3 className="text-base font-semibold mb-3 mt-7 text-black px-4 py-2 rounded">Application Details</h3>
 
                             {/* Accordion controls */}
                             <div className="space-y-2">
                                 {/* Personal Data */}
                                 <div className="border border-gray-300 rounded-lg bg-white">
                                     <button
-                                        className="w-full text-left px-4 py-3 flex justify-between items-center hover:bg-gray-50 transition-colors rounded-t-lg"
+                                        className={`w-full text-left px-4 py-3 flex justify-between items-center cursor-pointer transition-colors rounded-t-lg ${openSections.includes('personalData') ? 'bg-[#ffb06b] text-black border-[#cf660a]' : 'text-[#cf660a] border-[#cf660a]'}`}
                                         onClick={() => toggleSection('personalData')}
                                         type="button"
                                     >
-                                        <span className="font-semibold text-gray-800">Personal Data</span>
-                                        <span className="text-gray-400 text-lg">{openSections.includes('personalData') ? '−' : '+'}</span>
+                                        <span className={`font-semibold ${openSections.includes('personalData') ? 'text-black' : 'text-[#cf660a]'}`}>Personal Data</span>
+                                        <span className={`${openSections.includes('personalData') ? 'text-black' : 'text-[#cf660a]'} text-lg`}>{openSections.includes('personalData') ? '−' : '+'}</span>
                                     </button>
                                     {openSections.includes('personalData') && (
                                         <div className="px-4 py-4 border-t border-gray-200 text-sm text-gray-700">
@@ -1133,12 +1133,12 @@ const RegisterCoursePage: React.FC = () => {
                                 {/* Health History */}
                                 <div className="border border-gray-300 rounded-lg bg-white">
                                     <button
-                                        className="w-full text-left px-4 py-3 flex justify-between items-center hover:bg-gray-50 transition-colors rounded-t-lg"
+                                        className={`w-full text-left px-4 py-3 flex justify-between items-center cursor-pointer transition-colors rounded-t-lg ${openSections.includes('healthHistory') ? 'bg-[#ffb06b] text-black border-[#cf660a]' : 'text-[#cf660a] border-[#cf660a]'}`}
                                         onClick={() => toggleSection('healthHistory')}
                                         type="button"
                                     >
-                                        <span className="font-semibold text-gray-800">Health History</span>
-                                        <span className="text-gray-400 text-lg">{openSections.includes('healthHistory') ? '−' : '+'}</span>
+                                        <span className={`font-semibold ${openSections.includes('healthHistory') ? 'text-black' : 'text-[#cf660a]'}`}>Health History</span>
+                                        <span className={`${openSections.includes('healthHistory') ? 'text-black' : 'text-[#cf660a]'} text-lg`}>{openSections.includes('healthHistory') ? '−' : '+'}</span>
                                     </button>
                                     {openSections.includes('healthHistory') && (
                                         <div className="px-4 py-4 border-t border-gray-200 text-sm text-gray-700">
@@ -1171,12 +1171,12 @@ const RegisterCoursePage: React.FC = () => {
                                 {/* Family Background - Father, Mother, Guardian, and Siblings */}
                                     <div className="border border-gray-300 rounded-lg bg-white">
                                         <button
-                                            className="w-full text-left px-4 py-3 flex justify-between items-center hover:bg-gray-50 transition-colors rounded-t-lg"
+                                            className={`w-full text-left px-4 py-3 flex justify-between items-center cursor-pointer transition-colors rounded-t-lg ${openSections.includes('familyBackground') ? 'bg-[#ffb06b] text-black border-[#cf660a]' : 'text-[#cf660a] border-[#cf660a]'}`}
                                             onClick={() => toggleSection('familyBackground')}
                                             type="button"
                                         >
-                                            <span className="font-semibold text-gray-800">Family Background</span>
-                                            <span className="text-gray-400 text-lg">{openSections.includes('familyBackground') ? '−' : '+'}</span>
+                                            <span className={`font-semibold ${openSections.includes('familyBackground') ? 'text-black' : 'text-[#cf660a]'}`}>Family Background</span>
+                                            <span className={`${openSections.includes('familyBackground') ? 'text-black' : 'text-[#cf660a]'} text-lg`}>{openSections.includes('familyBackground') ? '−' : '+'}</span>
                                         </button>
                                         {openSections.includes('familyBackground') && (
                                             <div className="px-4 py-4 border-t border-gray-200 text-sm text-gray-700 space-y-4">
@@ -1393,12 +1393,12 @@ const RegisterCoursePage: React.FC = () => {
                                 {/* Educational Background */}
                                     <div className="border border-gray-300 rounded-lg bg-white">
                                         <button
-                                            className="w-full text-left px-4 py-3 flex justify-between items-center hover:bg-gray-50 transition-colors rounded-t-lg"
+                                            className={`w-full text-left px-4 py-3 flex justify-between items-center cursor-pointer transition-colors rounded-t-lg ${openSections.includes('education') ? 'bg-[#ffb06b] text-black border-[#cf660a]' : 'text-[#cf660a] border-[#cf660a]'}`}
                                             onClick={() => toggleSection('education')}
                                             type="button"
                                         >
-                                            <span className="font-semibold text-gray-800">Educational Background</span>
-                                            <span className="text-gray-400 text-lg">{openSections.includes('education') ? '−' : '+'}</span>
+                                            <span className={`font-semibold ${openSections.includes('education') ? 'text-black' : 'text-[#cf660a]'}`}>Educational Background</span>
+                                            <span className={`${openSections.includes('education') ? 'text-black' : 'text-[#cf660a]'} text-lg`}>{openSections.includes('education') ? '−' : '+'}</span>
                                         </button>
                                         {openSections.includes('education') && (
                                             <div className="px-4 py-4 border-t border-gray-200 text-sm text-gray-700">
@@ -1449,21 +1449,21 @@ const RegisterCoursePage: React.FC = () => {
                                         )}
                                     </div>
 
-                                {/* Medical History Questionnaire & Immunization */}
+                                {/* Medical History Questionnaire & Immunization
                                     <div className="border border-gray-300 rounded-lg bg-white">
                                         <button
-                                            className="w-full text-left px-4 py-3 flex justify-between items-center hover:bg-gray-50 transition-colors rounded-t-lg"
+                                            className={`w-full text-left px-4 py-3 flex justify-between items-center cursor-pointer transition-colors rounded-t-lg ${openSections.includes('medical') ? 'bg-[#ffb06b] text-black border-[#cf660a]' : 'text-[#cf660a] border-[#cf660a]'}`}
                                             onClick={() => toggleSection('medical')}
                                             type="button"
                                         >
-                                            <span className="font-semibold text-gray-800">Medical History / Immunization</span>
-                                            <span className="text-gray-400 text-lg">{openSections.includes('medical') ? '−' : '+'}</span>
+                                            <span className={`font-semibold ${openSections.includes('medical') ? 'text-black' : 'text-[#cf660a]'}`}>Medical History / Immunization</span>
+                                            <span className={`${openSections.includes('medical') ? 'text-black' : 'text-[#cf660a]'} text-lg`}>{openSections.includes('medical') ? '−' : '+'}</span>
                                         </button>
                                         
                                         {openSections.includes('medical') && (
                                             <div className="px-4 py-4 border-t border-gray-200 text-sm text-gray-700">
                                                 
-                                                {/* Row 1: Academic Year and Admission */}
+                                            
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
                                                     <div>
                                                         <label className="block text-sm font-medium mb-1 text-black">Academic Year</label>
@@ -1475,7 +1475,7 @@ const RegisterCoursePage: React.FC = () => {
                                                     </div>
                                                 </div>
 
-                                                {/* Row 2: Family, First, Middle, Nickname */}
+                                        
                                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
                                                     <div>
                                                         <label className="block text-sm font-medium mb-1 text-black">Family Name</label>
@@ -1495,7 +1495,6 @@ const RegisterCoursePage: React.FC = () => {
                                                     </div>
                                                 </div>
 
-                                                {/* Row 3: Birthdate, Place, Age, Height, Weight, Sex */}
                                                 <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4">
                                                     <div className="col-span-2 md:col-span-1">
                                                         <label className="block text-sm font-medium mb-1 text-black">Birth Date</label>
@@ -1542,7 +1541,6 @@ const RegisterCoursePage: React.FC = () => {
                                                     </div>
                                                 </div>
 
-                                                {/* Row 4: Parent Name, Landline, Mobile */}
                                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
                                                     <div>
                                                         <label className="block text-sm font-medium mb-1 text-black">Parent/ Guardian Name</label>
@@ -1558,7 +1556,6 @@ const RegisterCoursePage: React.FC = () => {
                                                     </div>
                                                 </div>
 
-                                                {/* Row 5: Home, City, State, Zip */}
                                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
                                                     <div className="md:col-span-1">
                                                         <label className="block text-sm font-medium mb-1 text-black">Home Address</label>
@@ -1578,7 +1575,7 @@ const RegisterCoursePage: React.FC = () => {
                                                     </div>
                                                 </div>
 
-                                                {/* Medical History Checklist - Numerically Aligned */}
+                                                //Medical Checklist
                                                 <div className="mb-4">
                                                     <div className="text-xs text-gray-500 font-medium mb-2">Medical History:</div>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-sm text-gray-700">
@@ -1616,9 +1613,7 @@ const RegisterCoursePage: React.FC = () => {
                                                     </div>
                                                 </div>
 
-                                                {/* Additional Questions */}
                                                 <div className="grid grid-cols-1 gap-4 mb-6">
-                                                    {/* (Mapping through your specify fields here...) */}
                                                     {['If you had surgery, please specify', 'If you have heart diseases, please specify what:', 'For no. 10, please specify which:', 'If you have allergies, pleae specify what:', 'Do you have any medication that youre currently taking?'].map((label, idx) => (
                                                     <div key={idx}>
                                                         <label className="block text-sm font-medium mb-1 text-black">{label}</label>
@@ -1627,7 +1622,6 @@ const RegisterCoursePage: React.FC = () => {
                                                     ))}
                                                 </div>
 
-                                                {/* Immunization Record */}
                                                 <div className="mt-6 pt-4 border-t">
                                                     <div className="text-xs text-gray-500 font-medium mb-3">Immunization Record:</div>
                                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -1658,7 +1652,6 @@ const RegisterCoursePage: React.FC = () => {
                                                     </div>
                                                 </div>
 
-                                                {/* Certification */}
                                                 <div className="mt-4 pt-4 border-t text-sm text-gray-700">
                                                     <div className="flex items-start space-x-3">
                                                         <input type="checkbox" disabled className="w-4 h-4 mt-0.5" />
@@ -1667,17 +1660,18 @@ const RegisterCoursePage: React.FC = () => {
                                                 </div>
                                             </div>
                                         )}
-                                    </div>
+                                    </div> 
+                                */}
 
                                 {/* Agreement Section */}
-                                    <div className="border border-gray-300 rounded-lg bg-white">
+                                    {/*<div className="border border-gray-300 rounded-lg bg-white">
                                         <button
-                                            className="w-full text-left px-4 py-3 flex justify-between items-center hover:bg-gray-50 transition-colors rounded-t-lg"
+                                            className={`w-full text-left px-4 py-3 flex justify-between items-center cursor-pointer transition-colors rounded-t-lg ${openSections.includes('agreement') ? 'bg-[#ffb06b] text-black border-[#cf660a]' : 'text-[#cf660a] border-[#cf660a]'}`}
                                             onClick={() => toggleSection('agreement')}
                                             type="button"
                                         >
-                                            <span className="font-semibold text-gray-800">Agreement</span>
-                                            <span className="text-gray-400 text-lg">{openSections.includes('agreement') ? '−' : '+'}</span>
+                                            <span className={`font-semibold ${openSections.includes('agreement') ? 'text-black' : 'text-[#cf660a]'}`}>Agreement</span>
+                                            <span className={`${openSections.includes('agreement') ? 'text-black' : 'text-[#cf660a]'} text-lg`}>{openSections.includes('agreement') ? '−' : '+'}</span>
                                         </button>
                                         
                                         {openSections.includes('agreement') && (
@@ -1701,7 +1695,6 @@ const RegisterCoursePage: React.FC = () => {
                                                     </div>
                                                 )}
 
-                                                {/* Responsive Grid: Stacks on mobile (1 col), side-by-side on tablet+ (2 cols) */}
                                                 <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     <div>
                                                         <label className="block text-sm font-medium mb-1 text-black">Parent/ Guardian Name</label>
@@ -1724,12 +1717,12 @@ const RegisterCoursePage: React.FC = () => {
                                     {showTransfereeSection && (
                                         <div className="border border-gray-300 rounded-lg bg-white">
                                             <button
-                                                className="w-full text-left px-4 py-3 flex justify-between items-center hover:bg-gray-50 transition-colors rounded-t-lg"
+                                                className={`w-full text-left px-4 py-3 flex justify-between items-center cursor-pointer transition-colors rounded-t-lg ${openSections.includes('transferee') ? 'bg-[#ffb06b] text-black border-[#cf660a]' : 'text-[#cf660a] border-[#cf660a]'}`}
                                                 onClick={() => toggleSection('transferee')}
                                                 type="button"
                                             >
-                                                <span className="font-semibold text-gray-800">Transferee Details</span>
-                                                <span className="text-gray-400 text-lg">{openSections.includes('transferee') ? '−' : '+'}</span>
+                                                <span className={`font-semibold ${openSections.includes('transferee') ? 'text-black' : 'text-[#cf660a]'}`}>Transferee Details</span>
+                                                <span className={`${openSections.includes('transferee') ? 'text-black' : 'text-[#cf660a]'} text-lg`}>{openSections.includes('transferee') ? '−' : '+'}</span>
                                             </button>
                                             
                                             {openSections.includes('transferee') && (

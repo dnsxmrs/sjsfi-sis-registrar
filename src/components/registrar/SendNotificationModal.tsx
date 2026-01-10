@@ -182,7 +182,7 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
                         <h2 className="text-xl font-semibold text-gray-900">Send Notification</h2>
                         <button
                             onClick={handleClose}
-                            className="text-gray-400 hover:text-gray-600 transition-colors"
+                            className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
                         >
                             <X className="w-6 h-6" />
                         </button>
@@ -201,7 +201,7 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
                                             onClick={() => setScope('GROUPS')}
                                             className={`p-4 rounded-lg border-2 transition-all duration-200 transform hover:scale-105 ${scope === 'GROUPS'
                                                     ? 'border-blue-600 bg-blue-50 scale-105'
-                                                    : 'border-gray-200 hover:border-gray-300'
+                                                    : 'border-gray-200 hover:border-gray-300 cursor-pointer'
                                                 }`}
                                         >
                                             <Users className={`w-8 h-8 mx-auto mb-2 transition-colors duration-200 ${scope === 'GROUPS' ? 'text-blue-600' : 'text-gray-400'}`} />
@@ -214,7 +214,7 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
                                             onClick={() => setScope('USER')}
                                             className={`p-4 rounded-lg border-2 transition-all duration-200 transform hover:scale-105 ${scope === 'USER'
                                                     ? 'border-blue-600 bg-blue-50 scale-105'
-                                                    : 'border-gray-200 hover:border-gray-300'
+                                                    : 'border-gray-200 hover:border-gray-300 cursor-pointer'
                                                 }`}
                                         >
                                             <User className={`w-8 h-8 mx-auto mb-2 transition-colors duration-200 ${scope === 'USER' ? 'text-blue-600' : 'text-gray-400'}`} />
@@ -311,7 +311,7 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
                                                     type="button"
                                                     onClick={handleSearch}
                                                     disabled={searchLoading}
-                                                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white rounded-lg transition-colors"
+                                                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white rounded-lg transition-colors cursor-pointer"
                                                 >
                                                     {searchLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                                                 </button>
@@ -372,7 +372,7 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
                                     <button
                                         type="button"
                                         onClick={() => setStep('details')}
-                                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors cursor-pointer"
                                     >
                                         Next: Message Details
                                     </button>
@@ -382,7 +382,7 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
                                     <button
                                         type="button"
                                         onClick={() => setStep('scope')}
-                                        className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                                        className="text-sm text-blue-600 hover:text-blue-700 font-medium cursor-pointer"
                                     >
                                         ← Back to Recipients
                                     </button>
@@ -416,13 +416,13 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        <label className="block text-sm font-medium text-gray-700 mb-1 ">
                                             Notification Type
                                         </label>
                                         <select
                                             value={notificationType}
                                             onChange={(e) => setNotificationType(e.target.value as NotificationType)}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            className="cursor-pointer w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         >
                                             <option value="info">Information</option>
                                             <option value="warning">Warning</option>
@@ -433,7 +433,7 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
                                     <button
                                         type="submit"
                                         disabled={loading}
-                                        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+                                        className="cursor-pointer w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
                                     >
                                         {loading ? (
                                             <>

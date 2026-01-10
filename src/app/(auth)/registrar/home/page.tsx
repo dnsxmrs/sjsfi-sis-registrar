@@ -5,14 +5,14 @@ import { Users, FileText, CheckCircle, Clock } from 'lucide-react';
 
 export default function RegistrarHomePage() {
     return (
-        <div className="min-h-screen p-6 space-y-6">
+        <div className="min-h-screen p-4 lg:p-6 space-y-6">
             <div className="mb-8">
-                <h1 className="text-3xl font-semibold text-gray-900 mb-2">Welcome back! Here&apos;s what&apos;s happening today.</h1>
+                <h1 className="text-2xl lg:text-3xl font-semibold text-gray-900 mb-2">Welcome back! Here&apos;s what&apos;s happening today.</h1>
             </div>
 
             <StatsCards />
 
-            <div className="grid lg:grid-cols-2 gap-6 mt-8 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8 items-start">
                 <div className="space-y-6">
                     <div className="bg-white rounded-2xl shadow-md border-2 border-indigo-200 overflow-hidden hover:shadow-lg transition-shadow">
                         <div className="bg-white border-b-2 border-indigo-200 px-6 py-4">
@@ -45,7 +45,7 @@ export default function RegistrarHomePage() {
                                 <p className="text-sm text-gray-600">Items requiring attention</p>
                             </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="bg-white rounded-xl p-4 border-2 border-amber-200 hover:border-amber-300 transition-colors">
                                 <div className="text-3xl font-bold text-amber-600 mb-1">
                                     <span id="pending-registrations">...</span>
@@ -71,7 +71,7 @@ export default function RegistrarHomePage() {
                                 <p className="text-sm text-gray-600">Successfully processed</p>
                             </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="bg-white rounded-xl p-4 border-2 border-emerald-200 hover:border-emerald-300 transition-colors">
                                 <div className="text-3xl font-bold text-emerald-600 mb-1">
                                     <span id="approved-registrations">...</span>

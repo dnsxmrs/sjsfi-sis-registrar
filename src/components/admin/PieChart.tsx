@@ -255,7 +255,7 @@ const GradePieChart: React.FC = () => {
                 key={entry.name}
                 onMouseEnter={() => setActiveIndex(index)}
                 onMouseLeave={() => setActiveIndex(null)}
-                className={`flex items-center justify-between p-3 rounded-lg transition-all duration-300 cursor-pointer ${activeIndex === index
+                className={`flex items-center justify-between p-3 rounded-lg transition-all duration-300 ${activeIndex === index
                     ? 'bg-gradient-to-r from-blue-50 to-indigo-50 shadow-md scale-105'
                     : 'bg-white hover:bg-gray-50 shadow-sm'
                   }`}
