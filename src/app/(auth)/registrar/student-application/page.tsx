@@ -1693,11 +1693,11 @@ const RegisterCoursePage: React.FC = () => {
                                                         <ul className="space-y-2 list-none">
                                                             <li>1. Comply with all the policies and procedures such as attendance and punctuality, scholastics/academic performance set by the school;</li>
                                                             <li>2. Attend and support all the activities duly organized by the school both in co-curricular and extra-curricular, particularly in the institutional activities such as School Orientation Day, Christmas party/Liturgical Activities, Educational Tour, Foundation Day, Retreat and Recollections, Community Outreach Program and JS Prom, etc.;</li>
-                                                            <li>3. Abide by the behavioural standards and rules of discipline as specified in the student's handbook, e.g. wearing of prescribed uniform, behaviour within and out of the campus, etc.;</li>
+                                                            <li>3. Abide by the behavioural standards and rules of discipline as specified in the student&apos;s handbook, e.g. wearing of prescribed uniform, behaviour within and out of the campus, etc.;</li>
                                                             <li>4. Conform to all rules and regulation set forth by the institution (including the increase in tuition/miscellaneous/other fees) now enforced or may be promulgated by the school from time to time.</li>
                                                         </ul>
                                                         <br />
-                                                        By affixing my name, <strong className="font-bold text-black">{selectedApplication?.parentGuardianName || temporaryAgreement.parentGuardianName || 'N/A'}</strong>, I hereby waive my right in any form and commit myself towards the realization of the vision-mission of the institution, particularly the rules and regulation as stipulated in the Student's Handbook.
+                                                        By affixing my name, <strong className="font-bold text-black">{selectedApplication?.parentGuardianName || temporaryAgreement.parentGuardianName || 'N/A'}</strong>, I hereby waive my right in any form and commit myself towards the realization of the vision-mission of the institution, particularly the rules and regulation as stipulated in the Student&apos;s Handbook.
                                                     </div>
                                                 )}
 
