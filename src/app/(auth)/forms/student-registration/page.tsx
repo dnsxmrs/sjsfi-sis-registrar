@@ -6,7 +6,9 @@ import { X } from 'lucide-react';
 import { getSchoolYears } from '@/app/_actions/getSchoolYears';
 import { getYearLevels } from '@/app/_actions/getYearLevels';
 import { addRegistration, type RegistrationFormData } from '@/app/_actions/addRegistration';
+import { validateRegistrationCode } from '@/app/(auth)/forms/_actions/code';
 import toast from 'react-hot-toast';
+import { regions as psgcRegions, provinces as psgcProvinces, municipalities as psgcMunicipalities } from 'psgc';
 
 // Types
 interface SchoolYear {
@@ -28,22 +30,20 @@ interface YearLevel {
   deletedAt: Date | null;
 }
 
-interface Province {
-  code: string;
+// PSGC types - flexible to match library's structure
+interface LocationItem {
   name: string;
-  regionCode: string;
-}
-
-interface Region {
-  code: string;
-  name: string;
-}
-
-interface City {
-  code: string;
-  name: string;
-  provinceCode?: string;
+  code?: string;
   regionCode?: string;
+  provinceCode?: string;
+  region?: string;
+  province?: string;
+}
+
+// Extended type for municipalities from psgc
+interface PSGCMunicipality extends LocationItem {
+  province?: string;
+  region?: string;
 }
 
 const StudentRegistrationForm: React.FC = () => {
@@ -76,8 +76,8 @@ const StudentRegistrationForm: React.FC = () => {
   // State for dropdown data
   const [schoolYears, setSchoolYears] = useState<SchoolYear[]>([]);
   const [yearLevels, setYearLevels] = useState<YearLevel[]>([]);
-  const [provinces, setProvinces] = useState<(Province | Region)[]>([]);
-  const [cities, setCities] = useState<City[]>([]);
+  const [provinces, setProvinces] = useState<LocationItem[]>([]);
+  const [cities, setCities] = useState<LocationItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // State for requirements checkboxes
@@ -94,29 +94,41 @@ const StudentRegistrationForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
 
-  // Capture registration code from URL on component mount
+  // Validate registration code and fetch data
   useEffect(() => {
-    const code = searchParams.get('code');
-    if (code) {
-      // TODO: ADD VALIDATION FOR CODE THAT IS FETCHED
-      setRegistrationCode(code);
-    } else {
-      router.push('/forms/home'); // Redirect back if no code is provided
-    }
+    const validateAndFetchData = async () => {
+      const code = searchParams.get('code');
 
-  }, [router, searchParams]);
+      // First, validate the registration code
+      if (code) {
+        const validation = await validateRegistrationCode(code);
 
-  // Fetch school years and year levels
-  useEffect(() => {
-    const fetchData = async () => {
+        if (!validation.success) {
+          toast.error('Failed to validate registration code');
+          router.push('/forms/home');
+          return;
+        }
+
+        if (!validation.isValid) {
+          toast.error('Invalid or expired registration code');
+          router.push('/forms/home');
+          return;
+        }
+
+        // Code is valid, set it
+        setRegistrationCode(code);
+      } else {
+        router.push('/forms/home');
+        return;
+      }
+
+      // After successful validation, fetch school years, year levels, and locations
       try {
         setIsLoading(true);
 
-        const [schoolYearsResult, yearLevelsResult, provincesResponse, regionsResponse] = await Promise.all([
+        const [schoolYearsResult, yearLevelsResult] = await Promise.all([
           getSchoolYears(),
-          getYearLevels(),
-          fetch('https://psgc.gitlab.io/api/provinces/'),
-          fetch('https://psgc.gitlab.io/api/regions/')
+          getYearLevels()
         ]);
 
         if (schoolYearsResult.success) {
@@ -127,23 +139,18 @@ const StudentRegistrationForm: React.FC = () => {
           setYearLevels(yearLevelsResult.yearLevels);
         }
 
-        // Combine provinces and regions
-        let allLocations: (Province | Region)[] = [];
+        // Get provinces and regions using psgc library
+        const allProvinces = psgcProvinces.all();
+        const allRegions = psgcRegions.all();
 
-        if (provincesResponse.ok) {
-          const provincesData = await provincesResponse.json();
-          allLocations = [...allLocations, ...provincesData];
-        }
+        // Filter NCR/Metro Manila region
+        const ncrRegion = allRegions.filter((region) =>
+          region.name.includes('Metro') || region.name.includes('NCR') ||
+          region.name.includes('National Capital Region')
+        );
 
-        if (regionsResponse.ok) {
-          const regionsData = await regionsResponse.json();
-          // Filter out regions that are not administrative regions (like Metro Manila)
-          const administrativeRegions = regionsData.filter((region: Region) =>
-            region.name.includes('Metro') || region.name.includes('NCR') ||
-            region.name.includes('National Capital Region')
-          );
-          allLocations = [...allLocations, ...administrativeRegions];
-        }
+        // Combine provinces and NCR region
+        const allLocations = [...allProvinces, ...ncrRegion] as LocationItem[];
 
         // Sort all locations alphabetically by name
         const sortedLocations = allLocations.sort((a, b) =>
@@ -152,13 +159,14 @@ const StudentRegistrationForm: React.FC = () => {
         setProvinces(sortedLocations);
       } catch (error) {
         console.error('Error fetching data:', error);
+        toast.error('Failed to load registration data');
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchData();
-  }, []);
+    validateAndFetchData();
+  }, [router, searchParams]);
 
   const handleParentChange = (index: number, field: string, value: string) => {
     const newParents = [...parents];
@@ -184,33 +192,31 @@ const StudentRegistrationForm: React.FC = () => {
   };
 
   // Handle province/region selection and fetch cities
-  const handleProvinceChange = async (locationCode: string, locationName: string) => {
+  const handleProvinceChange = (locationCode: string | undefined, locationName: string) => {
     setStateProvince(locationName);
     setCity(''); // Reset city when province changes
     setCities([]); // Clear cities
 
-    if (locationCode) {
+    if (locationName) {
       try {
-        let response;
-        // Check if it's a region (like Metro Manila) or a province
-        if (locationName.includes('Metro') || locationName.includes('NCR') || locationName.includes('National Capital Region')) {
-          // For regions, use the regions endpoint
-          response = await fetch(`https://psgc.gitlab.io/api/regions/${locationCode}/cities-municipalities/`);
-        } else {
-          // For provinces, use the provinces endpoint
-          response = await fetch(`https://psgc.gitlab.io/api/provinces/${locationCode}/cities-municipalities/`);
-        }
+        // Get all municipalities
+        const allMunicipalities = psgcMunicipalities.all() as unknown as PSGCMunicipality[];
+        
+        // Filter municipalities that belong to the selected province or region
+        const filteredMunicipalities = allMunicipalities.filter((muni) => {
+          // Check if municipality belongs to this province or region
+          return muni.province === locationName || muni.region === locationName;
+        });
 
-        if (response.ok) {
-          const citiesData = await response.json();
-          // Sort cities alphabetically by name
-          const sortedCities = citiesData.sort((a: City, b: City) =>
-            a.name.localeCompare(b.name)
-          );
-          setCities(sortedCities);
-        }
+        // Convert to LocationItem and sort alphabetically
+        const sortedCities = (filteredMunicipalities as LocationItem[]).sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
+
+        setCities(sortedCities);
       } catch (error) {
-        console.error('Error fetching cities:', error);
+        console.error('Error loading cities:', error);
+        toast.error('Failed to load cities');
       }
     }
   };
@@ -305,14 +311,8 @@ const StudentRegistrationForm: React.FC = () => {
             // Mobile number pattern: (+63|0) followed by 10 digits
             const mobilePattern = /^(\+63|0)[0-9]{10}$/;
 
-            // Landline patterns:
-            // - 7-8 digit local numbers (like 8935-2790 becomes 89352790)
-            // - Area code + 7 digits (like 02-8935-2790 becomes 0289352790)
-            // - With +63 prefix for landlines
-            const landlinePattern = /^(\+63)?[0-9]{7,10}$/;
-
-            if (!mobilePattern.test(cleanContact) && !landlinePattern.test(cleanContact)) {
-              return `Contact number ${i + 1} must be a valid Philippine phone number (mobile: 0917-123-4567 or landline: 8935-2790)`;
+            if (!mobilePattern.test(cleanContact)) {
+              return `Contact number ${i + 1} must be a valid Philippine phone number(09171234567)`;
             }
           }
         }
@@ -431,6 +431,8 @@ const StudentRegistrationForm: React.FC = () => {
         emailAddress,
         // requirements,
       };
+
+      // console.log(formData)
 
       // Submit the registration data to the server
       const result = await addRegistration(formData);
@@ -593,7 +595,7 @@ const StudentRegistrationForm: React.FC = () => {
                   </div>
                   <div>
                     <span className="font-medium">Amount Payable:</span>
-                    <p>₱{parseFloat(amountPayable || '0').toFixed(2)}</p>
+                    <p>₱ {parseFloat(amountPayable || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                   </div>
                 </div>
               </div>
@@ -614,8 +616,8 @@ const StudentRegistrationForm: React.FC = () => {
                 onClick={handleFinalSubmit}
                 disabled={isSubmitting}
                 className={`px-6 py-2 rounded text-white transition ${isSubmitting
-                    ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-green-600 hover:bg-green-700'
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-green-600 hover:bg-green-700'
                   }`}
               >
                 {isSubmitting ? 'Submitting...' : 'Confirm & Submit Registration'}
@@ -730,7 +732,7 @@ const StudentRegistrationForm: React.FC = () => {
                   }`}
                 disabled={isLoading}
               >
-                <option value="">Select Grade Level...</option>
+                <option disabled value="">Select Grade Level...</option>
                 {yearLevels.map((yl) => (
                   <option key={yl.id} value={yl.name}>
                     {yl.name}
@@ -949,8 +951,8 @@ const StudentRegistrationForm: React.FC = () => {
                     }`}
                 >
                   <option value="">Select Province/Region...</option>
-                  {provinces.map((location) => (
-                    <option key={location.code} value={location.name}>
+                  {provinces.map((location, index) => (
+                    <option key={location.code || `${location.name}-${index}`} value={location.name}>
                       {location.name}
                     </option>
                   ))}
@@ -978,8 +980,8 @@ const StudentRegistrationForm: React.FC = () => {
                   <option value="">
                     {!stateProvince ? "Select Province/Region first..." : "Select City..."}
                   </option>
-                  {cities.map((city) => (
-                    <option key={city.code} value={city.name}>
+                  {cities.map((city, index) => (
+                    <option key={city.code || `${city.name}-${index}`} value={city.name}>
                       {city.name}
                     </option>
                   ))}
@@ -1013,7 +1015,7 @@ const StudentRegistrationForm: React.FC = () => {
 
         {/* Parents/ Guardian */}
         <fieldset className="border border-gray-300 rounded p-4">
-          <legend className="text-sm font-medium px-2">Parents/ Guardian:</legend>
+          <legend className="text-sm font-medium px-2">Parents/Guardian:</legend>
           <div className="space-y-4 mt-2">
             {parents.map((parent, index) => (
               <div key={index} className="grid grid-cols-1 sm:grid-cols-5 gap-4">
@@ -1100,7 +1102,7 @@ const StudentRegistrationForm: React.FC = () => {
             <div key={index} className="flex items-center space-x-2">
               <input
                 type="text"
-                placeholder="0917-123-4567 or 8935-2790"
+                placeholder="09171234567"
                 value={contact}
                 onChange={(e) => {
                   handleContactChange(index, e.target.value);
@@ -1154,7 +1156,7 @@ const StudentRegistrationForm: React.FC = () => {
                 className={`border rounded px-2 py-1 mt-1 ${errors.modeOfPayment ? 'border-red-500' : 'border-gray-300'
                   }`}
               >
-                <option value="">Select Payment Method</option>
+                <option disabled value="">Select Payment Method</option>
                 <option value="Cash">Cash</option>
                 <option value="Check">Check</option>
                 <option value="Loan">Loan</option>

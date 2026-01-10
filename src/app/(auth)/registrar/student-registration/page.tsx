@@ -1,7 +1,7 @@
 'use client';
 
 import toast from 'react-hot-toast';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Eye, Copy, Check, X } from 'lucide-react';
 import { rejectRegistration } from '@/app/_actions/rejectRegistration';
@@ -22,11 +22,15 @@ const RegisterCoursePage: React.FC = () => {
     const [selectedRegistrationId, setSelectedRegistrationId] = useState<number | null>(null);
     const [isApproving, setIsApproving] = useState(false);
     const [isRejecting, setIsRejecting] = useState(false);
+    const [showApproveConfirmation, setShowApproveConfirmation] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [students, setStudents] = useState<any[]>([]);
+    
+    // Ref for scrolling to top
+    const tableTopRef = useRef<HTMLDivElement>(null);
 
     const studentsList = async () => {
         try {
@@ -98,8 +102,6 @@ const RegisterCoursePage: React.FC = () => {
         if (students.length > 0 && !selectedRegistration) {
             handleViewStudent(students[0].id);
         }
-
-        window.scrollTo({ top: 0, behavior: 'smooth' });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [students]);
 
@@ -155,7 +157,16 @@ const RegisterCoursePage: React.FC = () => {
             toast.error('No registration selected.');
             return;
         }
+        
+        // First click: show confirmation
+        if (!showApproveConfirmation) {
+            setShowApproveConfirmation(true);
+            return;
+        }
+        
+        // Second click: proceed with approval
         setIsApproving(true);
+        setShowApproveConfirmation(false);
         try {
             const result = await approveRegistration(selectedRegistrationId);
 
@@ -174,7 +185,10 @@ const RegisterCoursePage: React.FC = () => {
                 }
 
                 // Refresh the students list
-                studentsList();
+                await studentsList();
+                
+                // Scroll to top table after everything is done
+                tableTopRef.current?.scrollIntoView({ behavior: 'instant', block: 'start' });
             } else {
                 toast.error(`Failed to generate registration code: ${result.error || 'Unknown error occurred'}`);
             }
@@ -184,8 +198,6 @@ const RegisterCoursePage: React.FC = () => {
         } finally {
             setIsApproving(false);
             setSelectedRegistration(null);
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
 
@@ -195,6 +207,9 @@ const RegisterCoursePage: React.FC = () => {
             return;
         }
 
+        // Reset approve confirmation state
+        setShowApproveConfirmation(false);
+        
         // Just show the modal for confirmation
         setShowRejectModal(true);
     };
@@ -385,7 +400,7 @@ const RegisterCoursePage: React.FC = () => {
                 {/* First Column: Add Student Form + All Students Table */}
                 <div className="flex-1 space-y-6 order-2 md:order-1">
                     {/* All Students Table */}
-                    <div className="bg-white p-6 rounded-lg shadow">
+                    <div ref={tableTopRef} className="bg-white p-6 rounded-lg shadow">
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-lg font-semibold text-black">Pending Registration</h2>
                             <div className="flex items-center gap-2">
@@ -760,38 +775,7 @@ const RegisterCoursePage: React.FC = () => {
                                 </div>
 
                                 {/* Action Buttons */}
-                                <div className="flex space-x-4 pt-4 border-t">
-                                    <button
-                                        onClick={handleRegister}
-                                        disabled={selectedRegistration.status === 'APPROVED' || isApproving || isRejecting}
-                                        className={`px-4 py-2 rounded text-sm flex items-center space-x-2 ${selectedRegistration.status === 'APPROVED' || isApproving || isRejecting
-                                            ? 'bg-gray-400 cursor-not-allowed'
-                                            : 'bg-red-800 hover:bg-red-900'
-                                            } text-white`}
-                                    >
-                                        {isApproving ? (
-                                            <>
-                                                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                                                <span>Approving...</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <svg
-                                                    className="w-4 h-4"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    strokeWidth="2"
-                                                    viewBox="0 0 24 24"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                                <span>
-                                                    {selectedRegistration.status === 'APPROVED' ? 'Already Approved' : 'Approve Registration'}
-                                                </span>
-                                            </>
-                                        )}
-                                    </button>
+                                <div className="flex justify-end space-x-4 pt-4 border-t">
                                     <button
                                         onClick={handleRejectRegistration}
                                         disabled={selectedRegistration.status !== 'PENDING' || isApproving || isRejecting}
@@ -809,6 +793,58 @@ const RegisterCoursePage: React.FC = () => {
                                             <>
                                                 <X className="w-4 h-4" />
                                                 <span>Reject Registration</span>
+                                            </>
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={handleRegister}
+                                        disabled={selectedRegistration.status === 'APPROVED' || isApproving || isRejecting}
+                                        className={`px-4 py-2 rounded text-sm flex items-center space-x-2 transition-colors ${
+                                            selectedRegistration.status === 'APPROVED' || isApproving || isRejecting
+                                                ? 'bg-gray-400 cursor-not-allowed'
+                                                : showApproveConfirmation
+                                                    ? 'bg-orange-600 hover:bg-orange-700'
+                                                    : 'bg-red-800 hover:bg-red-900'
+                                        } text-white`}
+                                    >
+                                        {isApproving ? (
+                                            <>
+                                                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                                                <span>Approving...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                {showApproveConfirmation ? (
+                                                    <>
+                                                        <svg
+                                                            className="w-4 h-4"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            strokeWidth="2"
+                                                            viewBox="0 0 24 24"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                        >
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path>
+                                                        </svg>
+                                                        <span>Are you sure?</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <svg
+                                                            className="w-4 h-4"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            strokeWidth="2"
+                                                            viewBox="0 0 24 24"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                        >
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path>
+                                                        </svg>
+                                                        <span>
+                                                            {selectedRegistration.status === 'APPROVED' ? 'Already Approved' : 'Approve Registration'}
+                                                        </span>
+                                                    </>
+                                                )}
                                             </>
                                         )}
                                     </button>

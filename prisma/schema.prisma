@@ -178,7 +178,7 @@ model StudentApplication {
   id                      Int                    @id @default(autoincrement())
   familyName              String                 @db.VarChar(255)
   firstName               String                 @db.VarChar(255)
-  middleName              String                 @db.VarChar(255)
+  middleName              String?                 @db.VarChar(255)
   nickName                String                 @db.VarChar(100)
   birthdate               DateTime               @db.Date
   placeOfBirth            String                 @db.VarChar(255)

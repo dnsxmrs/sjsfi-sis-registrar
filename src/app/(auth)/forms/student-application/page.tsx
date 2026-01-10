@@ -11,15 +11,73 @@ import GuardianBackgroundPage from "./guardianbackground";
 import StudentFamilyMembersPage from "./familymembers";
 import StudentEducationalBackgroundPage from "./educationalbackground";
 import StudentTransfereePage from "./transferee";
-import { validateApplicationCodeURL } from "../_actions/code";
+import { validateApplicationCode } from "../_actions/code";
 
 export default function StudentApplicationPagedForm() {
   const [page, setPage] = useState(0);
   const [confirmed, setConfirmed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
+  const [visitedPages, setVisitedPages] = useState<number[]>([0]);
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  // TODO: add a cookie-based tracking so when a page accidentally reloads, the user won't lose progress, includng the start page (the checkbox)
+
+  // Page titles for breadcrumbs
+  const pagesTitles = [
+    "Start",
+    "Personal Data",
+    "Health History",
+    "Father Background",
+    "Mother Background",
+    "Guardian Background",
+    "Family Members",
+    "Educational Background",
+    "Transferee"
+  ];
+
+  // Navigate to a specific page and track visited pages
+  const navigateToPage = (pageNumber: number) => {
+    setPage(pageNumber);
+    if (!visitedPages.includes(pageNumber)) {
+      setVisitedPages(prev => [...prev, pageNumber]);
+    }
+  };
+
+  // Breadcrumb component
+  const Breadcrumbs = () => (
+    <div className="w-full bg-white rounded-lg shadow p-4 mb-6 border border-gray-200">
+      <div className="flex flex-wrap items-center gap-2">
+        {pagesTitles.map((title, index) => {
+          const isActive = page === index;
+          const isVisited = visitedPages.includes(index);
+          const isClickable = isVisited;
+
+          return (
+            <React.Fragment key={index}>
+              <button
+                onClick={() => isClickable && navigateToPage(index)}
+                disabled={!isClickable}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'bg-red-800 text-white'
+                    : isVisited
+                    ? 'bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer'
+                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                {index + 1}. {title}
+              </button>
+              {index < pagesTitles.length - 1 && (
+                <span className="text-gray-400">→</span>
+              )}
+            </React.Fragment>
+          );
+        })}
+      </div>
+    </div>
+  );
 
   // Ensure component is mounted before using router
   useEffect(() => {
@@ -217,14 +275,17 @@ export default function StudentApplicationPagedForm() {
     }
 
     if (upperCode.startsWith('APP-')) {
-      validateApplicationCodeURL(upperCode).then((result) => {
+      validateApplicationCode(upperCode).then((result) => {
         if (result.success && result.isValid) {
           setFormData(prev => ({ ...prev, registrationCode: code }));
+          setIsLoading(false);
+        } else {
+          // Redirect if validation failed or code is invalid
+          router.replace('/forms/home');
         }
-        setIsLoading(false);
       });
     } else {
-      setIsLoading(false);
+      router.replace('/forms/home');
     }
   }, [isMounted, searchParams, router]);
 
@@ -252,11 +313,15 @@ export default function StudentApplicationPagedForm() {
     );
   }
 
-
   if (page === 8) {
     return (
       <FormDataContext.Provider value={{ formData, updateFormData }}>
-        <StudentTransfereePage onBack={() => setPage(7)} />
+        <div className="w-full bg-[#f7f7f7] flex flex-col items-center py-2">
+          <div className="w-full px-4">
+            <Breadcrumbs />
+            <StudentTransfereePage onBack={() => navigateToPage(7)} />
+          </div>
+        </div>
       </FormDataContext.Provider>
     );
   }
@@ -264,7 +329,12 @@ export default function StudentApplicationPagedForm() {
   if (page === 7) {
     return (
       <FormDataContext.Provider value={{ formData, updateFormData }}>
-        <StudentEducationalBackgroundPage onBack={() => setPage(6)} onNext={() => setPage(8)} />
+        <div className="w-full bg-[#f7f7f7] flex flex-col items-center py-2">
+          <div className="w-full px-4">
+            <Breadcrumbs />
+            <StudentEducationalBackgroundPage onBack={() => navigateToPage(6)} onNext={() => navigateToPage(8)} />
+          </div>
+        </div>
       </FormDataContext.Provider>
     );
   }
@@ -272,7 +342,12 @@ export default function StudentApplicationPagedForm() {
   if (page === 6) {
     return (
       <FormDataContext.Provider value={{ formData, updateFormData }}>
-        <StudentFamilyMembersPage onBack={() => setPage(5)} onNext={() => setPage(7)} />
+        <div className="w-full bg-[#f7f7f7] flex flex-col items-center py-2">
+          <div className="w-full px-4">
+            <Breadcrumbs />
+            <StudentFamilyMembersPage onBack={() => navigateToPage(5)} onNext={() => navigateToPage(7)} />
+          </div>
+        </div>
       </FormDataContext.Provider>
     );
   }
@@ -280,7 +355,12 @@ export default function StudentApplicationPagedForm() {
   if (page === 5) {
     return (
       <FormDataContext.Provider value={{ formData, updateFormData }}>
-        <GuardianBackgroundPage onBack={() => setPage(4)} onNext={() => setPage(6)} />
+        <div className="w-full bg-[#f7f7f7] flex flex-col items-center py-2">
+          <div className="w-full px-4">
+            <Breadcrumbs />
+            <GuardianBackgroundPage onBack={() => navigateToPage(4)} onNext={() => navigateToPage(6)} />
+          </div>
+        </div>
       </FormDataContext.Provider>
     );
   }
@@ -288,7 +368,12 @@ export default function StudentApplicationPagedForm() {
   if (page === 4) {
     return (
       <FormDataContext.Provider value={{ formData, updateFormData }}>
-        <MotherBackgroundPage onBack={() => setPage(3)} onNext={() => setPage(5)} />
+        <div className="w-full bg-[#f7f7f7] flex flex-col items-center py-2">
+          <div className="w-full px-4">
+            <Breadcrumbs />
+            <MotherBackgroundPage onBack={() => navigateToPage(3)} onNext={() => navigateToPage(5)} />
+          </div>
+        </div>
       </FormDataContext.Provider>
     );
   }
@@ -296,7 +381,12 @@ export default function StudentApplicationPagedForm() {
   if (page === 3) {
     return (
       <FormDataContext.Provider value={{ formData, updateFormData }}>
-        <FatherBackgroundPage onBack={() => setPage(2)} onNext={() => setPage(4)} />
+        <div className="w-full bg-[#f7f7f7] flex flex-col items-center py-2">
+          <div className="w-full px-4">
+            <Breadcrumbs />
+            <FatherBackgroundPage onBack={() => navigateToPage(2)} onNext={() => navigateToPage(4)} />
+          </div>
+        </div>
       </FormDataContext.Provider>
     );
   }
@@ -304,7 +394,12 @@ export default function StudentApplicationPagedForm() {
   if (page === 2) {
     return (
       <FormDataContext.Provider value={{ formData, updateFormData }}>
-        <StudentHealthHistoryPage onBack={() => setPage(1)} onNext={() => setPage(3)} />
+        <div className="w-full bg-[#f7f7f7] flex flex-col items-center py-2">
+          <div className="w-full px-4">
+            <Breadcrumbs />
+            <StudentHealthHistoryPage onBack={() => navigateToPage(1)} onNext={() => navigateToPage(3)} />
+          </div>
+        </div>
       </FormDataContext.Provider>
     );
   }
@@ -312,14 +407,22 @@ export default function StudentApplicationPagedForm() {
   if (page === 1) {
     return (
       <FormDataContext.Provider value={{ formData, updateFormData }}>
-        <StudentPersonalDataPage onBack={() => setPage(0)} onNext={() => setPage(2)} />
+        <div className="w-full bg-[#f7f7f7] flex flex-col items-center py-2">
+          <div className="w-full px-4">
+            <Breadcrumbs />
+            <StudentPersonalDataPage onBack={() => navigateToPage(0)} onNext={() => navigateToPage(2)} />
+          </div>
+        </div>
       </FormDataContext.Provider>
     );
   }
 
   return (
     <FormDataContext.Provider value={{ formData, updateFormData }}>
-      <div className="w-full min-h-screen bg-[#f7f7f7] flex flex-col items-center py-8">
+      <div className="w-full bg-[#f7f7f7] flex flex-col items-center py-2">
+        <div className="w-full px-4">
+          <Breadcrumbs />
+        </div>
         {/* Header */}
         <div className="w-full flex flex-col items-center mb-6">
           <div className="w-full flex items-center gap-4 mt-2">
@@ -378,7 +481,7 @@ export default function StudentApplicationPagedForm() {
             disabled={!confirmed}
             className={`bg-red-800 text-white px-6 py-2 rounded-md ${confirmed ? 'hover:bg-red-900 cursor-pointer' : 'opacity-50 cursor-not-allowed'
               }`}
-            onClick={() => setPage(1)}
+            onClick={() => navigateToPage(1)}
           >
             Continue
           </button>

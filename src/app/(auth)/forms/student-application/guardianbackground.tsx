@@ -29,7 +29,7 @@ export default function GuardianBackgroundPage({ onBack, onNext }: GuardianBackg
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#f7f7f7] flex flex-col items-center py-8">
+    <div className="w-full flex flex-col items-center">
       {/* Header */}
       <div className="w-full flex flex-col items-center mb-6">
         <div className="w-full flex items-center gap-4 mt-2">

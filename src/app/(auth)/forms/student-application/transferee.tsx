@@ -37,7 +37,7 @@ export default function StudentTransfereePage({ onBack }: StudentTransfereeProps
   };
 
   return (
-    <div className=" flex min-h-screen flex-col items-center py-8">
+    <div className="w-full flex flex-col items-center">
       {/* Header */}
       <div className="w-full flex flex-col items-center mb-6">
         <div className="w-full flex items-center gap-4 mt-2">

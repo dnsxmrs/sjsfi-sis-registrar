@@ -103,7 +103,7 @@ export default function RegistrarHomePage() {
                                 <span className="text-2xl font-bold text-violet-600" id="active-terms">...</span>
                             </div>
                             <div className="flex justify-between items-center bg-white border-2 border-violet-200 rounded-lg p-3 hover:border-violet-300 transition-colors">
-                                <span className="text-sm font-medium text-gray-700">Active Courses</span>
+                                <span className="text-sm font-medium text-gray-700">Active Year Levels</span>
                                 <span className="text-2xl font-bold text-violet-600" id="active-courses">...</span>
                             </div>
                             <div className="flex justify-between items-center bg-white border-2 border-violet-200 rounded-lg p-3 hover:border-violet-300 transition-colors">
