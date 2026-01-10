@@ -357,13 +357,12 @@ export default function StudentApplicationPagedForm() {
           // Attempt to restore saved progress
           const restored = restoreProgress(code, regType);
           if (!restored) {
-            // If no saved progress, just set the registration code and registration type
-            // console.log('No saved progress, setting new formData with registrationType:', regType);
-            // setFormData(prev => ({ 
-            //   ...prev, 
-            //   registrationCode: code,
-            //   registrationType: regType
-            // }));
+            // If no saved progress, set the registration code and registration type
+            setFormData(prev => ({ 
+              ...prev, 
+              registrationCode: code,
+              registrationType: regType
+            }));
           }
           setIsLoading(false);
         } else {
@@ -398,26 +397,63 @@ export default function StudentApplicationPagedForm() {
   };
 
   // Helper function to check if a parent/guardian form is completely filled
-  const isFormComplete = (data: typeof formData.fatherBackground | typeof formData.motherBackground | typeof formData.guardianBackground) => {
-    const requiredFields = [
+  const isFormComplete = (
+    data: typeof formData.fatherBackground | typeof formData.motherBackground | typeof formData.guardianBackground,
+    formType: 'father' | 'mother' | 'guardian'
+  ) => {
+    // Common required fields for all forms
+    const commonFields = [
       'familyName', 'firstName', 'birthDate', 'placeOfBirth', 'age',
       'nationality', 'religion', 'mobileNumber', 'emailAddress',
       'homeAddress', 'city', 'stateProvince', 'zipPostalCode',
       'educationalAttainmentCourse', 'occupationalPositionHeld', 'employerCompany',
-      'companyAddress', 'companyCity', 'annualIncome', 'statusOfParent'
+      'companyAddress', 'annualIncome', 'statusOfParent'
     ];
 
-    return requiredFields.every(field => {
+    // Build required fields based on form type
+    let requiredFields: string[];
+    
+    if (formType === 'guardian') {
+      // Guardian doesn't have companyCity, but has relationToApplicant
+      requiredFields = [...commonFields, 'relationToApplicant'];
+    } else {
+      // Father and Mother have companyCity
+      requiredFields = [...commonFields, 'companyCity'];
+    }
+
+    // Debug: Log missing fields
+    const missingFields = requiredFields.filter(field => {
       const value = data[field as keyof typeof data];
-      return value && String(value).trim() !== '';
+      const isEmpty = !value || String(value).trim() === '';
+      if (isEmpty) {
+        console.log(`${formType} - Missing field: ${field}, value:`, value);
+      }
+      return isEmpty;
     });
+
+    console.log(`${formType} form validation:`, {
+      totalFields: requiredFields.length,
+      missingCount: missingFields.length,
+      missingFields,
+      isComplete: missingFields.length === 0
+    });
+
+    return missingFields.length === 0;
   };
 
   // Check if at least one parent/guardian form is complete
   const hasAtLeastOneParentGuardian = () => {
-    return isFormComplete(formData.fatherBackground) ||
-      isFormComplete(formData.motherBackground) ||
-      isFormComplete(formData.guardianBackground);
+    console.log('=== Checking Parent/Guardian Forms ===');
+    const fatherComplete = isFormComplete(formData.fatherBackground, 'father');
+    const motherComplete = isFormComplete(formData.motherBackground, 'mother');
+    const guardianComplete = isFormComplete(formData.guardianBackground, 'guardian');
+    
+    console.log('Father complete:', fatherComplete);
+    console.log('Mother complete:', motherComplete);
+    console.log('Guardian complete:', guardianComplete);
+    console.log('At least one complete:', fatherComplete || motherComplete || guardianComplete);
+    
+    return fatherComplete || motherComplete || guardianComplete;
   };
 
   // Show loading screen while checking registration code or mounting
@@ -512,6 +548,7 @@ export default function StudentApplicationPagedForm() {
                 if (hasAtLeastOneParentGuardian()) {
                   navigateToPage(6);
                 } else {
+                  console.log(formData.fatherBackground, formData.motherBackground, formData.guardianBackground);
                   setParentGuardianWarning('Please complete at least one form: Father, Mother, or Guardian before proceeding.');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }

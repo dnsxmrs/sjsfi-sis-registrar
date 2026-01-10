@@ -10,119 +10,119 @@ import { FileUpload } from '@/components/registrar/FileUpload';
 
 const RegisterCoursePage: React.FC = () => {
     // Temporary data for Application Details sections (except Personal Data)
-    const temporaryHealthHistory = {
-        allergies: 'Peanuts, Shellfish, Penicillin',
-        medicalConditions: 'Asthma, Mild Allergies',
-        healthNotes: 'Regular check-ups required. Emergency contact: Mother'
-    };
+    // const temporaryHealthHistory = {
+    //     allergies: 'Peanuts, Shellfish, Penicillin',
+    //     medicalConditions: 'Asthma, Mild Allergies',
+    //     healthNotes: 'Regular check-ups required. Emergency contact: Mother'
+    // };
 
-    const temporaryFamilyBackground = {
-        father: {
-            familyName: 'Doe',
-            firstName: 'John',
-            middleName: 'Smith',
-            nickname: 'Johnny',
-            birthDate: '1980-05-15',
-            placeOfBirth: 'Manila',
-            age: '43',
-            nationality: 'Filipino',
-            religion: 'Catholic',
-            height: '175 cm',
-            weight: '75 kg',
-            landline: '(02) 123-4567',
-            mobile: '09123456789',
-            email: 'john.doe@example.com',
-            homeAddress: '123 Main St, Barangay 1',
-            city: 'Manila',
-            stateProvince: 'Metro Manila',
-            zipPostalCode: '1000',
-            education: 'Bachelor of Science in Engineering',
-            occupation: 'Engineer',
-            employer: 'ABC Corporation',
-            businessPhone: '(02) 987-6543',
-            companyAddress: '456 Business Ave, Makati',
-            companyCity: 'Makati',
-            annualIncome: '500,000 PHP',
-            status: 'Living'
-        },
-        mother: {
-            familyName: 'Doe',
-            firstName: 'Jane',
-            middleName: 'Garcia',
-            nickname: 'Janie',
-            birthDate: '1982-08-20',
-            placeOfBirth: 'Cebu',
-            age: '41',
-            nationality: 'Filipino',
-            religion: 'Catholic',
-            height: '165 cm',
-            weight: '60 kg',
-            landline: '(02) 234-5678',
-            mobile: '09198765432',
-            email: 'jane.doe@example.com',
-            homeAddress: '123 Main St, Barangay 1',
-            city: 'Manila',
-            stateProvince: 'Metro Manila',
-            zipPostalCode: '1000',
-            education: 'Bachelor of Arts in Education',
-            occupation: 'Teacher',
-            employer: 'XYZ School',
-            businessPhone: '(02) 876-5432',
-            companyAddress: '789 Education Blvd, Quezon City',
-            companyCity: 'Quezon City',
-            annualIncome: '300,000 PHP',
-            status: 'Living'
-        },
-        guardian: {
-            relation: 'Aunt',
-            familyName: 'Smith',
-            firstName: 'Mary',
-            middleName: 'Johnson',
-            nickname: 'Aunt Mary',
-            birthDate: '1975-03-10',
-            placeOfBirth: 'Davao',
-            age: '48',
-            nationality: 'Filipino',
-            religion: 'Catholic',
-            height: '170 cm',
-            weight: '65 kg',
-            landline: '(02) 345-6789',
-            mobile: '09234567890',
-            email: 'mary.smith@example.com',
-            homeAddress: '456 Guardian St, Barangay 2',
-            city: 'Manila',
-            stateProvince: 'Metro Manila',
-            zipPostalCode: '1001',
-            education: 'Associate Degree in Nursing',
-            occupation: 'Nurse',
-            employer: 'City Hospital',
-            businessPhone: '(02) 765-4321',
-            companyAddress: '101 Health Rd, Pasig',
-            companyCity: 'Pasig',
-            annualIncome: '400,000 PHP',
-            status: 'Living'
-        },
-        siblings: [
-            {
-                familyName: 'Doe',
-                firstName: 'Michael',
-                middleName: 'Smith',
-                birthDate: '2005-01-15',
-                age: '18',
-                gradeOccupation: 'Grade 12',
-                schoolEmployer: 'St. Joseph High School'
-            },
-            {
-                familyName: 'Doe',
-                firstName: 'Sarah',
-                middleName: 'Garcia',
-                birthDate: '2008-06-22',
-                age: '15',
-                gradeOccupation: 'Grade 9',
-                schoolEmployer: 'Mary Immaculate Academy'
-            }
-        ]
-    };
+    // const temporaryFamilyBackground = {
+    //     father: {
+    //         familyName: 'Doe',
+    //         firstName: 'John',
+    //         middleName: 'Smith',
+    //         nickname: 'Johnny',
+    //         birthDate: '1980-05-15',
+    //         placeOfBirth: 'Manila',
+    //         age: '43',
+    //         nationality: 'Filipino',
+    //         religion: 'Catholic',
+    //         height: '175 cm',
+    //         weight: '75 kg',
+    //         landline: '(02) 123-4567',
+    //         mobile: '09123456789',
+    //         email: 'john.doe@example.com',
+    //         homeAddress: '123 Main St, Barangay 1',
+    //         city: 'Manila',
+    //         stateProvince: 'Metro Manila',
+    //         zipPostalCode: '1000',
+    //         education: 'Bachelor of Science in Engineering',
+    //         occupation: 'Engineer',
+    //         employer: 'ABC Corporation',
+    //         businessPhone: '(02) 987-6543',
+    //         companyAddress: '456 Business Ave, Makati',
+    //         companyCity: 'Makati',
+    //         annualIncome: '500,000 PHP',
+    //         status: 'Living'
+    //     },
+    //     mother: {
+    //         familyName: 'Doe',
+    //         firstName: 'Jane',
+    //         middleName: 'Garcia',
+    //         nickname: 'Janie',
+    //         birthDate: '1982-08-20',
+    //         placeOfBirth: 'Cebu',
+    //         age: '41',
+    //         nationality: 'Filipino',
+    //         religion: 'Catholic',
+    //         height: '165 cm',
+    //         weight: '60 kg',
+    //         landline: '(02) 234-5678',
+    //         mobile: '09198765432',
+    //         email: 'jane.doe@example.com',
+    //         homeAddress: '123 Main St, Barangay 1',
+    //         city: 'Manila',
+    //         stateProvince: 'Metro Manila',
+    //         zipPostalCode: '1000',
+    //         education: 'Bachelor of Arts in Education',
+    //         occupation: 'Teacher',
+    //         employer: 'XYZ School',
+    //         businessPhone: '(02) 876-5432',
+    //         companyAddress: '789 Education Blvd, Quezon City',
+    //         companyCity: 'Quezon City',
+    //         annualIncome: '300,000 PHP',
+    //         status: 'Living'
+    //     },
+    //     guardian: {
+    //         relation: 'Aunt',
+    //         familyName: 'Smith',
+    //         firstName: 'Mary',
+    //         middleName: 'Johnson',
+    //         nickname: 'Aunt Mary',
+    //         birthDate: '1975-03-10',
+    //         placeOfBirth: 'Davao',
+    //         age: '48',
+    //         nationality: 'Filipino',
+    //         religion: 'Catholic',
+    //         height: '170 cm',
+    //         weight: '65 kg',
+    //         landline: '(02) 345-6789',
+    //         mobile: '09234567890',
+    //         email: 'mary.smith@example.com',
+    //         homeAddress: '456 Guardian St, Barangay 2',
+    //         city: 'Manila',
+    //         stateProvince: 'Metro Manila',
+    //         zipPostalCode: '1001',
+    //         education: 'Associate Degree in Nursing',
+    //         occupation: 'Nurse',
+    //         employer: 'City Hospital',
+    //         businessPhone: '(02) 765-4321',
+    //         companyAddress: '101 Health Rd, Pasig',
+    //         companyCity: 'Pasig',
+    //         annualIncome: '400,000 PHP',
+    //         status: 'Living'
+    //     },
+    //     siblings: [
+    //         {
+    //             familyName: 'Doe',
+    //             firstName: 'Michael',
+    //             middleName: 'Smith',
+    //             birthDate: '2005-01-15',
+    //             age: '18',
+    //             gradeOccupation: 'Grade 12',
+    //             schoolEmployer: 'St. Joseph High School'
+    //         },
+    //         {
+    //             familyName: 'Doe',
+    //             firstName: 'Sarah',
+    //             middleName: 'Garcia',
+    //             birthDate: '2008-06-22',
+    //             age: '15',
+    //             gradeOccupation: 'Grade 9',
+    //             schoolEmployer: 'Mary Immaculate Academy'
+    //         }
+    //     ]
+    // };
 
     // const temporaryMedicalHistory = {
     //     academicYear: '2024-2025',
@@ -160,25 +160,25 @@ const RegisterCoursePage: React.FC = () => {
     //     parentGuardianRelation: 'Mother'
     // };
 
-    const temporaryEducationalBackground = {
-        lastGrade: 'Grade 6',
-        lastSchool: 'St. Mary Elementary School',
-        lastSchoolAddress: '456 Education St, Manila',
-        inclusiveYears: '2019 - 2023',
-        honors: 'Valedictorian, Math Award',
-        attendedSummerYears: '2020 - 2023'
-    };
+    // const temporaryEducationalBackground = {
+    //     lastGrade: 'Grade 6',
+    //     lastSchool: 'St. Mary Elementary School',
+    //     lastSchoolAddress: '456 Education St, Manila',
+    //     inclusiveYears: '2019 - 2023',
+    //     honors: 'Valedictorian, Math Award',
+    //     attendedSummerYears: '2020 - 2023'
+    // };
 
-    const temporaryTransfereeDetails = {
-        transferReason: 'Family relocation',
-        previousSchool: 'Old School Name',
-        previousSchoolAddress: 'Old School Address',
-        previousSchoolGrade: 'Grade 6',
-        presentSchool: 'St. Joseph School of Fairview',
-        presentSchoolAddress: 'Fairview, Quezon City',
-        presentSchoolGrade: 'Grade 7',
-        disciplinaryActions: 'None'
-    };
+    // const temporaryTransfereeDetails = {
+    //     transferReason: 'Family relocation',
+    //     previousSchool: 'Old School Name',
+    //     previousSchoolAddress: 'Old School Address',
+    //     previousSchoolGrade: 'Grade 6',
+    //     presentSchool: 'St. Joseph School of Fairview',
+    //     presentSchoolAddress: 'Fairview, Quezon City',
+    //     presentSchoolGrade: 'Grade 7',
+    //     disciplinaryActions: 'None'
+    // };
 
     const [studentID, setStudentID] = useState('');
     const [fullName, setFullName] = useState('');
@@ -220,15 +220,15 @@ const RegisterCoursePage: React.FC = () => {
     }>({ fullName: '', email: '', missingReqs: [] });
 
     // Accordion state for view-only detailed sections
-    const [openSections, setOpenSections] = useState<string[]>([]);
+    // const [openSections, setOpenSections] = useState<string[]>([]);
 
-    const toggleSection = (key: string) => {
-        setOpenSections((prev) => (prev.includes(key) ? prev.filter((s) => s !== key) : [...prev, key]));
-    }; 
+    // const toggleSection = (key: string) => {
+    //     setOpenSections((prev) => (prev.includes(key) ? prev.filter((s) => s !== key) : [...prev, key]));
+    // };
 
     // Transferee section toggle: in production this should be `selectedApplication?.isTransferee`
     // For now it's ON to show the section (see comment below where it's rendered).
-    const showTransfereeSection = true;
+    // const showTransfereeSection = true;
 
     const fetchStudents = async () => {
         try {
@@ -263,7 +263,7 @@ const RegisterCoursePage: React.FC = () => {
     const getPageNumbers = () => {
         const pages = [];
         const maxVisiblePages = 5;
-        
+
         if (totalPages <= maxVisiblePages) {
             for (let i = 1; i <= totalPages; i++) {
                 pages.push(i);
@@ -330,9 +330,9 @@ const RegisterCoursePage: React.FC = () => {
         try {
             // Pass files directly to server action - it will handle uploads
             toast.loading('Processing application approval...', { id: 'approval' });
-            
+
             const result = await approveApplication(selectedApplication, requirementFiles);
-            
+
             if (result.success) {
                 toast.success('Student application approved successfully!', { id: 'approval' });
                 setShowApproveModal(false);
@@ -682,201 +682,200 @@ const RegisterCoursePage: React.FC = () => {
                 {/* First Column: Add Student Form + All Students Table */}
                 <div className="flex-1 space-y-6 order-2 md:order-1">
                     {/* All Students Table */}
-                        <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
-                            {/* Header Section: Now wraps on mobile */}
-                            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4">
-                                <h2 className="text-lg font-semibold text-black">Pending Applications</h2>
-                                <div className="flex items-center gap-2">
-                                    <label className="text-sm text-gray-600 shrink-0">Items per page:</label>
-                                    <select
-                                        value={itemsPerPage}
-                                        onChange={(e) => {
-                                            setItemsPerPage(Number(e.target.value));
-                                            setCurrentPage(1);
-                                        }}
-                                        className="text-black px-3 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                                    >
-                                        <option value={5}>5</option>
-                                        <option value={10}>10</option>
-                                        <option value={25}>25</option>
-                                        <option value={50}>50</option>
-                                    </select>
-                                </div>
+                    <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
+                        {/* Header Section: Now wraps on mobile */}
+                        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4">
+                            <h2 className="text-lg font-semibold text-black">Pending Applications</h2>
+                            <div className="flex items-center gap-2">
+                                <label className="text-sm text-gray-600 shrink-0">Items per page:</label>
+                                <select
+                                    value={itemsPerPage}
+                                    onChange={(e) => {
+                                        setItemsPerPage(Number(e.target.value));
+                                        setCurrentPage(1);
+                                    }}
+                                    className="text-black px-3 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                                >
+                                    <option value={5}>5</option>
+                                    <option value={10}>10</option>
+                                    <option value={25}>25</option>
+                                    <option value={50}>50</option>
+                                </select>
                             </div>
+                        </div>
 
-                            {students.length > 0 && (
-                                <div className="text-sm text-gray-600 mb-4">
-                                    Showing {students.length === 0 ? 0 : startIndex + 1} to {Math.min(endIndex, students.length)} of {students.length} applications
-                                </div>
-                            )}
+                        {students.length > 0 && (
+                            <div className="text-sm text-gray-600 mb-4">
+                                Showing {students.length === 0 ? 0 : startIndex + 1} to {Math.min(endIndex, students.length)} of {students.length} applications
+                            </div>
+                        )}
 
-                            {isLoading ? (
-                                <div className="flex justify-center items-center py-8">
-                                    <div className="text-gray-500">Loading students...</div>
-                                </div>
-                            ) : students.length === 0 ? (
-                                <div className="py-8 text-center text-gray-500">
-                                    No students found
-                                </div>
-                            ) : (
-                                <>
-                                    {/* Mobile Card View */}
-                                    <div className="block md:hidden space-y-4">
-                                        {students.length === 0 ? (
-                                            <div className="py-8 text-center text-gray-500">
-                                                No students found
+                        {isLoading ? (
+                            <div className="flex justify-center items-center py-8">
+                                <div className="text-gray-500">Loading students...</div>
+                            </div>
+                        ) : students.length === 0 ? (
+                            <div className="py-8 text-center text-gray-500">
+                                No students found
+                            </div>
+                        ) : (
+                            <>
+                                {/* Mobile Card View */}
+                                <div className="block md:hidden space-y-4">
+                                    {students.length === 0 ? (
+                                        <div className="py-8 text-center text-gray-500">
+                                            No students found
+                                        </div>
+                                    ) : (
+                                        paginatedStudents.map((student) => (
+                                            <div key={student.id} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                                <div className="flex justify-between items-start mb-3">
+                                                    <div className="flex-1">
+                                                        <h3 className="font-semibold text-black text-sm">{student.fullName}</h3>
+                                                        <p className="text-xs text-gray-600 mt-1">ID: {student.applicationNumber}</p>
+                                                    </div>
+                                                    <div className="flex space-x-2">
+                                                        <button
+                                                            title="View"
+                                                            className="text-gray-700 hover:text-gray-900 cursor-pointer p-1"
+                                                            onClick={() => handleViewStudent(student)}
+                                                        >
+                                                            <Eye className="h-5 w-5" />
+                                                        </button>
+                                                        <button
+                                                            title="Delete"
+                                                            className="text-red-600 hover:text-red-800 cursor-pointer p-1"
+                                                            onClick={() => toast(`Delete student ${student.applicationNumber}`)}
+                                                        >
+                                                            <Trash className="h-5 w-5" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-xs text-gray-600">Date & Time:</span>
+                                                        <span className="text-xs text-black">{student.createdAt}</span>
+                                                    </div>
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-xs text-gray-600">Grade Level:</span>
+                                                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                                                            {student.gradeLevel}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-xs text-gray-600">Status:</span>
+                                                        <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+                                                            {student.status}
+                                                        </span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        ) : (
-                                            paginatedStudents.map((student) => (
-                                                <div key={student.id} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                                                    <div className="flex justify-between items-start mb-3">
-                                                        <div className="flex-1">
-                                                            <h3 className="font-semibold text-black text-sm">{student.fullName}</h3>
-                                                            <p className="text-xs text-gray-600 mt-1">ID: {student.applicationNumber}</p>
-                                                        </div>
-                                                        <div className="flex space-x-2">
+                                        ))
+                                    )}
+                                </div>
+
+                                {/* Desktop View - Table */}
+                                <div className="hidden md:block overflow-x-auto">
+                                    <table className="w-full text-left text-sm whitespace-nowrap">
+                                        <thead>
+                                            <tr className="border-b border-gray-300 text-black">
+                                                <th className="py-3 px-2 font-semibold">Application ID</th>
+                                                <th className="py-3 px-2 font-semibold">Date & Time</th>
+                                                <th className="py-3 px-2 font-semibold">Full Name</th>
+                                                <th className="py-3 px-2 font-semibold">Grade Level</th>
+                                                <th className="py-3 px-2 font-semibold text-right sm:text-left">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {paginatedStudents.map((student) => (
+                                                <tr key={student.id} className="border-b border-gray-200 text-black hover:bg-gray-50 transition-colors">
+                                                    <td className="py-3 px-2">{student.applicationNumber}</td>
+                                                    <td className="py-3 px-2">{student.createdAt}</td>
+                                                    <td className="py-3 px-2 font-medium">{student.fullName}</td>
+                                                    <td className="py-3 px-2">
+                                                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                                                            {student.gradeLevel}
+                                                        </span>
+                                                    </td>
+                                                    <td className="py-3 px-2">
+                                                        <div className="flex items-center space-x-4 justify-end sm:justify-start">
                                                             <button
                                                                 title="View"
-                                                                className="text-gray-700 hover:text-gray-900 cursor-pointer p-1"
+                                                                className="text-gray-700 cursor-pointer hover:text-blue-600 transition-colors"
                                                                 onClick={() => handleViewStudent(student)}
                                                             >
                                                                 <Eye className="h-5 w-5" />
                                                             </button>
                                                             <button
                                                                 title="Delete"
-                                                                className="text-red-600 hover:text-red-800 cursor-pointer p-1"
+                                                                className="text-red-600 cursor-pointer hover:text-red-800 transition-colors"
                                                                 onClick={() => toast(`Delete student ${student.applicationNumber}`)}
                                                             >
                                                                 <Trash className="h-5 w-5" />
                                                             </button>
                                                         </div>
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <div className="flex justify-between items-center">
-                                                            <span className="text-xs text-gray-600">Date & Time:</span>
-                                                            <span className="text-xs text-black">{student.createdAt}</span>
-                                                        </div>
-                                                        <div className="flex justify-between items-center">
-                                                            <span className="text-xs text-gray-600">Grade Level:</span>
-                                                            <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                                                                {student.gradeLevel}
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex justify-between items-center">
-                                                            <span className="text-xs text-gray-600">Status:</span>
-                                                            <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
-                                                                {student.status}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))
-                                        )}
-                                    </div>
-
-                                    {/* Desktop View - Table */}
-                                    <div className="hidden md:block overflow-x-auto">
-                                        <table className="w-full text-left text-sm whitespace-nowrap">
-                                            <thead>
-                                                <tr className="border-b border-gray-300 text-black">
-                                                    <th className="py-3 px-2 font-semibold">Application ID</th>
-                                                    <th className="py-3 px-2 font-semibold">Date & Time</th>
-                                                    <th className="py-3 px-2 font-semibold">Full Name</th>
-                                                    <th className="py-3 px-2 font-semibold">Grade Level</th>
-                                                    <th className="py-3 px-2 font-semibold text-right sm:text-left">Actions</th>
+                                                    </td>
                                                 </tr>
-                                            </thead>
-                                            <tbody>
-                                                {paginatedStudents.map((student) => (
-                                                    <tr key={student.id} className="border-b border-gray-200 text-black hover:bg-gray-50 transition-colors">
-                                                        <td className="py-3 px-2">{student.applicationNumber}</td>
-                                                        <td className="py-3 px-2">{student.createdAt}</td>
-                                                        <td className="py-3 px-2 font-medium">{student.fullName}</td>
-                                                        <td className="py-3 px-2">
-                                                            <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                                                                {student.gradeLevel}
-                                                            </span>
-                                                        </td>
-                                                        <td className="py-3 px-2">
-                                                            <div className="flex items-center space-x-4 justify-end sm:justify-start">
-                                                                <button
-                                                                    title="View"
-                                                                    className="text-gray-700 cursor-pointer hover:text-blue-600 transition-colors"
-                                                                    onClick={() => handleViewStudent(student)}
-                                                                >
-                                                                    <Eye className="h-5 w-5" />
-                                                                </button>
-                                                                <button
-                                                                    title="Delete"
-                                                                    className="text-red-600 cursor-pointer hover:text-red-800 transition-colors"
-                                                                    onClick={() => toast(`Delete student ${student.applicationNumber}`)}
-                                                                >
-                                                                    <Trash className="h-5 w-5" />
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </>
+                        )}
+
+                        {/* Pagination Controls */}
+                        {students.length > 0 && (
+                            <div className="mt-4 border-t border-gray-200 pt-4">
+                                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                                    <div className="text-sm text-gray-600 order-2 sm:order-1">
+                                        Page <span className="font-medium">{currentPage}</span> of <span className="font-medium">{totalPages}</span>
                                     </div>
-                                </>
-                            )}
 
-                            {/* Pagination Controls */}
-                            {students.length > 0 && (
-                                <div className="mt-4 border-t border-gray-200 pt-4">
-                                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                                        <div className="text-sm text-gray-600 order-2 sm:order-1">
-                                            Page <span className="font-medium">{currentPage}</span> of <span className="font-medium">{totalPages}</span>
-                                        </div>
+                                    <div className="flex items-center gap-2 order-1 sm:order-2">
+                                        <button
+                                            onClick={() => handlePageChange(currentPage - 1)}
+                                            disabled={currentPage === 1}
+                                            className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                        >
+                                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                            </svg>
+                                            <span className="hidden xs:inline">Previous</span>
+                                        </button>
 
-                                        <div className="flex items-center gap-2 order-1 sm:order-2">
-                                            <button
-                                                onClick={() => handlePageChange(currentPage - 1)}
-                                                disabled={currentPage === 1}
-                                                className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                            >
-                                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                                                </svg>
-                                                <span className="hidden xs:inline">Previous</span>
-                                            </button>
-
-                                            <div className="hidden md:flex items-center gap-1">
-                                                {getPageNumbers().map((page, index) => (
-                                                    <button
-                                                        key={index}
-                                                        onClick={() => typeof page === 'number' && handlePageChange(page)}
-                                                        disabled={page === '...'}
-                                                        className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-colors ${
-                                                            page === currentPage
-                                                                ? 'bg-blue-600 text-white'
-                                                                : page === '...'
+                                        <div className="hidden md:flex items-center gap-1">
+                                            {getPageNumbers().map((page, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => typeof page === 'number' && handlePageChange(page)}
+                                                    disabled={page === '...'}
+                                                    className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-colors ${page === currentPage
+                                                            ? 'bg-blue-600 text-white'
+                                                            : page === '...'
                                                                 ? 'cursor-default text-gray-400'
                                                                 : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
                                                         }`}
-                                                    >
-                                                        {page}
-                                                    </button>
-                                                ))}
-                                            </div>
-
-                                            <button
-                                                onClick={() => handlePageChange(currentPage + 1)}
-                                                disabled={currentPage === totalPages}
-                                                className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                            >
-                                                <span className="hidden xs:inline">Next</span>
-                                                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                                </svg>
-                                            </button>
+                                                >
+                                                    {page}
+                                                </button>
+                                            ))}
                                         </div>
+
+                                        <button
+                                            onClick={() => handlePageChange(currentPage + 1)}
+                                            disabled={currentPage === totalPages}
+                                            className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                        >
+                                            <span className="hidden xs:inline">Next</span>
+                                            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </button>
                                     </div>
                                 </div>
-                            )}
-                        </div>
+                            </div>
+                        )}
+                    </div>
 
                     {/* Add/Edit Student Form */}
                     <div className="bg-white p-6 rounded-lg shadow">
@@ -948,914 +947,6 @@ const RegisterCoursePage: React.FC = () => {
                                 className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-100 cursor-not-allowed"
                             />
                         </div>
-                        {/* Collapsible, view-only accordion showing the full application details (non-editable) */}
-                        <div className="mb-4 text-black">
-                            <h3 className="text-base font-semibold mb-3 mt-7 text-black px-4 py-2 rounded">Application Details</h3>
-
-                            {/* Accordion controls */}
-                            <div className="space-y-2">
-                                {/* Personal Data */}
-                                <div className="border border-gray-300 rounded-lg bg-white">
-                                    <button
-                                        className={`w-full text-left px-4 py-3 flex justify-between items-center cursor-pointer transition-colors rounded-t-lg ${openSections.includes('personalData') ? 'bg-[#ffb06b] text-black border-[#cf660a]' : 'text-[#cf660a] border-[#cf660a]'}`}
-                                        onClick={() => toggleSection('personalData')}
-                                        type="button"
-                                    >
-                                        <span className={`font-semibold ${openSections.includes('personalData') ? 'text-black' : 'text-[#cf660a]'}`}>Personal Data</span>
-                                        <span className={`${openSections.includes('personalData') ? 'text-black' : 'text-[#cf660a]'} text-lg`}>{openSections.includes('personalData') ? '−' : '+'}</span>
-                                    </button>
-                                    {openSections.includes('personalData') && (
-                                        <div className="px-4 py-4 border-t border-gray-200 text-sm text-gray-700">
-                                            {selectedApplication ? (
-                                                <div className="space-y-4">
-                                                    {/* Top Row: Academic Year and Admission to Grade/Year */}
-                                                    <div className="grid grid-cols-2 gap-4">
-                                                        <div>
-                                                            <label className="block text-sm font-medium mb-1 text-black">Academic Year</label>
-                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.academicYear || 'N/A'}</div>
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-sm font-medium mb-1 text-black">Admission to Grade/Year</label>
-                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.admissionGradeYear || 'N/A'}</div>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Names Row */}
-                                                    <div className="grid md:grid-cols-4 grid-cols-1 gap-3">
-                                                        <div>
-                                                            <label className="block text-sm font-medium mb-1 text-black">Family Name</label>
-                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.familyName || 'N/A'}</div>
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-sm font-medium mb-1 text-black">First Name</label>
-                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.firstName || 'N/A'}</div>
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-sm font-medium mb-1 text-black">Middle Name</label>
-                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.middleName || 'N/A'}</div>
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-sm font-medium mb-1 text-black">Nickname</label>
-                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.nickname || 'N/A'}</div>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Birth, Personal Details, Siblings and Sex */}
-                                                    <div className="grid md:grid-cols-6 grid-cols-1 gap-3">
-                                                        <div>
-                                                            <label className="block text-sm font-medium mb-1 text-black">Birth Date</label>
-                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.birthDate || 'N/A'}</div>
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-sm font-medium mb-1 text-black">Place of Birth</label>
-                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.placeOfBirth || 'N/A'}</div>
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-sm font-medium mb-1 text-black">Age</label>
-                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.age || 'N/A'}</div>
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-sm font-medium mb-1 text-black">Birth Order</label>
-                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.birthOrder || 'N/A'}</div>
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-sm font-medium mb-1 text-black">Number of Siblings</label>
-                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.numberOfSiblings || 'N/A'}</div>
-                                                        </div>
-                                                        <div className="border border-gray-300 rounded-lg p-3 bg-white flex flex-col justify-center">
-                                                            <h4 className="font-semibold text-gray-800 mb-2 text-sm">Sex</h4>
-                                                            <div className="flex flex-row gap-3 flex-wrap justify-between items-center">
-                                                                <div className="flex items-center gap-2">
-                                                                    <input 
-                                                                        type="checkbox" 
-                                                                        checked={selectedApplication.sex === 'Male' || false} 
-                                                                        disabled 
-                                                                        className="w-4 h-4"
-                                                                    />
-                                                                    <label className="text-xs font-medium text-black">Male</label>
-                                                                </div>
-                                                                <div className="flex items-center gap-2">
-                                                                    <input 
-                                                                        type="checkbox" 
-                                                                        checked={selectedApplication.sex === 'Female' || false} 
-                                                                        disabled 
-                                                                        className="w-4 h-4"
-                                                                    />
-                                                                    <label className="text-xs font-medium text-black">Female</label>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Physical Characteristics and Status */}
-                                                    <div className="grid md:grid-cols-4 grid-cols-1 gap-3">
-                                                        <div>
-                                                            <label className="block text-sm font-medium mb-1 text-black">Height</label>
-                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.height || 'N/A'}</div>
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-sm font-medium mb-1 text-black">Weight</label>
-                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.weight || 'N/A'}</div>
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-sm font-medium mb-1 text-black">Blood Type</label>
-                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.bloodType || 'N/A'}</div>
-                                                        </div>
-                                                        <div className="border border-gray-300 rounded-lg p-3 bg-white flex flex-col justify-center">
-                                                            <h4 className="font-semibold text-gray-800 mb-2 text-sm">Status</h4>
-                                                            <div className="flex flex-row gap-3 flex-wrap justify-between items-center">
-                                                                <div className="flex items-center gap-2">
-                                                                    <input 
-                                                                        type="checkbox" 
-                                                                        checked={selectedApplication.legitimate || false} 
-                                                                        disabled 
-                                                                        className="w-4 h-4"
-                                                                    />
-                                                                    <label className="text-xs font-medium text-black">Legitimate</label>
-                                                                </div>
-                                                                <div className="flex items-center gap-2">
-                                                                    <input 
-                                                                        type="checkbox" 
-                                                                        checked={selectedApplication.biological || false} 
-                                                                        disabled 
-                                                                        className="w-4 h-4"
-                                                                    />
-                                                                    <label className="text-xs font-medium text-black">Biological</label>
-                                                                </div>
-                                                                <div className="flex items-center gap-2">
-                                                                    <input 
-                                                                        type="checkbox" 
-                                                                        checked={selectedApplication.adopted || false} 
-                                                                        disabled 
-                                                                        className="w-4 h-4"
-                                                                    />
-                                                                    <label className="text-xs font-medium text-black">Adopted</label>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Contact Information */}
-                                                    <div className="grid md:grid-cols-3 grid-cols-1 gap-3">
-                                                        <div>
-                                                            <label className="block text-sm font-medium mb-1 text-black">Landline Number</label>
-                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.landlineNumber || 'N/A'}</div>
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-sm font-medium mb-1 text-black">Mobile Number</label>
-                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.mobileNumber || 'N/A'}</div>
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-sm font-medium mb-1 text-black">E-mail Address</label>
-                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.emailAddress || 'N/A'}</div>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Addresses */}
-                                                    <div className="space-y-4 pt-2">
-                                                        <div className="border border-gray-300 rounded-lg p-4 bg-white">
-                                                            <h4 className="font-semibold text-gray-800 mb-3">Home Address</h4>
-                                                            <div className="grid md:grid-cols-4 grid-cols-1 gap-3">
-                                                                <div>
-                                                                    <label className="block text-sm font-medium mb-1 text-black">Home Address</label>
-                                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.homeAddress || 'N/A'}</div>
-                                                                </div>
-                                                                <div>
-                                                                    <label className="block text-sm font-medium mb-1 text-black">City</label>
-                                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.homeCity || 'N/A'}</div>
-                                                                </div>
-                                                                <div>
-                                                                    <label className="block text-sm font-medium mb-1 text-black">State/Province</label>
-                                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.homeStateProvince || 'N/A'}</div>
-                                                                </div>
-                                                                <div>
-                                                                    <label className="block text-sm font-medium mb-1 text-black">Zip/Postal Code</label>
-                                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.homeZipPostalCode || 'N/A'}</div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="border border-gray-300 rounded-lg p-4 bg-white">
-                                                            <h4 className="font-semibold text-gray-800 mb-3">Provincial Address</h4>
-                                                            <div className="grid md:grid-cols-4 grid-cols-1 gap-3">
-                                                                <div>
-                                                                    <label className="block text-sm font-medium mb-1 text-black">Provincial Address</label>
-                                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.provincialAddress || 'N/A'}</div>
-                                                                </div>
-                                                                <div>
-                                                                    <label className="block text-sm font-medium mb-1 text-black">City</label>
-                                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.provincialCity || 'N/A'}</div>
-                                                                </div>
-                                                                <div>
-                                                                    <label className="block text-sm font-medium mb-1 text-black">State/Province</label>
-                                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.provincialStateProvince || 'N/A'}</div>
-                                                                </div>
-                                                                <div>
-                                                                    <label className="block text-sm font-medium mb-1 text-black">Zip/Postal Code</label>
-                                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.provincialZipPostalCode || 'N/A'}</div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Skills and Interests */}
-                                                    <div className="grid md:grid-cols-3 grid-cols-1 gap-3">
-                                                        <div>
-                                                            <label className="block text-sm font-medium mb-1 text-black">Talents/Special Skills</label>
-                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.talents || 'N/A'}</div>
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-sm font-medium mb-1 text-black">Hobbies and Interests</label>
-                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.hobbies || 'N/A'}</div>
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-sm font-medium mb-1 text-black">Languages/Dialect spoken at home</label>
-                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication.languages || 'N/A'}</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <div className="text-sm text-gray-500">No application selected. Click View in the table to load details.</div>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Health History */}
-                                <div className="border border-gray-300 rounded-lg bg-white">
-                                    <button
-                                        className={`w-full text-left px-4 py-3 flex justify-between items-center cursor-pointer transition-colors rounded-t-lg ${openSections.includes('healthHistory') ? 'bg-[#ffb06b] text-black border-[#cf660a]' : 'text-[#cf660a] border-[#cf660a]'}`}
-                                        onClick={() => toggleSection('healthHistory')}
-                                        type="button"
-                                    >
-                                        <span className={`font-semibold ${openSections.includes('healthHistory') ? 'text-black' : 'text-[#cf660a]'}`}>Health History</span>
-                                        <span className={`${openSections.includes('healthHistory') ? 'text-black' : 'text-[#cf660a]'} text-lg`}>{openSections.includes('healthHistory') ? '−' : '+'}</span>
-                                    </button>
-                                    {openSections.includes('healthHistory') && (
-                                        <div className="px-4 py-4 border-t border-gray-200 text-sm text-gray-700">
-                                            <div className="mt-1 grid md:grid-cols-2 grid-cols-1 gap-3">
-                                                <div>
-                                                    <label className="block text-sm font-medium mb-1 text-black">Childhood Diseases</label>
-                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.childhoodDiseases?.trim() ? selectedApplication.childhoodDiseases : 'N/A'}</div>
-                                                </div>
-                                                <div>
-                                                    <label className="block text-sm font-medium mb-1 text-black">Allergies</label>
-                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.allergies?.trim() ? selectedApplication.allergies : temporaryHealthHistory.allergies}</div>
-                                                </div>
-                                                <div>
-                                                    <label className="block text-sm font-medium mb-1 text-black">Medical Conditions</label>
-                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.medicalConditions?.trim() ? selectedApplication.medicalConditions : temporaryHealthHistory.medicalConditions}</div>
-                                                </div>
-                                                <div>
-                                                    <label className="block text-sm font-medium mb-1 text-black">Immunizations</label>
-                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.immunizations?.trim() ? selectedApplication.immunizations : 'N/A'}</div>
-                                                </div>
-                                                <div className="md:col-span-2 col-span-1">
-                                                    <label className="block text-sm font-medium mb-1 text-black">Notes</label>
-                                                    <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.healthNotes?.trim() ? selectedApplication.healthNotes : temporaryHealthHistory.healthNotes}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Family Background - Father, Mother, Guardian, and Siblings */}
-                                    <div className="border border-gray-300 rounded-lg bg-white">
-                                        <button
-                                            className={`w-full text-left px-4 py-3 flex justify-between items-center cursor-pointer transition-colors rounded-t-lg ${openSections.includes('familyBackground') ? 'bg-[#ffb06b] text-black border-[#cf660a]' : 'text-[#cf660a] border-[#cf660a]'}`}
-                                            onClick={() => toggleSection('familyBackground')}
-                                            type="button"
-                                        >
-                                            <span className={`font-semibold ${openSections.includes('familyBackground') ? 'text-black' : 'text-[#cf660a]'}`}>Family Background</span>
-                                            <span className={`${openSections.includes('familyBackground') ? 'text-black' : 'text-[#cf660a]'} text-lg`}>{openSections.includes('familyBackground') ? '−' : '+'}</span>
-                                        </button>
-                                        {openSections.includes('familyBackground') && (
-                                            <div className="px-4 py-4 border-t border-gray-200 text-sm text-gray-700 space-y-4">
-                                                {['Father', 'Mother', 'Guardian'].map((role) => {
-                                                    const key = role.toLowerCase() as 'father' | 'mother' | 'guardian';
-                                                    return (
-                                                        <div key={role} className="border border-gray-300 rounded-lg bg-white">
-                                                            <button
-                                                                className="w-full text-left px-3 py-2.5 flex justify-between items-center hover:bg-gray-50 transition-colors rounded-t-lg"
-                                                                onClick={() => toggleSection(key)}
-                                                                type="button"
-                                                            >
-                                                                <span className="font-semibold text-gray-700">{role}</span>
-                                                                <span className="text-gray-400 text-base">{openSections.includes(key) ? '−' : '+'}</span>
-                                                            </button>
-                                                            {openSections.includes(key) && (
-                                                                <div className="px-3 py-3 border-t border-gray-200">
-                                                                    {role === 'Guardian' && (
-                                                                        <div className="mb-3 text-sm text-gray-700">Relation to Applicant: {selectedApplication?.guardianRelation || 'N/A'}</div>
-                                                                    )}
-
-                                                                    {/* Main Grid - Stacked on mobile (cols-1), 4 cols on desktop */}
-                                                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 text-sm text-gray-700">
-                                                                        {/* Names */}
-                                                                        <div>
-                                                                            <label className="block text-sm font-medium mb-1 text-black">Family Name</label>
-                                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}FamilyName`] || temporaryFamilyBackground[key]?.familyName || 'N/A'}</div>
-                                                                        </div>
-                                                                        <div>
-                                                                            <label className="block text-sm font-medium mb-1 text-black">First Name</label>
-                                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}FirstName`] || temporaryFamilyBackground[key]?.firstName || 'N/A'}</div>
-                                                                        </div>
-                                                                        <div>
-                                                                            <label className="block text-sm font-medium mb-1 text-black">Middle Name</label>
-                                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}MiddleName`] || temporaryFamilyBackground[key]?.middleName || 'N/A'}</div>
-                                                                        </div>
-                                                                        <div>
-                                                                            <label className="block text-sm font-medium mb-1 text-black">Nickname</label>
-                                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}Nickname`] || temporaryFamilyBackground[key]?.nickname || 'N/A'}</div>
-                                                                        </div>
-
-                                                                        {/* Birth & Location - 1 col mobile, 5 cols desktop */}
-                                                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 col-span-1 md:col-span-4">
-                                                                            <div>
-                                                                                <label className="block text-sm font-medium mb-1 text-black">Birth Date</label>
-                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}BirthDate`] || temporaryFamilyBackground[key]?.birthDate || 'N/A'}</div>
-                                                                            </div>
-                                                                            <div>
-                                                                                <label className="block text-sm font-medium mb-1 text-black">Place of Birth</label>
-                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}PlaceOfBirth`] || temporaryFamilyBackground[key]?.placeOfBirth || 'N/A'}</div>
-                                                                            </div>
-                                                                            <div>
-                                                                                <label className="block text-sm font-medium mb-1 text-black">Age</label>
-                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}Age`] || temporaryFamilyBackground[key]?.age || 'N/A'}</div>
-                                                                            </div>
-                                                                            <div>
-                                                                                <label className="block text-sm font-medium mb-1 text-black">Nationality</label>
-                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}Nationality`] || temporaryFamilyBackground[key]?.nationality || 'N/A'}</div>
-                                                                            </div>
-                                                                            <div>
-                                                                                <label className="block text-sm font-medium mb-1 text-black">Religion</label>
-                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}Religion`] || temporaryFamilyBackground[key]?.religion || 'N/A'}</div>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        {/* Contact Info - 1 col mobile, 3 cols desktop */}
-                                                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 col-span-1 md:col-span-4">
-                                                                            <div>
-                                                                                <label className="block text-sm font-medium mb-1 text-black">Landline Number</label>
-                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}Landline`] || temporaryFamilyBackground[key]?.landline || 'N/A'}</div>
-                                                                            </div>
-                                                                            <div>
-                                                                                <label className="block text-sm font-medium mb-1 text-black">Mobile Number</label>
-                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}Mobile`] || temporaryFamilyBackground[key]?.mobile || 'N/A'}</div>
-                                                                            </div>
-                                                                            <div>
-                                                                                <label className="block text-sm font-medium mb-1 text-black">E-mail Address</label>
-                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}Email`] || temporaryFamilyBackground[key]?.email || 'N/A'}</div>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        {/* Home Address - 1 col mobile, 4 cols desktop */}
-                                                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 col-span-1 md:col-span-4">
-                                                                            <div>
-                                                                                <label className="block text-sm font-medium mb-1 text-black">Home Address</label>
-                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}HomeAddress`] || temporaryFamilyBackground[key]?.homeAddress || 'N/A'}</div>
-                                                                            </div>
-                                                                            <div>
-                                                                                <label className="block text-sm font-medium mb-1 text-black">City</label>
-                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}City`] || temporaryFamilyBackground[key]?.city || 'N/A'}</div>
-                                                                            </div>
-                                                                            <div>
-                                                                                <label className="block text-sm font-medium mb-1 text-black">State/ Province</label>
-                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}StateProvince`] || temporaryFamilyBackground[key]?.stateProvince || 'N/A'}</div>
-                                                                            </div>
-                                                                            <div>
-                                                                                <label className="block text-sm font-medium mb-1 text-black">Zip/ Postal Code</label>
-                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}ZipPostalCode`] || temporaryFamilyBackground[key]?.zipPostalCode || 'N/A'}</div>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        {/* Education & Occupation */}
-                                                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 col-span-1 md:col-span-4">
-                                                                            <div>
-                                                                                <label className="block text-sm font-medium mb-1 text-black">Educational Attainment</label>
-                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}Education`] || temporaryFamilyBackground[key]?.education || 'N/A'}</div>
-                                                                            </div>
-                                                                            <div>
-                                                                                <label className="block text-sm font-medium mb-1 text-black">Occupation</label>
-                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}Occupation`] || temporaryFamilyBackground[key]?.occupation || 'N/A'}</div>
-                                                                            </div>
-                                                                            <div>
-                                                                                <label className="block text-sm font-medium mb-1 text-black">Employer/ Company</label>
-                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}Employer`] || temporaryFamilyBackground[key]?.employer || 'N/A'}</div>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        {/* Company Address */}
-                                                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 col-span-1 md:col-span-4">
-                                                                            <div>
-                                                                                <label className="block text-sm font-medium mb-1 text-black">Company Address</label>
-                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}CompanyAddress`] || temporaryFamilyBackground[key]?.companyAddress || 'N/A'}</div>
-                                                                            </div>
-                                                                            <div>
-                                                                                <label className="block text-sm font-medium mb-1 text-black">Business Tel.</label>
-                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}BusinessPhone`] || temporaryFamilyBackground[key]?.businessPhone || 'N/A'}</div>
-                                                                            </div>
-                                                                            <div>
-                                                                                <label className="block text-sm font-medium mb-1 text-black">City</label>
-                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}CompanyCity`] || temporaryFamilyBackground[key]?.companyCity || 'N/A'}</div>
-                                                                            </div>
-                                                                            <div>
-                                                                                <label className="block text-sm font-medium mb-1 text-black">Annual Income</label>
-                                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`${key}AnnualIncome`] || temporaryFamilyBackground[key]?.annualIncome || 'N/A'}</div>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        {/* Status of Parent */}
-                                                                        <div className="col-span-1 md:col-span-4 mt-2">
-                                                                            <label className="block text-sm font-medium mb-1 text-black">Status of Parent</label>
-                                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700">
-                                                                                    {[
-                                                                                    'Married', 
-                                                                                    'Widowed',
-                                                                                    'Single Parent',
-                                                                                    'Widowed, Remmaried',
-                                                                                    'Separated',
-                                                                                    'Other: ________',
-                                                                                ].map((item, index) => (
-                                                                                    <div key={index} className="flex items-center space-x-2">
-                                                                                        <input
-                                                                                            type="checkbox"
-                                                                                            disabled
-                                                                                            checked={false}
-                                                                                            className="w-4 h-4 cursor-not-allowed"
-                                                                                        />
-                                                                                        <span>{item}</span>
-                                                                                    </div>
-                                                                                ))}
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    );
-                                                })}
-                                                
-                                                {/* Siblings */}
-                                                <div className="border border-gray-300 rounded-lg p-4 bg-white">
-                                                    <h4 className="font-semibold text-gray-800 mb-3">Sibling Details</h4>
-                                                    <div className="text-sm text-gray-700">
-                                                        {temporaryFamilyBackground.siblings.map((sibling, index) => (
-                                                            <div key={index} className="mb-6 border-b border-gray-100 pb-4 last:border-0 last:pb-0">
-                                                                <div className="mb-3 font-medium text-black">Sibling #{index + 1}</div>
-                                                                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                                                                    <div>
-                                                                        <label className="block text-sm font-medium mb-1 text-black">Family Name</label>
-                                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`sibling${index + 1}FamilyName`]?.trim() ? selectedApplication[`sibling${index + 1}FamilyName`] : sibling.familyName}</div>
-                                                                    </div>
-                                                                    <div>
-                                                                        <label className="block text-sm font-medium mb-1 text-black">First Name</label>
-                                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`sibling${index + 1}FirstName`]?.trim() ? selectedApplication[`sibling${index + 1}FirstName`] : sibling.firstName}</div>
-                                                                    </div>
-                                                                    <div>
-                                                                        <label className="block text-sm font-medium mb-1 text-black">Middle Name</label>
-                                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`sibling${index + 1}MiddleName`]?.trim() ? selectedApplication[`sibling${index + 1}MiddleName`] : sibling.middleName}</div>
-                                                                    </div>
-                                                                    <div>
-                                                                        <label className="block text-sm font-medium mb-1 text-black">Birth Date</label>
-                                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`sibling${index + 1}BirthDate`]?.trim() ? selectedApplication[`sibling${index + 1}BirthDate`] : sibling.birthDate}</div>
-                                                                    </div>
-                                                                    <div>
-                                                                        <label className="block text-sm font-medium mb-1 text-black">Age</label>
-                                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`sibling${index + 1}Age`]?.trim() ? selectedApplication[`sibling${index + 1}Age`] : sibling.age}</div>
-                                                                    </div>
-                                                                    <div>
-                                                                        <label className="block text-sm font-medium mb-1 text-black">Grade/Occupation</label>
-                                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`sibling${index + 1}GradeOccupation`]?.trim() ? selectedApplication[`sibling${index + 1}GradeOccupation`] : sibling.gradeOccupation}</div>
-                                                                    </div>
-                                                                    <div className="col-span-1 md:col-span-2">
-                                                                        <label className="block text-sm font-medium mb-1 text-black">School/Employer</label>
-                                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">{selectedApplication?.[`sibling${index + 1}SchoolEmployer`]?.trim() ? selectedApplication[`sibling${index + 1}SchoolEmployer`] : sibling.schoolEmployer}</div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                {/* Educational Background */}
-                                    <div className="border border-gray-300 rounded-lg bg-white">
-                                        <button
-                                            className={`w-full text-left px-4 py-3 flex justify-between items-center cursor-pointer transition-colors rounded-t-lg ${openSections.includes('education') ? 'bg-[#ffb06b] text-black border-[#cf660a]' : 'text-[#cf660a] border-[#cf660a]'}`}
-                                            onClick={() => toggleSection('education')}
-                                            type="button"
-                                        >
-                                            <span className={`font-semibold ${openSections.includes('education') ? 'text-black' : 'text-[#cf660a]'}`}>Educational Background</span>
-                                            <span className={`${openSections.includes('education') ? 'text-black' : 'text-[#cf660a]'} text-lg`}>{openSections.includes('education') ? '−' : '+'}</span>
-                                        </button>
-                                        {openSections.includes('education') && (
-                                            <div className="px-4 py-4 border-t border-gray-200 text-sm text-gray-700">
-                                                <div className="text-sm font-medium text-gray-800">School #1:</div>
-                                                
-                                                <div className="mt-2 grid grid-cols-1 md:grid-cols-4 gap-3">
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1 text-black">Gr./ Yr. Level</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center min-h-[38px]">
-                                                            {selectedApplication?.lastGrade || temporaryEducationalBackground.lastGrade || 'N/A'}
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1 text-black">Name of School</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center min-h-[38px]">
-                                                            {selectedApplication?.lastSchool || temporaryEducationalBackground.lastSchool || 'N/A'}
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1 text-black">School Address</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center min-h-[38px]">
-                                                            {selectedApplication?.lastSchoolAddress || temporaryEducationalBackground.lastSchoolAddress || 'N/A'}
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1 text-black">Inclusive Years</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center min-h-[38px]">
-                                                            {selectedApplication?.inclusiveYears || temporaryEducationalBackground.inclusiveYears || 'N/A'}
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1 text-black">Honors / Awards Received</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center mt-1 min-h-[38px]">
-                                                            {selectedApplication?.honors || temporaryEducationalBackground.honors || 'N/A'}
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1 text-black">Attended Summer Classes A.Y.</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center mt-1 min-h-[38px]">
-                                                            {selectedApplication?.attendedSummerYears || temporaryEducationalBackground.attendedSummerYears || 'N/A'}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                {/* Medical History Questionnaire & Immunization
-                                    <div className="border border-gray-300 rounded-lg bg-white">
-                                        <button
-                                            className={`w-full text-left px-4 py-3 flex justify-between items-center cursor-pointer transition-colors rounded-t-lg ${openSections.includes('medical') ? 'bg-[#ffb06b] text-black border-[#cf660a]' : 'text-[#cf660a] border-[#cf660a]'}`}
-                                            onClick={() => toggleSection('medical')}
-                                            type="button"
-                                        >
-                                            <span className={`font-semibold ${openSections.includes('medical') ? 'text-black' : 'text-[#cf660a]'}`}>Medical History / Immunization</span>
-                                            <span className={`${openSections.includes('medical') ? 'text-black' : 'text-[#cf660a]'} text-lg`}>{openSections.includes('medical') ? '−' : '+'}</span>
-                                        </button>
-                                        
-                                        {openSections.includes('medical') && (
-                                            <div className="px-4 py-4 border-t border-gray-200 text-sm text-gray-700">
-                                                
-                                            
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1 text-black">Academic Year</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center min-h-[38px]">{selectedApplication?.academicYear?.trim() ? selectedApplication.academicYear : temporaryMedicalHistory.academicYear || 'N/A'}</div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1 text-black">Admission to Grade/ Year</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center min-h-[38px]">{selectedApplication?.admissionGrade?.trim() ? selectedApplication.admissionGrade : temporaryMedicalHistory.admissionGrade || 'N/A'}</div>
-                                                    </div>
-                                                </div>
-
-                                        
-                                                <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1 text-black">Family Name</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center min-h-[38px]">{selectedApplication?.medicalFamilyName?.trim() ? selectedApplication.medicalFamilyName : temporaryMedicalHistory.familyName || 'N/A'}</div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1 text-black">First Name</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center min-h-[38px]">{selectedApplication?.medicalFirstName?.trim() ? selectedApplication.medicalFirstName : temporaryMedicalHistory.firstName || 'N/A'}</div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1 text-black">Middle Name</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center min-h-[38px]">{selectedApplication?.medicalMiddleName?.trim() ? selectedApplication.medicalMiddleName : temporaryMedicalHistory.middleName || 'N/A'}</div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1 text-black">Nickname</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center min-h-[38px]">{selectedApplication?.medicalNickname?.trim() ? selectedApplication.medicalNickname : temporaryMedicalHistory.nickname || 'N/A'}</div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4">
-                                                    <div className="col-span-2 md:col-span-1">
-                                                        <label className="block text-sm font-medium mb-1 text-black">Birth Date</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center min-h-[38px]">{selectedApplication?.medicalBirthDate?.trim() ? selectedApplication.medicalBirthDate : temporaryMedicalHistory.birthDate || 'N/A'}</div>
-                                                    </div>
-                                                    <div className="col-span-2 md:col-span-1">
-                                                        <label className="block text-sm font-medium mb-1 text-black">Place of Birth</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center min-h-[38px]">{selectedApplication?.medicalPlaceOfBirth?.trim() ? selectedApplication.medicalPlaceOfBirth : temporaryMedicalHistory.placeOfBirth || 'N/A'}</div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1 text-black">Age</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center min-h-[38px]">{selectedApplication?.medicalAge?.trim() ? selectedApplication.medicalAge : temporaryMedicalHistory.age || 'N/A'}</div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1 text-black">Height</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center min-h-[38px]">{selectedApplication?.medicalHeight?.trim() ? selectedApplication.medicalHeight : temporaryMedicalHistory.height || 'N/A'}</div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1 text-black">Weight</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center min-h-[38px]">{selectedApplication?.medicalWeight?.trim() ? selectedApplication.medicalWeight : temporaryMedicalHistory.weight || 'N/A'}</div>
-                                                    </div>
-                                                    <div className="border border-gray-300 rounded-lg p-3 bg-white flex flex-col justify-center">
-                                                        <h4 className="font-semibold text-gray-800 mb-2 text-sm">Sex</h4>
-                                                        <div className="flex flex-row gap-3 flex-wrap justify-between items-center">
-                                                            <div className="flex items-center gap-2">
-                                                                <input 
-                                                                    type="checkbox" 
-                                                                    checked={selectedApplication.sex === 'Male' || false} 
-                                                                    disabled 
-                                                                    className="w-4 h-4"
-                                                                />
-                                                                <label className="text-xs font-medium text-black">Male</label>
-                                                            </div>
-                                                            <div className="flex items-center gap-2">
-                                                                <input 
-                                                                    type="checkbox" 
-                                                                    checked={selectedApplication.sex === 'Female' || false} 
-                                                                    disabled 
-                                                                    className="w-4 h-4"
-                                                                />
-                                                                <label className="text-xs font-medium text-black">Female</label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1 text-black">Parent/ Guardian Name</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center min-h-[38px]">{selectedApplication?.medicalParentGuardianName?.trim() ? selectedApplication.medicalParentGuardianName : temporaryMedicalHistory.parentGuardianName || 'N/A'}</div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1 text-black">Landline Number</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center min-h-[38px]">{selectedApplication?.medicalLandlineNumber?.trim() ? selectedApplication.medicalLandlineNumber : temporaryMedicalHistory.landlineNumber || 'N/A'}</div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1 text-black">Mobile Number</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center min-h-[38px]">{selectedApplication?.medicalMobileNumber?.trim() ? selectedApplication.medicalMobileNumber : temporaryMedicalHistory.mobileNumber || 'N/A'}</div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
-                                                    <div className="md:col-span-1">
-                                                        <label className="block text-sm font-medium mb-1 text-black">Home Address</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center min-h-[38px]">{selectedApplication?.medicalHomeAddress?.trim() ? selectedApplication.medicalHomeAddress : temporaryMedicalHistory.homeAddress || 'N/A'}</div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1 text-black">City</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center min-h-[38px]">{selectedApplication?.medicalCity?.trim() ? selectedApplication.medicalCity : temporaryMedicalHistory.city || 'N/A'}</div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1 text-black">State/ Province</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center min-h-[38px]">{selectedApplication?.medicalStateProvince?.trim() ? selectedApplication.medicalStateProvince : temporaryMedicalHistory.stateProvince || 'N/A'}</div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1 text-black">Zip/ Postal Code</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center min-h-[38px]">{selectedApplication?.medicalZipPostalCode?.trim() ? selectedApplication.medicalZipPostalCode : temporaryMedicalHistory.zipPostalCode || 'N/A'}</div>
-                                                    </div>
-                                                </div>
-
-                                                //Medical Checklist
-                                                <div className="mb-4">
-                                                    <div className="text-xs text-gray-500 font-medium mb-2">Medical History:</div>
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-sm text-gray-700">
-                                                        {[
-                                                            { num: '1.', text: 'Epilepsy for the 6 months' },
-                                                            { num: '2.', text: 'Head injuries leading to loss of consciousness for the last 6 months' },
-                                                            { num: '3.', text: 'Recurrent headaches/ migraines' },
-                                                            { num: '4.', text: 'Diseases Nervous System (Multiple sclerosis)' },
-                                                            { num: '5.', text: 'Surgery' },
-                                                            { num: '6.', text: 'Visual Disorders (Blindness on one eye, blurred vision, glaucoma)' },
-                                                            { num: '7.', text: 'Ear infections' },
-                                                            { num: '8.', text: 'Vertigo or Dizziness' },
-                                                            { num: '9.', text: 'Heart Diseases' },
-                                                            { num: '10.', text: 'Arthritis, Bronchitis, TB or Pneumonia' },
-                                                            { num: '11.', text: 'Ulcer' },
-                                                            { num: '12.', text: 'Liver Diseases or hepatitis' },
-                                                            { num: '13.', text: 'Problems with joints, bones or recurrent dislocation' },
-                                                            { num: '14.', text: 'Allergic skin rashes' },
-                                                            { num: '15.', text: 'Mental Illness' },
-                                                            { num: '16.', text: 'Allergies' },
-                                                        ].map((item, index) => (
-                                                            <div key={index} className="flex items-start space-x-3 py-1">
-                                                                <input
-                                                                    type="checkbox"
-                                                                    disabled
-                                                                    checked={false}
-                                                                    className="w-4 h-4 mt-0.5 cursor-not-allowed flex-shrink-0"
-                                                                />
-                                                                <div className="flex">
-                                                                    <span className="w-6 font-medium flex-shrink-0">{item.num}</span>
-                                                                    <span>{item.text}</span>
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-
-                                                <div className="grid grid-cols-1 gap-4 mb-6">
-                                                    {['If you had surgery, please specify', 'If you have heart diseases, please specify what:', 'For no. 10, please specify which:', 'If you have allergies, pleae specify what:', 'Do you have any medication that youre currently taking?'].map((label, idx) => (
-                                                    <div key={idx}>
-                                                        <label className="block text-sm font-medium mb-1 text-black">{label}</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center min-h-[38px]">N/A</div>
-                                                    </div>
-                                                    ))}
-                                                </div>
-
-                                                <div className="mt-6 pt-4 border-t">
-                                                    <div className="text-xs text-gray-500 font-medium mb-3">Immunization Record:</div>
-                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                                        <div className="flex items-center space-x-2">
-                                                            <input type="checkbox" disabled className="w-4 h-4" />
-                                                            <span>Tetanus</span>
-                                                        </div>
-                                                        <div className="flex items-center space-x-2">
-                                                            <input type="checkbox" disabled className="w-4 h-4" />
-                                                            <span>DPT</span>
-                                                        </div>
-                                                        <div className="flex items-center space-x-2">
-                                                            <input type="checkbox" disabled className="w-4 h-4" />
-                                                            <span>HepaB</span>
-                                                        </div>
-                                                        <div className="flex items-center space-x-2">
-                                                            <input type="checkbox" disabled className="w-4 h-4" />
-                                                            <span>Polio</span>
-                                                        </div>
-                                                        <div className="flex items-center space-x-2">
-                                                            <input type="checkbox" disabled className="w-4 h-4" />
-                                                            <span>Measles</span>
-                                                        </div>
-                                                        <div className="flex items-center space-x-2">
-                                                            <input type="checkbox" disabled className="w-4 h-4" />
-                                                            <span>BCG</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="mt-4 pt-4 border-t text-sm text-gray-700">
-                                                    <div className="flex items-start space-x-3">
-                                                        <input type="checkbox" disabled className="w-4 h-4 mt-0.5" />
-                                                        <span>I hereby certify that all the information applied therein are complete and accurate</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div> 
-                                */}
-
-                                {/* Agreement Section */}
-                                    {/*<div className="border border-gray-300 rounded-lg bg-white">
-                                        <button
-                                            className={`w-full text-left px-4 py-3 flex justify-between items-center cursor-pointer transition-colors rounded-t-lg ${openSections.includes('agreement') ? 'bg-[#ffb06b] text-black border-[#cf660a]' : 'text-[#cf660a] border-[#cf660a]'}`}
-                                            onClick={() => toggleSection('agreement')}
-                                            type="button"
-                                        >
-                                            <span className={`font-semibold ${openSections.includes('agreement') ? 'text-black' : 'text-[#cf660a]'}`}>Agreement</span>
-                                            <span className={`${openSections.includes('agreement') ? 'text-black' : 'text-[#cf660a]'} text-lg`}>{openSections.includes('agreement') ? '−' : '+'}</span>
-                                        </button>
-                                        
-                                        {openSections.includes('agreement') && (
-                                            <div className="px-4 py-4 border-t border-gray-200 text-sm text-gray-700">
-                                                {selectedApplication?.agreementText ? (
-                                                    <div className="text-sm text-gray-700 text-justify whitespace-pre-line">
-                                                        {selectedApplication.agreementText}
-                                                    </div>
-                                                ) : (
-                                                    <div className="text-sm text-gray-700 text-justify leading-relaxed">
-                                                        I wish to enroll my child <strong className="font-bold text-black">{selectedApplication?.fullName || 'Student Full Name'}</strong> to your school, St. Joseph School of Fairview, and upon compliance with the entrance/re-admission requirements, I understand that he/she must:
-                                                        <br /><br />
-                                                        <ul className="space-y-2 list-none">
-                                                            <li>1. Comply with all the policies and procedures such as attendance and punctuality, scholastics/academic performance set by the school;</li>
-                                                            <li>2. Attend and support all the activities duly organized by the school both in co-curricular and extra-curricular, particularly in the institutional activities such as School Orientation Day, Christmas party/Liturgical Activities, Educational Tour, Foundation Day, Retreat and Recollections, Community Outreach Program and JS Prom, etc.;</li>
-                                                            <li>3. Abide by the behavioural standards and rules of discipline as specified in the student&apos;s handbook, e.g. wearing of prescribed uniform, behaviour within and out of the campus, etc.;</li>
-                                                            <li>4. Conform to all rules and regulation set forth by the institution (including the increase in tuition/miscellaneous/other fees) now enforced or may be promulgated by the school from time to time.</li>
-                                                        </ul>
-                                                        <br />
-                                                        By affixing my name, <strong className="font-bold text-black">{selectedApplication?.parentGuardianName || temporaryAgreement.parentGuardianName || 'N/A'}</strong>, I hereby waive my right in any form and commit myself towards the realization of the vision-mission of the institution, particularly the rules and regulation as stipulated in the Student&apos;s Handbook.
-                                                    </div>
-                                                )}
-
-                                                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1 text-black">Parent/ Guardian Name</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">
-                                                            {selectedApplication?.parentGuardianName || temporaryAgreement.parentGuardianName || 'N/A'}
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm font-medium mb-1 text-black">Relationship to the Child</label>
-                                                        <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 flex items-center">
-                                                            {selectedApplication?.parentGuardianRelation || selectedApplication?.guardianRelation || temporaryAgreement.parentGuardianRelation || 'N/A'}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                {/* Transferee-specific section */}
-                                    {showTransfereeSection && (
-                                        <div className="border border-gray-300 rounded-lg bg-white">
-                                            <button
-                                                className={`w-full text-left px-4 py-3 flex justify-between items-center cursor-pointer transition-colors rounded-t-lg ${openSections.includes('transferee') ? 'bg-[#ffb06b] text-black border-[#cf660a]' : 'text-[#cf660a] border-[#cf660a]'}`}
-                                                onClick={() => toggleSection('transferee')}
-                                                type="button"
-                                            >
-                                                <span className={`font-semibold ${openSections.includes('transferee') ? 'text-black' : 'text-[#cf660a]'}`}>Transferee Details</span>
-                                                <span className={`${openSections.includes('transferee') ? 'text-black' : 'text-[#cf660a]'} text-lg`}>{openSections.includes('transferee') ? '−' : '+'}</span>
-                                            </button>
-                                            
-                                            {openSections.includes('transferee') && (
-                                                <div className="px-4 py-4 border-t border-gray-200 text-sm text-gray-700 space-y-6">
-                                                    
-                                                    {/* Previous School Group */}
-                                                    <div>
-                                                        <div className="text-sm font-bold text-gray-800 uppercase tracking-wide mb-3">Previous School</div>
-                                                        {/* Responsive Grid: 1 col on mobile, 2 on small tablet, 3 on desktop */}
-                                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
-                                                            <div>
-                                                                <label className="block text-sm font-medium mb-1 text-black">School Name</label>
-                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 min-h-[38px] flex items-center">
-                                                                    {selectedApplication?.previousSchool?.trim() ? selectedApplication.previousSchool : temporaryTransfereeDetails.previousSchool || 'N/A'}
-                                                                </div>
-                                                            </div>
-                                                            <div>
-                                                                <label className="block text-sm font-medium mb-1 text-black">School Address</label>
-                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 min-h-[38px] flex items-center">
-                                                                    {selectedApplication?.previousSchoolAddress?.trim() ? selectedApplication.previousSchoolAddress : temporaryTransfereeDetails.previousSchoolAddress || 'N/A'}
-                                                                </div>
-                                                            </div>
-                                                            <div className="sm:col-span-2 lg:col-span-1">
-                                                                <label className="block text-sm font-medium mb-1 text-black">Gr./ Yr. Level</label>
-                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 min-h-[38px] flex items-center">
-                                                                    {selectedApplication?.previousSchoolGrade?.trim() ? selectedApplication.previousSchoolGrade : temporaryTransfereeDetails.previousSchoolGrade || 'N/A'}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <hr className="border-gray-100" />
-
-                                                    {/* Present School Group */}
-                                                    <div>
-                                                        <div className="text-sm font-bold text-gray-800 uppercase tracking-wide mb-3">Present School</div>
-                                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
-                                                            <div>
-                                                                <label className="block text-sm font-medium mb-1 text-black">School Name</label>
-                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 min-h-[38px] flex items-center">
-                                                                    {selectedApplication?.presentSchool?.trim() ? selectedApplication.presentSchool : temporaryTransfereeDetails.presentSchool || 'N/A'}
-                                                                </div>
-                                                            </div>
-                                                            <div>
-                                                                <label className="block text-sm font-medium mb-1 text-black">School Address</label>
-                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 min-h-[38px] flex items-center">
-                                                                    {selectedApplication?.presentSchoolAddress?.trim() ? selectedApplication.presentSchoolAddress : temporaryTransfereeDetails.presentSchoolAddress || 'N/A'}
-                                                                </div>
-                                                            </div>
-                                                            <div className="sm:col-span-2 lg:col-span-1">
-                                                                <label className="block text-sm font-medium mb-1 text-black">Gr./ Yr. Level</label>
-                                                                <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 min-h-[38px] flex items-center">
-                                                                    {selectedApplication?.presentSchoolGrade?.trim() ? selectedApplication.presentSchoolGrade : temporaryTransfereeDetails.presentSchoolGrade || 'N/A'}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Detailed Questions */}
-                                                    <div className="space-y-4 pt-2">
-                                                        <div>
-                                                            <label className="block text-sm font-medium mb-1 text-black">Reason for Transferring</label>
-                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 text-justify">
-                                                                {selectedApplication?.transferReason?.trim() ? selectedApplication.transferReason : temporaryTransfereeDetails.transferReason || 'N/A'}
-                                                            </div>
-                                                        </div>
-
-                                                        <div>
-                                                            <label className="block text-sm font-medium mb-1 text-black leading-snug">
-                                                                Has the applicant been subjected to any disciplinary actions in school? If yes, please describe the action and the sanctions
-                                                            </label>
-                                                            <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100 text-justify">
-                                                                {selectedApplication?.disciplinaryActions?.trim() ? selectedApplication.disciplinaryActions : temporaryTransfereeDetails.disciplinaryActions || 'N/A'}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-                            </div>
-                        </div>
 
                         {/* Requirement Upload Section */}
                         <div className="mb-4">
@@ -1863,7 +954,7 @@ const RegisterCoursePage: React.FC = () => {
                             <p className="text-s text-gray-500 mb-5">
                                 Upload the required documents. Each file should be in PDF, JPG, PNG, or Word format (max 10MB).
                             </p>
-                            
+
                             {/* Updated Grid: 1 column on mobile, 2 columns on small screens and up */}
                             <div key={fileUploadKey} className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                                 <FileUpload
@@ -1922,7 +1013,7 @@ const RegisterCoursePage: React.FC = () => {
                                 </svg>
                                 <span>Approve Application</span>
                             </button>
-                            
+
                             <button
                                 onClick={handleNotify}
                                 disabled={isNotificationLoading}
