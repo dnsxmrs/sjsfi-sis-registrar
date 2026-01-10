@@ -279,302 +279,334 @@ export default function SystemLogsPage() {
         </h2>
       </div>
 
-      {/* Search + Export PDF Controls */}
-      <div className="mb-4">
-        <div className="mb-4 relative flex items-center gap-2 md:hidden">
-          <input
-            type="text"
-            placeholder="Search system logs..."
-            className="text-gray-700  w-full md:w-1/3 pl-10 pr-4 py-2 border border-red-700 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <Search className="absolute top-2.5 left-3 text-gray-700" size={18} />
-          <div className="relative export-dropdown cursor-pointer">
-            <button
-              onClick={() => setExportDropdownOpen(!exportDropdownOpen)}
-              className="flex items-center justify-center bg-red-800 hover:bg-red-900 text-white px-3 py-2 rounded-md text-sm"
-            >
-              <FileDown size={18} />
-              <span className="hidden md:inline ml-2">Export</span>
-              <ChevronDown size={16} className="ml-1" />
-            </button>
-
-            {exportDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
-                <div className="py-1">
-                  <button
-                    onClick={exportToPDF}
-                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    <FileDown size={16} className="mr-2" />
-                    <div className="flex cursor-pointer flex-col items-start">
-                      <span>Export as PDF</span>
-                      <span className="text-xs text-gray-500">
-                        {selectedRows.length > 0
-                          ? `${selectedRows.length} selected`
-                          : search
-                            ? `${filteredLogs.length} filtered`
-                            : `${logs.length} total`} rows
-                      </span>
-                    </div>
-                  </button>
-                  <button
-                    onClick={exportToCSV}
-                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    <FileDown size={16} className="mr-2" />
-                    <div className="flex cursor-pointer flex-col items-start">
-                      <span>Export as CSV</span>
-                      <span className="text-xs text-gray-500">
-                        {selectedRows.length > 0
-                          ? `${selectedRows.length} selected`
-                          : search
-                            ? `${filteredLogs.length} filtered`
-                            : `${logs.length} total`} rows
-                      </span>
-                    </div>
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="hidden md:flex justify-between items-center">
-          <div className="relative w-1/3 bg-white">
-            <Search className="absolute top-2.5 left-3 text-gray-700" size={18} />
+      {/* Search and Filter Section */}
+      <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+        <div className="flex flex-col gap-4">
+          {/* Search Input */}
+          <div className="bg-white flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black w-5 h-5" />
             <input
               type="text"
               placeholder="Search system logs..."
-              className="text-gray-700 w-full pl-10 pr-4 py-2 border border-red-700 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              className="placeholder-gray text-black w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div className="relative export-dropdown">
-            <button
-              onClick={() => setExportDropdownOpen(!exportDropdownOpen)}
-              className="flex cursor-pointer items-center justify-center bg-red-800 hover:bg-red-900 text-white px-4 py-2 rounded-md text-sm"
-            >
-              <FileDown size={18} />
-              <span className="ml-2">Export</span>
-              <ChevronDown size={16} className="ml-1" />
-            </button>
 
-            {exportDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
-                <div className="py-1">
-                  <button
-                    onClick={exportToPDF}
-                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    <FileDown size={16} className="mr-2" />
-                    <div className="flex cursor-pointer flex-col items-start">
-                      <span>Export as PDF</span>
-                      <span className="text-xs text-gray-500">
-                        {selectedRows.length > 0
-                          ? `${selectedRows.length} selected`
-                          : search
-                            ? `${filteredLogs.length} filtered`
-                            : `${logs.length} total`} rows
-                      </span>
-                    </div>
-                  </button>
-                  <button
-                    onClick={exportToCSV}
-                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    <FileDown size={16} className="mr-2" />
-                    <div className="flex cursor-pointer flex-col items-start">
-                      <span>Export as CSV</span>
-                      <span className="text-xs text-gray-500">
-                        {selectedRows.length > 0
-                          ? `${selectedRows.length} selected`
-                          : search
-                            ? `${filteredLogs.length} filtered`
-                            : `${logs.length} total`} rows
-                      </span>
-                    </div>
-                  </button>
+          {/* Export Controls */}
+          <div className="flex justify-end">
+            <div className="relative export-dropdown">
+              <button
+                onClick={() => setExportDropdownOpen(!exportDropdownOpen)}
+                className="flex cursor-pointer items-center justify-center bg-red-800 hover:bg-red-900 text-white px-4 py-2 rounded-md text-sm"
+              >
+                <FileDown size={18} />
+                <span className="ml-2">Export</span>
+                <ChevronDown size={16} className="ml-1" />
+              </button>
+
+              {exportDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                  <div className="py-1">
+                    <button
+                      onClick={exportToPDF}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <FileDown size={16} className="mr-2" />
+                      <div className="flex cursor-pointer flex-col items-start">
+                        <span>Export as PDF</span>
+                        <span className="text-xs text-gray-500">
+                          {selectedRows.length > 0
+                            ? `${selectedRows.length} selected`
+                            : search
+                              ? `${filteredLogs.length} filtered`
+                              : `${logs.length} total`} rows
+                        </span>
+                      </div>
+                    </button>
+                    <button
+                      onClick={exportToCSV}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <FileDown size={16} className="mr-2" />
+                      <div className="flex cursor-pointer flex-col items-start">
+                        <span>Export as CSV</span>
+                        <span className="text-xs text-gray-500">
+                          {selectedRows.length > 0
+                            ? `${selectedRows.length} selected`
+                            : search
+                              ? `${filteredLogs.length} filtered`
+                              : `${logs.length} total`} rows
+                        </span>
+                      </div>
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+          </div>
+
+          {/* Results Count and Items Per Page */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div className="text-sm text-gray-600">
+              Showing {filteredLogs.length === 0 ? 0 : startIndex + 1} to {Math.min(endIndex, filteredLogs.length)} of {filteredLogs.length} logs
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-600">Items per page:</label>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="text-black cursor-pointer px-3 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-white overflow-x-auto rounded-md border border-red-700 text-gray-700">
-        {loading ? (
-          <div className="flex justify-center items-center p-8">
-            <div className="text-gray-500">Loading system logs...</div>
-          </div>
-        ) : error ? (
-          <div className="flex justify-center items-center p-8">
-            <div className="text-red-500">Error: {error}</div>
-          </div>
-        ) : filteredLogs.length === 0 ? (
-          <div className="flex justify-center items-center p-8">
-            <div className="text-gray-500">
+      {/* System Logs Table/List */}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        {/* Mobile View - Cards */}
+        <div className="block lg:hidden">
+          {loading ? (
+            <div className="flex justify-center items-center py-8">
+              <div className="text-gray-500">Loading system logs...</div>
+            </div>
+          ) : error ? (
+            <div className="flex justify-center items-center py-8">
+              <div className="text-red-500">Error: {error}</div>
+            </div>
+          ) : filteredLogs.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">
               {search ? "No logs found matching your search." : "No system logs available."}
             </div>
-          </div>
-        ) : (
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr>
-                <th className="px-4 py-3 border-b">Log Number</th>
-                <th className="px-4 py-3 border-b">Timestamp</th>
-                <th className="px-4 py-3 border-b">User</th>
-                <th className="px-4 py-3 border-b">Action</th>
-                <th className="px-4 py-3 border-b">Status</th>
-                <th className="px-4 py-3 border-b">User Role</th>
-                <th className="px-4 py-3 border-b text-center">
-                  <input
-                    type="checkbox"
-                    className="form-checkbox h-4 w-4 text-red-600 cursor-pointer"
-                    checked={isAllSelected}
-                    onChange={handleHeaderCheckbox}
-                  />
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedLogs.map((log) => (
-                <tr key={log.logNumber} className="hover:bg-red-50">
-                  <td className="px-4 py-4 border-t">{log.logNumber}</td>
-                  <td className="px-4 py-4 border-t">{log.timestamp}</td>
-                  <td className="px-4 py-4 border-t">{log.user}</td>
-                  <td className="px-4 py-4 border-t">{log.action}</td>
-                  <td className="px-4 py-4 border-t">
-                    <span
-                      className={`px-3 py-1 rounded-full text-white text-xs font-medium ${log.status === "Success"
-                        ? "bg-green-500"
-                        : log.status === "Failed"
-                          ? "bg-red-500"
-                          : "bg-yellow-500"
-                        }`}
-                    >
-                      {log.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2 border-t">{log.role}</td>
-                  <td className="px-4 py-2 border-t text-center">
+          ) : (
+            <>
+              {/* Mobile Select All */}
+              <div className="p-4 border-b border-gray-200 bg-gray-50">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
                     <input
                       type="checkbox"
-                      className="form-checkbox cursor-pointer h-4 w-4 text-red-600"
-                      checked={selectedRows.includes(log.logNumber)}
-                      onChange={() => handleRowCheckbox(log.logNumber)}
+                      className="form-checkbox h-4 w-4 text-red-600 cursor-pointer"
+                      checked={isAllSelected}
+                      onChange={handleHeaderCheckbox}
                     />
-                  </td>
+                    <span className="text-sm text-gray-700">
+                      Select All ({paginatedLogs.length} logs on this page)
+                    </span>
+                  </div>
+                  {selectedRows.length > 0 && (
+                    <span className="text-sm text-red-600 font-medium">
+                      {selectedRows.length} selected
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="divide-y divide-gray-200">
+                {paginatedLogs.map((log) => (
+                  <div key={log.logNumber} className="p-4 hover:bg-gray-50">
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <p className="font-semibold text-gray-900">
+                            Log #{log.logNumber}
+                          </p>
+                          <p className="text-sm text-gray-600">{log.timestamp}</p>
+                          <p className="text-sm text-gray-500">{log.user} ({log.role})</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${log.status === "Success"
+                            ? "bg-green-100 text-green-800"
+                            : log.status === "Failed"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-yellow-100 text-yellow-800"
+                            }`}>
+                            {log.status}
+                          </span>
+                          <input
+                            type="checkbox"
+                            className="form-checkbox cursor-pointer h-4 w-4 text-red-600"
+                            checked={selectedRows.includes(log.logNumber)}
+                            onChange={() => handleRowCheckbox(log.logNumber)}
+                          />
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-700">{log.action}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Desktop View - Table */}
+        <div className="hidden lg:block overflow-x-auto">
+          {loading ? (
+            <div className="flex justify-center items-center py-8">
+              <div className="text-gray-500">Loading system logs...</div>
+            </div>
+          ) : error ? (
+            <div className="flex justify-center items-center py-8">
+              <div className="text-red-500">Error: {error}</div>
+            </div>
+          ) : filteredLogs.length === 0 ? (
+            <div className="py-8 text-center text-gray-500">
+              {search ? "No logs found matching your search." : "No system logs available."}
+            </div>
+          ) : (
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Log Number</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User Role</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
+                    <input
+                      type="checkbox"
+                      className="form-checkbox h-4 w-4 text-red-600 cursor-pointer"
+                      checked={isAllSelected}
+                      onChange={handleHeaderCheckbox}
+                    />
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {paginatedLogs.map((log) => (
+                  <tr key={log.logNumber} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{log.logNumber}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{log.timestamp}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{log.user}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{log.action}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${log.status === "Success"
+                          ? "bg-green-100 text-green-800"
+                          : log.status === "Failed"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-yellow-100 text-yellow-800"
+                          }`}
+                      >
+                        {log.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{log.role}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                      <input
+                        type="checkbox"
+                        className="form-checkbox cursor-pointer h-4 w-4 text-red-600"
+                        checked={selectedRows.includes(log.logNumber)}
+                        onChange={() => handleRowCheckbox(log.logNumber)}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        {/* Pagination Controls */}
+        {filteredLogs.length > 0 && (
+          <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+              {/* Mobile pagination info */}
+              <div className="text-sm text-gray-600 sm:hidden">
+                Page {currentPage} of {totalPages}
+              </div>
+
+              {/* Pagination buttons */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  Previous
+                </button>
+
+                {/* Page numbers */}
+                <div className="hidden sm:flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum: number;
+
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                          currentPage === pageNum
+                            ? 'bg-blue-500 text-white'
+                            : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+
+                  {totalPages > 5 && currentPage < totalPages - 2 && (
+                    <>
+                      <span className="px-2 text-gray-500">...</span>
+                      <button
+                        onClick={() => setCurrentPage(totalPages)}
+                        className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                          currentPage === totalPages
+                            ? 'bg-blue-500 text-white'
+                            : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        {totalPages}
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Next
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </button>
+              </div>
+
+              {/* Desktop pagination info */}
+              <div className="hidden sm:block text-sm text-gray-600">
+                Page {currentPage} of {totalPages}
+              </div>
+            </div>
+          </div>
         )}
       </div>
 
-      {/* Pagination */}
-      {!loading && !error && filteredLogs.length > 0 && (
-        <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
-          {/* Items per page selector */}
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <span>Show</span>
-            <select
-              value={itemsPerPage}
-              onChange={(e) => {
-                setItemsPerPage(Number(e.target.value));
-                setCurrentPage(1);
-              }}
-              className="border border-gray-300 cursor-pointer rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-red-500"
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-            </select>
-            <span>entries per page</span>
-          </div>
 
-          {/* Pagination info and controls */}
-          <div className="flex flex-col sm:flex-row items-center gap-4">
-            <span className="text-sm text-gray-600">
-              Showing {startIndex + 1} to {Math.min(endIndex, filteredLogs.length)} of {filteredLogs.length} entries
-            </span>
-
-            <div className="flex items-center gap-2">
-              {/* Previous button */}
-              <button
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${currentPage === 1
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer'
-                  }`}
-              >
-                <ChevronLeft size={16} />
-                <span className="hidden sm:inline">Previous</span>
-              </button>
-
-              {/* Page numbers */}
-              <div className="flex items-center gap-1">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let pageNum: number;
-
-                  if (totalPages <= 5) {
-                    pageNum = i + 1;
-                  } else if (currentPage <= 3) {
-                    pageNum = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNum = totalPages - 4 + i;
-                  } else {
-                    pageNum = currentPage - 2 + i;
-                  }
-
-                  return (
-                    <button
-                      key={pageNum}
-                      onClick={() => setCurrentPage(pageNum)}
-                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${currentPage === pageNum
-                          ? 'bg-red-800 text-white'
-                          : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer'
-                        }`}
-                    >
-                      {pageNum}
-                    </button>
-                  );
-                })}
-
-                {totalPages > 5 && currentPage < totalPages - 2 && (
-                  <>
-                    <span className="px-2 text-gray-500">...</span>
-                    <button
-                      onClick={() => setCurrentPage(totalPages)}
-                      className="px-3 cursor-pointer py-1.5 rounded-md text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
-                    >
-                      {totalPages}
-                    </button>
-                  </>
-                )}
-              </div>
-
-              {/* Next button */}
-              <button
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${currentPage === totalPages
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer'
-                  }`}
-              >
-                <span className="hidden sm:inline">Next</span>
-                <ChevronRight size={16} />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

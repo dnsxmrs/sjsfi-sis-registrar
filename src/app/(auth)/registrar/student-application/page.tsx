@@ -249,10 +249,11 @@ const RegisterCoursePage: React.FC = () => {
     };
 
     // Pagination calculations
-    const totalPages = Math.ceil(students.length / itemsPerPage);
+    const pendingStudents = students.filter(student => student.status === 'PENDING');
+    const totalPages = Math.ceil(pendingStudents.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const paginatedStudents = students.slice(startIndex, endIndex);
+    const paginatedStudents = pendingStudents.slice(startIndex, endIndex);
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
@@ -713,10 +714,68 @@ const RegisterCoursePage: React.FC = () => {
                                 <div className="flex justify-center items-center py-8">
                                     <div className="text-gray-500">Loading students...</div>
                                 </div>
+                            ) : students.length === 0 ? (
+                                <div className="py-8 text-center text-gray-500">
+                                    No students found
+                                </div>
                             ) : (
-                                /* RESPONSIVE WRAPPER: This prevents the table from breaking the layout */
-                                <div className="overflow-x-auto -mx-4 sm:mx-0">
-                                    <div className="inline-block min-w-full align-middle px-4 sm:px-0">
+                                <>
+                                    {/* Mobile Card View */}
+                                    <div className="block md:hidden space-y-4">
+                                        {students.length === 0 ? (
+                                            <div className="py-8 text-center text-gray-500">
+                                                No students found
+                                            </div>
+                                        ) : (
+                                            paginatedStudents.map((student) => (
+                                                <div key={student.id} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                                    <div className="flex justify-between items-start mb-3">
+                                                        <div className="flex-1">
+                                                            <h3 className="font-semibold text-black text-sm">{student.fullName}</h3>
+                                                            <p className="text-xs text-gray-600 mt-1">ID: {student.applicationNumber}</p>
+                                                        </div>
+                                                        <div className="flex space-x-2">
+                                                            <button
+                                                                title="View"
+                                                                className="text-gray-700 hover:text-gray-900 cursor-pointer p-1"
+                                                                onClick={() => handleViewStudent(student)}
+                                                            >
+                                                                <Eye className="h-5 w-5" />
+                                                            </button>
+                                                            <button
+                                                                title="Delete"
+                                                                className="text-red-600 hover:text-red-800 cursor-pointer p-1"
+                                                                onClick={() => toast(`Delete student ${student.applicationNumber}`)}
+                                                            >
+                                                                <Trash className="h-5 w-5" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <div className="flex justify-between items-center">
+                                                            <span className="text-xs text-gray-600">Date & Time:</span>
+                                                            <span className="text-xs text-black">{student.createdAt}</span>
+                                                        </div>
+                                                        <div className="flex justify-between items-center">
+                                                            <span className="text-xs text-gray-600">Grade Level:</span>
+                                                            <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                                                                {student.gradeLevel}
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex justify-between items-center">
+                                                            <span className="text-xs text-gray-600">Status:</span>
+                                                            <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+                                                                {student.status}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+
+                                    {/* Desktop View - Table */}
+                                    <div className="hidden md:block overflow-x-auto">
                                         <table className="w-full text-left text-sm whitespace-nowrap">
                                             <thead>
                                                 <tr className="border-b border-gray-300 text-black">
@@ -728,48 +787,40 @@ const RegisterCoursePage: React.FC = () => {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {students.length === 0 ? (
-                                                    <tr>
-                                                        <td colSpan={5} className="py-4 text-center text-gray-500">
-                                                            No students found
+                                                {paginatedStudents.map((student) => (
+                                                    <tr key={student.id} className="border-b border-gray-200 text-black hover:bg-gray-50 transition-colors">
+                                                        <td className="py-3 px-2">{student.applicationNumber}</td>
+                                                        <td className="py-3 px-2">{student.createdAt}</td>
+                                                        <td className="py-3 px-2 font-medium">{student.fullName}</td>
+                                                        <td className="py-3 px-2">
+                                                            <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                                                                {student.gradeLevel}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-3 px-2">
+                                                            <div className="flex items-center space-x-4 justify-end sm:justify-start">
+                                                                <button
+                                                                    title="View"
+                                                                    className="text-gray-700 cursor-pointer hover:text-blue-600 transition-colors"
+                                                                    onClick={() => handleViewStudent(student)}
+                                                                >
+                                                                    <Eye className="h-5 w-5" />
+                                                                </button>
+                                                                <button
+                                                                    title="Delete"
+                                                                    className="text-red-600 cursor-pointer hover:text-red-800 transition-colors"
+                                                                    onClick={() => toast(`Delete student ${student.applicationNumber}`)}
+                                                                >
+                                                                    <Trash className="h-5 w-5" />
+                                                                </button>
+                                                            </div>
                                                         </td>
                                                     </tr>
-                                                ) : (
-                                                    paginatedStudents.map((student) => (
-                                                        <tr key={student.id} className="border-b border-gray-200 text-black hover:bg-gray-50 transition-colors">
-                                                            <td className="py-3 px-2">{student.applicationNumber}</td>
-                                                            <td className="py-3 px-2">{student.createdAt}</td>
-                                                            <td className="py-3 px-2 font-medium">{student.fullName}</td>
-                                                            <td className="py-3 px-2">
-                                                                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                                                                    {student.gradeLevel}
-                                                                </span>
-                                                            </td>
-                                                            <td className="py-3 px-2">
-                                                                <div className="flex items-center space-x-4 justify-end sm:justify-start">
-                                                                    <button
-                                                                        title="View"
-                                                                        className="text-gray-700 cursor-pointer hover:text-blue-600 transition-colors"
-                                                                        onClick={() => handleViewStudent(student)}
-                                                                    >
-                                                                        <Eye className="h-5 w-5" />
-                                                                    </button>
-                                                                    <button
-                                                                        title="Delete"
-                                                                        className="text-red-600 cursor-pointer hover:text-red-800 transition-colors"
-                                                                        onClick={() => toast(`Delete student ${student.applicationNumber}`)}
-                                                                    >
-                                                                        <Trash className="h-5 w-5" />
-                                                                    </button>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    ))
-                                                )}
+                                                ))}
                                             </tbody>
                                         </table>
                                     </div>
-                                </div>
+                                </>
                             )}
 
                             {/* Pagination Controls */}
@@ -832,7 +883,7 @@ const RegisterCoursePage: React.FC = () => {
                         <h2 className="text-lg font-semibold mb-4 text-black">
                             Student Details
                         </h2>
-                        <div className="grid grid-cols-2 gap-4 mb-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
                                 <label className="block text-sm font-medium mb-1 text-black" htmlFor="studentID">
                                     Application ID
@@ -862,7 +913,7 @@ const RegisterCoursePage: React.FC = () => {
                                 />
                             </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4 mb-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
                                 <label className="block text-sm font-medium mb-1 text-black" htmlFor="gradeLevel">
                                     Grade Level

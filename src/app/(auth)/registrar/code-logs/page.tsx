@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Search, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { getAllCodes } from '@/app/_actions/getRegistrationCodes';
 import { markCodeAsExpired } from '@/app/_actions/markCodeAsExpired';
 import toast from 'react-hot-toast';
@@ -164,248 +164,317 @@ export default function CodeManagement() {
         }
     };
 
-    const SortIcon = ({ field }: { field: SortField }) => {
-        if (sortField !== field) return null;
-        return sortOrder === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />;
+    // Get sort icon
+    const getSortIcon = (field: SortField) => {
+        if (sortField !== field) {
+            return <ArrowUpDown className="w-4 h-4" />;
+        }
+        if (sortOrder === 'asc') {
+            return <ArrowUp className="w-4 h-4" />;
+        }
+        return <ArrowDown className="w-4 h-4" />;
     };
 
     return (
         <div className="p-4 md:p-8">
             <div className="flex justify-between items-center mb-4">
                 <div>
-                    <p className="text-gray-600 mt-1">View and manage registration codes</p>
+                    <p className="text-gray-600">View and manage registration codes</p>
                 </div>
             </div>
 
-            {/* Search and Filter Controls */}
-            <div className="mb-4">
-                <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-                    <div className="bg-white relative w-full md:w-1/3">
-                        <Search className="absolute top-2.5 left-3 text-black" size={18} />
+            {/* Search and Filter Section */}
+            <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+                <div className="flex flex-col gap-4">
+                    {/* Search Input */}
+                    <div className="bg-white flex-1 relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black w-5 h-5" />
                         <input
                             type="text"
                             placeholder="Search registration codes..."
-                            className="text-gray-700 w-full pl-10 pr-4 py-2 border border-red-700 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
+                            className="placeholder-gray text-black w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
-                    <div className="bg-[#800000] flex items-center gap-2 rounded-md px-4 py-2">
-                        <label className="text-sm text-white whitespace-nowrap">Filter by Status:</label>
-                        <select
-                            value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value)}
-                            className="border border-gray-300 cursor-pointer rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 text-black bg-white"
-                        >
-                            <option value="all">All Status</option>
-                            <option value="available">Available</option>
-                            <option value="inactive">Inactive</option>
-                            <option value="expired">Expired</option>
-                        </select>
+
+                    {/* Filter Section */}
+                    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <label className="text-sm text-gray-700 whitespace-nowrap">Filter by Status:</label>
+                            <select
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                                className="border border-gray-300 cursor-pointer rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
+                            >
+                                <option value="all">All Status</option>
+                                <option value="available">Available</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="expired">Expired</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Results Count and Items Per Page */}
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div className="text-sm text-gray-600">
+                            Showing {filteredCodes.length === 0 ? 0 : startIndex + 1} to {Math.min(endIndex, filteredCodes.length)} of {filteredCodes.length} codes
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <label className="text-sm text-gray-600">Items per page:</label>
+                            <select
+                                value={itemsPerPage}
+                                onChange={(e) => {
+                                    setItemsPerPage(Number(e.target.value));
+                                    setCurrentPage(1);
+                                }}
+                                className="text-black cursor-pointer px-3 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value={5}>5</option>
+                                <option value={10}>10</option>
+                                <option value={25}>25</option>
+                                <option value={50}>50</option>
+                                <option value={100}>100</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* Table */}
-            <div className="bg-white overflow-x-auto rounded-md border border-red-700 text-gray-700">
-                {isLoading ? (
-                    <div className="flex justify-center items-center p-8">
-                        <div className="text-gray-500">Loading registration codes...</div>
-                    </div>
-                ) : sortedCodes.length === 0 ? (
-                    <div className="flex justify-center items-center p-8">
-                        <div className="text-gray-500">
+            {/* Codes Table/List */}
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                {/* Mobile View - Cards */}
+                <div className="block lg:hidden">
+                    {isLoading ? (
+                        <div className="flex justify-center items-center py-8">
+                            <div className="text-gray-500">Loading registration codes...</div>
+                        </div>
+                    ) : sortedCodes.length === 0 ? (
+                        <div className="p-8 text-center text-gray-500">
                             {search || statusFilter !== 'all' ? 'No codes found matching your filters.' : 'No registration codes available.'}
                         </div>
-                    </div>
-                ) : (
-                    <table className="w-full text-left text-sm">
-                        <thead>
-                            <tr>
-                                <th
-                                    className="px-4 py-3 border-b cursor-pointer hover:bg-gray-50"
-                                    onClick={() => handleSort('registrationCode')}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        Registration Code
-                                        <SortIcon field="registrationCode" />
-                                    </div>
-                                </th>
-                                <th
-                                    className="px-4 py-3 border-b cursor-pointer hover:bg-gray-50"
-                                    onClick={() => handleSort('status')}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        Status
-                                        <SortIcon field="status" />
-                                    </div>
-                                </th>
-                                <th
-                                    className="px-4 py-3 border-b cursor-pointer hover:bg-gray-50"
-                                    onClick={() => handleSort('createdAt')}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        Created At
-                                        <SortIcon field="createdAt" />
-                                    </div>
-                                </th>
-                                <th
-                                    className="px-4 py-3 border-b cursor-pointer hover:bg-gray-50"
-                                    onClick={() => handleSort('expirationDate')}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        Expiration Date
-                                        <SortIcon field="expirationDate" />
-                                    </div>
-                                </th>
-                                <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-50">
-                                    <div className="flex items-center gap-2">
-                                        Actions
-                                    </div>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                    ) : (
+                        <div className="divide-y divide-gray-200">
                             {paginatedCodes.map((code) => (
-                                <tr key={code.id} className="hover:bg-red-50">
-                                    <td className="px-4 py-4 border-t font-mono text-sm">{code.registrationCode}</td>
-                                    <td className="px-4 py-4 border-t">
-                                        <span
-                                            className={`px-3 py-1 rounded-full text-white text-xs font-medium ${code.status === 'Available'
-                                                    ? 'bg-green-500'
-                                                    : code.status === 'Expired'
-                                                        ? 'bg-red-500'
-                                                        : 'bg-gray-500'
-                                                }`}
-                                        >
-                                            {code.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-4 py-4 border-t">{formatDate(code.createdAt)}</td>
-                                    <td className="px-4 py-4 border-t">{formatDate(code.expirationDate)}</td>
-                                    <td className="px-4 py-4 border-t">
-                                        <div className="flex gap-2">
+                                <div key={code.id} className="p-4 hover:bg-gray-50">
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <p className="font-semibold text-gray-900">
+                                                    {code.registrationCode}
+                                                </p>
+                                                <p className="text-sm text-gray-600">{formatDate(code.createdAt)}</p>
+                                            </div>
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                {code.status}
+                                            </span>
+                                        </div>
+                                        <p className="text-sm text-gray-500">
+                                            Expires: {formatDate(code.expirationDate)}
+                                        </p>
+
+                                        {/* Action Button */}
+                                        <div className="flex gap-2 pt-2">
                                             {isCodeExpired(code) ? (
                                                 <button
                                                     onClick={() => handleMarkAsExpired(code.id)}
                                                     disabled={markingAsExpired === code.id}
-                                                    className="px-3 py-1.5 cursor-pointer bg-orange-600 text-white text-xs font-medium rounded-md hover:bg-orange-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                                                    className="flex-1 cursor-pointer flex items-center justify-center gap-1 px-3 py-2 text-sm font-medium text-orange-700 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
                                                 >
                                                     {markingAsExpired === code.id ? 'Marking...' : 'Mark as Expired'}
                                                 </button>
                                             ) : (
-                                                <span className="text-gray-400 text-xs">No action</span>
+                                                <div className="flex-1 flex items-center justify-center px-3 py-2 text-sm text-gray-400 bg-gray-50 rounded-lg">
+                                                    No action needed
+                                                </div>
                                             )}
                                         </div>
-                                    </td>
-                                </tr>
+                                    </div>
+                                </div>
                             ))}
-                        </tbody>
-                    </table>
-                )}
-            </div>
+                        </div>
+                    )}
+                </div>
 
-            {/* Pagination */}
-            {!isLoading && sortedCodes.length > 0 && (
-                <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
-                    {/* Items per page selector */}
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <span>Show</span>
-                        <select
-                            value={itemsPerPage}
-                            onChange={(e) => {
-                                setItemsPerPage(Number(e.target.value));
-                                setCurrentPage(1);
-                            }}
-                            className="border cursor-pointer border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-red-500"
-                        >
-                            <option value={5}>5</option>
-                            <option value={10}>10</option>
-                            <option value={25}>25</option>
-                            <option value={50}>50</option>
-                            <option value={100}>100</option>
-                        </select>
-                        <span>entries per page</span>
-                    </div>
-
-                    {/* Pagination info and controls */}
-                    <div className="flex flex-col sm:flex-row items-center gap-4">
-                        <span className="text-sm text-gray-600">
-                            Showing {startIndex + 1} to {Math.min(endIndex, sortedCodes.length)} of {sortedCodes.length} entries
-                        </span>
-
-                        <div className="flex items-center gap-2">
-                            {/* Previous button */}
-                            <button
-                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                                disabled={currentPage === 1}
-                                className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${currentPage === 1
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer'
-                                    }`}
-                            >
-                                <ChevronLeft size={16} />
-                                <span className="hidden sm:inline">Previous</span>
-                            </button>
-
-                            {/* Page numbers */}
-                            <div className="flex items-center gap-1">
-                                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                                    let pageNum: number;
-
-                                    if (totalPages <= 5) {
-                                        pageNum = i + 1;
-                                    } else if (currentPage <= 3) {
-                                        pageNum = i + 1;
-                                    } else if (currentPage >= totalPages - 2) {
-                                        pageNum = totalPages - 4 + i;
-                                    } else {
-                                        pageNum = currentPage - 2 + i;
-                                    }
-
-                                    return (
+                {/* Desktop View - Table */}
+                <div className="hidden lg:block overflow-x-auto">
+                    {isLoading ? (
+                        <div className="flex justify-center items-center py-8">
+                            <div className="text-gray-500">Loading registration codes...</div>
+                        </div>
+                    ) : sortedCodes.length === 0 ? (
+                        <div className="p-8 text-center text-gray-500">
+                            {search || statusFilter !== 'all' ? 'No codes found matching your filters.' : 'No registration codes available.'}
+                        </div>
+                    ) : (
+                        <table className="w-full">
+                            <thead className="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         <button
-                                            key={pageNum}
-                                            onClick={() => setCurrentPage(pageNum)}
-                                            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${currentPage === pageNum
-                                                    ? 'bg-red-800 text-white'
-                                                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer'
-                                                }`}
+                                            onClick={() => handleSort('registrationCode')}
+                                            className="flex items-center gap-2 hover:text-gray-700 transition-colors"
                                         >
-                                            {pageNum}
+                                            <span>Registration Code</span>
+                                            {getSortIcon('registrationCode')}
                                         </button>
-                                    );
-                                })}
-
-                                {totalPages > 5 && currentPage < totalPages - 2 && (
-                                    <>
-                                        <span className="px-2 text-gray-500">...</span>
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         <button
-                                            onClick={() => setCurrentPage(totalPages)}
-                                            className="px-3 py-1.5 cursor-pointer rounded-md text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                                            onClick={() => handleSort('status')}
+                                            className="flex items-center gap-2 hover:text-gray-700 transition-colors"
                                         >
-                                            {totalPages}
+                                            <span>Status</span>
+                                            {getSortIcon('status')}
                                         </button>
-                                    </>
-                                )}
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <button
+                                            onClick={() => handleSort('createdAt')}
+                                            className="flex items-center gap-2 hover:text-gray-700 transition-colors"
+                                        >
+                                            <span>Created At</span>
+                                            {getSortIcon('createdAt')}
+                                        </button>
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <button
+                                            onClick={() => handleSort('expirationDate')}
+                                            className="flex items-center gap-2 hover:text-gray-700 transition-colors"
+                                        >
+                                            <span>Expiration Date</span>
+                                            {getSortIcon('expirationDate')}
+                                        </button>
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {paginatedCodes.map((code) => (
+                                    <tr key={code.id} className="hover:bg-gray-50 transition-colors">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            {code.registrationCode}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                {code.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                            {formatDate(code.createdAt)}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                            {formatDate(code.expirationDate)}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                            <div className="flex gap-2">
+                                                {isCodeExpired(code) ? (
+                                                    <button
+                                                        onClick={() => handleMarkAsExpired(code.id)}
+                                                        disabled={markingAsExpired === code.id}
+                                                        className="inline-flex cursor-pointer items-center gap-1 px-3 py-1.5 text-sm font-medium text-orange-700 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                                                    >
+                                                        {markingAsExpired === code.id ? 'Marking...' : 'Mark as Expired'}
+                                                    </button>
+                                                ) : (
+                                                    <span className="text-gray-400 text-xs">No action</span>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
+
+                {/* Pagination Controls */}
+                {sortedCodes.length > 0 && (
+                    <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                            {/* Mobile pagination info */}
+                            <div className="text-sm text-gray-600 sm:hidden">
+                                Page {currentPage} of {totalPages}
                             </div>
 
-                            {/* Next button */}
-                            <button
-                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                                disabled={currentPage === totalPages}
-                                className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${currentPage === totalPages
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer'
-                                    }`}
-                            >
-                                <span className="hidden sm:inline">Next</span>
-                                <ChevronRight size={16} />
-                            </button>
+                            {/* Pagination buttons */}
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setCurrentPage(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                    className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    <ChevronLeft className="w-4 h-4 mr-1" />
+                                    Previous
+                                </button>
+
+                                {/* Page numbers */}
+                                <div className="hidden sm:flex items-center gap-1">
+                                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                        let pageNum: number;
+
+                                        if (totalPages <= 5) {
+                                            pageNum = i + 1;
+                                        } else if (currentPage <= 3) {
+                                            pageNum = i + 1;
+                                        } else if (currentPage >= totalPages - 2) {
+                                            pageNum = totalPages - 4 + i;
+                                        } else {
+                                            pageNum = currentPage - 2 + i;
+                                        }
+
+                                        return (
+                                            <button
+                                                key={pageNum}
+                                                onClick={() => setCurrentPage(pageNum)}
+                                                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                                                    currentPage === pageNum
+                                                        ? 'bg-blue-500 text-white'
+                                                        : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                                                }`}
+                                            >
+                                                {pageNum}
+                                            </button>
+                                        );
+                                    })}
+
+                                    {totalPages > 5 && currentPage < totalPages - 2 && (
+                                        <>
+                                            <span className="px-2 text-gray-500">...</span>
+                                            <button
+                                                onClick={() => setCurrentPage(totalPages)}
+                                                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                                                    currentPage === totalPages
+                                                        ? 'bg-blue-500 text-white'
+                                                        : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                                                }`}
+                                            >
+                                                {totalPages}
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
+
+                                <button
+                                    onClick={() => setCurrentPage(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                    className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    Next
+                                    <ChevronRight className="w-4 h-4 ml-1" />
+                                </button>
+                            </div>
+
+                            {/* Desktop pagination info */}
+                            <div className="hidden sm:block text-sm text-gray-600">
+                                Page {currentPage} of {totalPages}
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 }

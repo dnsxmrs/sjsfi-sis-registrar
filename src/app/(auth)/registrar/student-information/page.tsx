@@ -211,8 +211,6 @@ export default function StudentInformationPage() {
     return (
         <div className="p-4 sm:p-6">
             <div className="mx-auto">
-                <h1 className="text-2xl sm:text-3xl font-semibold text-black mb-6">Student Information</h1>
-
                 {/* Search and Filter Section */}
                 <div className="bg-white rounded-lg shadow-md p-4 mb-6">
                     <div className="flex flex-col gap-4">

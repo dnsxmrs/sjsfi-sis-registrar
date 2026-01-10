@@ -430,50 +430,92 @@ const RegisterCoursePage: React.FC = () => {
                                 <div className="text-gray-500">Loading students...</div>
                             </div>
                         ) : (
-                            <div className="overflow-x-auto">
-                                <table className="min-w-full text-left text-sm"><thead>
-                                <tr className="border-b border-gray-300 text-black">
-                                    <th className="py-2 font-semibold">Registration ID</th>
-                                    <th className="py-2 font-semibold">Date & Time</th>
-                                    <th className="py-2 font-semibold">Full Name</th>
-                                    <th className="py-2 font-semibold">Grade Level</th>
-                                    <th className="py-2 font-semibold">Actions</th>
-                                </tr>
-                            </thead>
-                                <tbody>
+                            <>
+                                {/* Desktop Table View */}
+                                <div className="hidden md:block overflow-x-auto">
+                                    <table className="min-w-full text-left text-sm">
+                                        <thead>
+                                            <tr className="border-b border-gray-300 text-black">
+                                                <th className="py-2 font-semibold">Registration ID</th>
+                                                <th className="py-2 font-semibold">Date & Time</th>
+                                                <th className="py-2 font-semibold">Full Name</th>
+                                                <th className="py-2 font-semibold">Grade Level</th>
+                                                <th className="py-2 font-semibold">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {students.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan={5} className="py-4 text-center text-gray-500">
+                                                        No students found
+                                                    </td>
+                                                </tr>
+                                            ) : (
+                                                paginatedStudents.map((student) => (
+                                                    <tr key={student.id} className="border-b border-gray-200 text-black hover:bg-gray-50">
+                                                        <td className="py-2">{student.registrationId}</td>
+                                                        <td className="py-2">{student.createdAt}</td>
+                                                        <td className="py-2">{student.fullName}</td>
+                                                        <td className="py-2">
+                                                            <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                                                                {student.gradeLevel}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-2 flex space-x-4">
+                                                            <button
+                                                                title="View"
+                                                                className="text-gray-700 hover:text-gray-900 cursor-pointer"
+                                                                onClick={() => handleViewStudent(student.id)}
+                                                            >
+                                                                <Eye className="h-5 w-5" />
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* Mobile Card View */}
+                                <div className="block md:hidden space-y-4">
                                     {students.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={5} className="py-4 text-center text-gray-500">
-                                                No students found
-                                            </td>
-                                        </tr>
+                                        <div className="py-8 text-center text-gray-500">
+                                            No students found
+                                        </div>
                                     ) : (
                                         paginatedStudents.map((student) => (
-                                            <tr key={student.id} className="border-b border-gray-200 text-black hover:bg-gray-50">
-                                                <td className="py-2">{student.registrationId}</td>
-                                                <td className="py-2">{student.createdAt}</td>
-                                                <td className="py-2">{student.fullName}</td>
-                                                {/* <td className="py-2">{student.familyName}</td> */}
-                                                <td className="py-2">
-                                                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                                                        {student.gradeLevel}
-                                                    </span>
-                                                </td>
-                                                <td className="py-2 flex space-x-4">
+                                            <div key={student.id} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                                <div className="flex justify-between items-start mb-3">
+                                                    <div className="flex-1">
+                                                        <h3 className="font-semibold text-black text-sm">{student.fullName}</h3>
+                                                        <p className="text-xs text-gray-600 mt-1">ID: {student.registrationId}</p>
+                                                    </div>
                                                     <button
                                                         title="View"
-                                                        className="text-gray-700 hover:text-gray-900 cursor-pointer"
+                                                        className="text-gray-700 hover:text-gray-900 cursor-pointer p-1"
                                                         onClick={() => handleViewStudent(student.id)}
                                                     >
                                                         <Eye className="h-5 w-5" />
                                                     </button>
-                                                </td>
-                                            </tr>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-xs text-gray-600">Date & Time:</span>
+                                                        <span className="text-xs text-black">{student.createdAt}</span>
+                                                    </div>
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-xs text-gray-600">Grade Level:</span>
+                                                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                                                            {student.gradeLevel}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         ))
                                     )}
-                                </tbody>
-                            </table>
-                            </div>
+                                </div>
+                            </>
                         )}
                         {/* Pagination Controls */}
                         {students.length > 0 && (
