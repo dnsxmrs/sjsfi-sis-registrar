@@ -286,7 +286,7 @@ export default function AcademicSettingsPage() {
               <h2 className="text-xl font-semibold text-gray-800">Academic Term</h2>
               <button
                 onClick={() => setShowAddModal(true)}
-                className="bg-red-800 hover:bg-red-900 text-white px-4 py-2 rounded flex items-center gap-2 text-sm"
+                className="bg-red-800 cursor-pointer hover:bg-red-900 text-white px-4 py-2 rounded flex items-center gap-2 text-sm"
               >
                 <Plus size={16} /> Add
               </button>
@@ -339,7 +339,7 @@ export default function AcademicSettingsPage() {
                               </button> */}
                               <button
                                 onClick={() => handleAcademicTermAction('cancel', schoolYear.id)}
-                                className="text-red-600 hover:text-red-800 hover:underline text-xs"
+                                className="text-red-600 cursor-pointer hover:text-red-800 hover:underline text-xs"
                               >
                                 Cancel
                               </button>
@@ -352,13 +352,13 @@ export default function AcademicSettingsPage() {
                             <>
                               <button
                                 onClick={() => handleAcademicTermAction('complete', schoolYear.id)}
-                                className="mr-2 text-yellow-600 hover:text-yellow-800 hover:underline text-xs"
+                                className="mr-2 cursor-pointer text-yellow-600 hover:text-yellow-800 hover:underline text-xs"
                               >
                                 Finish Early
                               </button>
                               <button
                                 onClick={() => handleAcademicTermAction('suspend', schoolYear.id)}
-                                className="text-orange-600 hover:text-orange-800 hover:underline text-xs"
+                                className="text-orange-600 cursor-pointer hover:text-orange-800 hover:underline text-xs"
                               >
                                 Suspend
                               </button>
@@ -372,13 +372,13 @@ export default function AcademicSettingsPage() {
                             <>
                               <button
                                 onClick={() => handleAcademicTermAction('complete', schoolYear.id)}
-                                className="mr-2 text-green-600 hover:text-green-800 hover:underline text-xs"
+                                className="mr-2 cursor-pointer text-green-600 hover:text-green-800 hover:underline text-xs"
                               >
                                 Mark Complete
                               </button>
                               <button
                                 onClick={() => handleAcademicTermAction('delete', schoolYear.id)}
-                                className="text-red-600 hover:text-red-800 hover:underline text-xs"
+                                className="text-red-600 cursor-pointer hover:text-red-800 hover:underline text-xs"
                               >
                                 Delete
                               </button>
@@ -398,13 +398,13 @@ export default function AcademicSettingsPage() {
                           <>
                             <button
                               onClick={() => handleAcademicTermAction('reactivate', schoolYear.id)}
-                              className="mr-2 text-green-600 hover:text-green-800 hover:underline text-xs"
+                              className="mr-2 cursor-pointer text-green-600 hover:text-green-800 hover:underline text-xs"
                             >
                               Reactivate
                             </button>
                             <button
                               onClick={() => handleAcademicTermAction('delete', schoolYear.id)}
-                              className="text-red-600 hover:text-red-800 hover:underline text-xs"
+                              className="text-red-600 cursor-pointer hover:text-red-800 hover:underline text-xs"
                             >
                               Delete
                             </button>
@@ -475,7 +475,7 @@ export default function AcademicSettingsPage() {
               <h2 className="text-xl font-semibold text-gray-800">General Policy and Guidelines</h2>
               <button
                 onClick={() => setShowEditModal(true)}
-                className="bg-red-800 hover:bg-red-900 text-white px-4 py-2 rounded flex items-center gap-2 text-sm"
+                className="bg-red-800 cursor-pointer hover:bg-red-900 text-white px-4 py-2 rounded flex items-center gap-2 text-sm"
               >
                 <Edit size={16} /> Edit
               </button>
@@ -501,7 +501,7 @@ export default function AcademicSettingsPage() {
                 <h2 className="text-xl font-semibold text-gray-800">Year Level</h2>
                 <button
                   onClick={() => setShowAddYearLevelModal(true)}
-                  className="bg-red-800 hover:bg-red-900 text-white px-4 py-2 rounded flex items-center gap-2 text-sm"
+                  className="bg-red-800 cursor-pointer hover:bg-red-900 text-white px-4 py-2 rounded flex items-center gap-2 text-sm"
                 >
                   <Plus size={16} /> Add
                 </button>
@@ -520,14 +520,14 @@ export default function AcademicSettingsPage() {
                         <div className="flex gap-1">
                           <button
                             onClick={() => openEditYearLevelModal(yearLevel)}
-                            className="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded"
+                            className="p-1 cursor-pointer text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded"
                             title="Edit"
                           >
                             <Edit size={14} />
                           </button>
                           <button
                             onClick={() => openDeleteYearLevelModal(yearLevel)}
-                            className="p-1 text-red-600 hover:text-red-800 hover:bg-red-100 rounded"
+                            className="p-1 cursor-pointer text-red-600 hover:text-red-800 hover:bg-red-100 rounded"
                             title="Delete"
                           >
                             <Trash2 size={14} />

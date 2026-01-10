@@ -54,14 +54,14 @@ export default function EditPolicyModal({ isOpen, onClose, policyText, onSave }:
           <button
             onClick={handleClose}
             disabled={isLoading}
-            className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded disabled:opacity-50"
+            className="bg-red-500 cursor-pointer hover:bg-red-600 text-white px-6 py-2 rounded disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={isLoading}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded disabled:opacity-50"
+            className="bg-green-600 cursor-pointer hover:bg-green-700 text-white px-6 py-2 rounded disabled:opacity-50"
           >
             {isLoading ? 'Saving...' : 'Save Changes'}
           </button>

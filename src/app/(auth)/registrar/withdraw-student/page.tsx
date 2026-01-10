@@ -127,7 +127,7 @@ export default function RegistrarStatusRequestsPage() {
                                             <td className="py-2">{req.type}</td>
                                             <td className="py-2">{req.date}</td>
                                             <td className="py-2">{statusBadge(req.status)}</td>
-                                            <td className="py-2 flex space-x-2">
+                                            <td className="py-2 cursor-pointer flex space-x-2">
                                                 <button className="text-blue-600 hover:text-blue-800" title="View Details">
                                                     <Eye className="h-5 w-5" />
                                                 </button>
@@ -169,10 +169,10 @@ export default function RegistrarStatusRequestsPage() {
                             </div>
                         </div>
                         <div className="flex justify-end space-x-2 mt-8">
-                            <button className="bg-green-600 text-white px-4 py-2 rounded flex items-center space-x-2 hover:bg-green-700">
+                            <button className="bg-green-600 text-white cursor-pointer px-4 py-2 rounded flex items-center space-x-2 hover:bg-green-700">
                                 <CheckCircle className="h-5 w-5" /> <span>Approve</span>
                             </button>
-                            <button className="bg-red-600 text-white px-4 py-2 rounded flex items-center space-x-2 hover:bg-red-700">
+                            <button className="bg-red-600 cursor-pointer text-white px-4 py-2 rounded flex items-center space-x-2 hover:bg-red-700">
                                 <XCircle className="h-5 w-5" /> <span>Reject</span>
                             </button>
                         </div>

@@ -32,8 +32,8 @@ const PrintPreview: React.FC<{ request: typeof sampleRequests[0], onClose: () =>
                 <div className="text-right text-sm text-gray-700">Registrar&apos;s Signature</div>
             </div>
             <div className="mt-8 flex justify-end print:hidden">
-                <button onClick={onClose} className="bg-gray-500 text-white px-4 py-2 rounded mr-2">Close</button>
-                <button onClick={() => window.print()} className="bg-red-800 text-white px-4 py-2 rounded">Print</button>
+                <button onClick={onClose} className="bg-gray-500 cursor-pointer text-white px-4 py-2 rounded mr-2">Close</button>
+                <button onClick={() => window.print()} className="bg-red-800 cursor-pointer text-white px-4 py-2 rounded">Print</button>
             </div>
         </div>
     </div>
@@ -53,10 +53,10 @@ const GenerateReportsPage: React.FC = () => {
                         <label className="block text-sm font-medium text-black px-3">
                             Quick Access Buttons
                         </label>
-                        <button className="bg-red-800 text-white py-2 rounded text-sm hover:bg-red-900">
+                        <button className="bg-red-800 cursor-pointer text-white py-2 rounded text-sm hover:bg-red-900">
                             Generate Report
                         </button>
-                        <button className="bg-red-800 text-white py-2 rounded text-sm hover:bg-red-900">
+                        <button className="bg-red-800 cursor-pointer text-white py-2 rounded text-sm hover:bg-red-900">
                             Export All
                         </button>
                     </div>
@@ -89,7 +89,7 @@ const GenerateReportsPage: React.FC = () => {
                                             <td className="py-2">{req.requestedDocument}</td>
                                             <td className="py-2">{req.reason}</td>
                                             <td className="py-2">{req.date}</td>
-                                            <td className="py-2 flex space-x-4">
+                                            <td className="py-2 cursor-pointer flex space-x-4">
                                                 <button title="Accept" className="text-green-600 hover:text-green-800">
                                                     <CheckCircle className="h-5 w-5" />
                                                 </button>

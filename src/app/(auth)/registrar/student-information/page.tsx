@@ -240,7 +240,7 @@ export default function StudentInformationPage() {
                                         <button
                                             key={grade}
                                             onClick={() => toggleGradeLevel(grade)}
-                                            className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${selectedGrades.includes(grade)
+                                            className={`px-3 py-1.5 cursor-pointer text-sm rounded-lg border transition-colors ${selectedGrades.includes(grade)
                                                     ? 'bg-blue-500 text-white border-blue-500'
                                                     : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                                                 }`}
@@ -252,7 +252,7 @@ export default function StudentInformationPage() {
                                 {selectedGrades.length > 0 && (
                                     <button
                                         onClick={() => setSelectedGrades([])}
-                                        className="mt-2 text-sm text-blue-600 hover:text-blue-800"
+                                        className="mt-2 text-sm text-blue-600 hover:text-blue-800 cursor-pointer"
                                     >
                                         Clear all
                                     </button>
@@ -269,7 +269,7 @@ export default function StudentInformationPage() {
                                         <button
                                             key={year}
                                             onClick={() => toggleSchoolYear(year)}
-                                            className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${selectedSchoolYears.includes(year)
+                                            className={`px-3 py-1.5 cursor-pointer text-sm rounded-lg border transition-colors ${selectedSchoolYears.includes(year)
                                                     ? 'bg-green-500 text-white border-green-500'
                                                     : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                                                 }`}
@@ -281,7 +281,7 @@ export default function StudentInformationPage() {
                                 {selectedSchoolYears.length > 0 && (
                                     <button
                                         onClick={() => setSelectedSchoolYears([])}
-                                        className="mt-2 text-sm text-green-600 hover:text-green-800"
+                                        className="mt-2 text-sm text-green-600 hover:text-green-800 cursor-pointer"
                                     >
                                         Clear all
                                     </button>
@@ -302,7 +302,7 @@ export default function StudentInformationPage() {
                                         setItemsPerPage(Number(e.target.value));
                                         setCurrentPage(1);
                                     }}
-                                    className="text-black px-3 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="text-black cursor-pointer px-3 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 >
                                     <option value={5}>5</option>
                                     <option value={10}>10</option>
@@ -348,7 +348,7 @@ export default function StudentInformationPage() {
                                             <div className="flex gap-2 pt-2">
                                                 <button
                                                     onClick={() => handleViewStudent(student.applicationNumber)}
-                                                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                                                    className="flex-1 cursor-pointer flex items-center justify-center gap-1 px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
                                                 >
                                                     <Eye className="w-4 h-4" />
                                                     <span>View</span>
@@ -451,7 +451,7 @@ export default function StudentInformationPage() {
                                                 <div className="flex gap-2">
                                                     <button
                                                         onClick={() => handleViewStudent(student.applicationNumber)}
-                                                        className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                                                        className="inline-flex cursor-pointer items-center gap-1 px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
                                                         title="View Student"
                                                     >
                                                         <Eye className="w-4 h-4" />
@@ -467,7 +467,7 @@ export default function StudentInformationPage() {
                                                     </button> */}
                                                     <button
                                                         onClick={() => handleArchiveStudent(student.applicationNumber)}
-                                                        className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                                                        className="inline-flex cursor-pointer items-center gap-1 px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
                                                         title="Archive Student"
                                                     >
                                                         <Archive className="w-4 h-4" />

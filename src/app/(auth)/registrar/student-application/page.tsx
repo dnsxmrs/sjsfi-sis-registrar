@@ -450,7 +450,7 @@ const RegisterCoursePage: React.FC = () => {
                             </h3>
                             <button
                                 onClick={() => setShowConfirmModal(false)}
-                                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                                className="p-1 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
                                 disabled={isNotificationLoading}
                             >
                                 <X className="w-5 h-5 text-gray-500" />
@@ -478,7 +478,7 @@ const RegisterCoursePage: React.FC = () => {
                         <div className="flex justify-end space-x-3">
                             <button
                                 onClick={() => setShowConfirmModal(false)}
-                                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                                className="px-4 py-2 border cursor-pointer border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
                                 disabled={isNotificationLoading}
                             >
                                 Cancel
@@ -486,7 +486,7 @@ const RegisterCoursePage: React.FC = () => {
                             <button
                                 onClick={handleConfirmSend}
                                 disabled={isNotificationLoading}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                                className="px-4 py-2 bg-blue-600 cursor-pointer text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
                             >
                                 {isNotificationLoading ? (
                                     <>
@@ -538,7 +538,7 @@ const RegisterCoursePage: React.FC = () => {
                             </h3>
                             <button
                                 onClick={() => setShowApproveModal(false)}
-                                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                                className="p-1 cursor-pointer hover:bg-gray-100 rounded-full transition-colors"
                                 disabled={isApproving}
                             >
                                 <X className="w-5 h-5 text-gray-500" />
@@ -637,7 +637,7 @@ const RegisterCoursePage: React.FC = () => {
                         <div className="flex justify-end space-x-3">
                             <button
                                 onClick={() => setShowApproveModal(false)}
-                                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                                className="px-4 py-2 border cursor-pointer border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
                                 disabled={isApproving}
                             >
                                 Cancel
@@ -645,7 +645,7 @@ const RegisterCoursePage: React.FC = () => {
                             <button
                                 onClick={handleConfirmApprove}
                                 disabled={isApproving}
-                                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                                className="px-4 py-2 bg-green-600 cursor-pointer text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
                             >
                                 {isApproving ? (
                                     <>
@@ -749,14 +749,14 @@ const RegisterCoursePage: React.FC = () => {
                                                                 <div className="flex items-center space-x-4 justify-end sm:justify-start">
                                                                     <button
                                                                         title="View"
-                                                                        className="text-gray-700 hover:text-blue-600 transition-colors"
+                                                                        className="text-gray-700 cursor-pointer hover:text-blue-600 transition-colors"
                                                                         onClick={() => handleViewStudent(student)}
                                                                     >
                                                                         <Eye className="h-5 w-5" />
                                                                     </button>
                                                                     <button
                                                                         title="Delete"
-                                                                        className="text-red-600 hover:text-red-800 transition-colors"
+                                                                        className="text-red-600 cursor-pointer hover:text-red-800 transition-colors"
                                                                         onClick={() => toast(`Delete student ${student.applicationNumber}`)}
                                                                     >
                                                                         <Trash className="h-5 w-5" />

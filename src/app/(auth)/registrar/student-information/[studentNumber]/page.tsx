@@ -239,7 +239,7 @@ export default function StudentDetailPage({ params }: PageProps) {
             <div className="p-4 sm:p-6">
                 <button
                     onClick={() => router.back()}
-                    className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+                    className="inline-flex cursor-pointer items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
                 >
                     <ArrowLeft className="w-5 h-5" />
                     <span>Back to Students</span>
@@ -256,7 +256,7 @@ export default function StudentDetailPage({ params }: PageProps) {
             <div className="p-4 sm:p-6">
                 <button
                     onClick={() => router.back()}
-                    className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+                    className="inline-flex cursor-pointer items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
                 >
                     <ArrowLeft className="w-5 h-5" />
                     <span>Back to Students</span>
@@ -283,7 +283,7 @@ export default function StudentDetailPage({ params }: PageProps) {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <button
                     onClick={() => router.back()}
-                    className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                    className="inline-flex cursor-pointer items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
                 >
                     <ArrowLeft className="w-5 h-5" />
                     <span>Back to Students</span>
@@ -294,13 +294,13 @@ export default function StudentDetailPage({ params }: PageProps) {
                         <>
                             <button
                                 onClick={handleEditStudent}
-                                className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                                className="px-6 py-2.5 cursor-pointer bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                             >
                                 Edit Student Information
                             </button>
                             <button
                                 onClick={handleArchiveStudent}
-                                className="px-6 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                                className="px-6 py-2.5 cursor-pointer bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
                             >
                                 Archive Student
                             </button>
@@ -310,14 +310,14 @@ export default function StudentDetailPage({ params }: PageProps) {
                             <button
                                 onClick={handleSaveStudent}
                                 disabled={isSaving}
-                                className="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                className="px-6 py-2.5 cursor-pointer bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
                             >
                                 {isSaving ? 'Saving...' : 'Save Changes'}
                             </button>
                             <button
                                 onClick={handleCancelEdit}
                                 disabled={isSaving}
-                                className="px-6 py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                className="px-6 py-2.5 cursor-pointer bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
                             >
                                 Cancel
                             </button>

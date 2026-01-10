@@ -319,13 +319,13 @@ const RegisterCoursePage: React.FC = () => {
                         <div className="flex justify-end space-x-3">
                             <button
                                 onClick={() => setShowRejectModal(false)}
-                                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                                className="px-4 py-2 border border-gray-300 rounded-lg cursor-pointer text-gray-700 hover:bg-gray-50 transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleConfirmReject}
-                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-2"
+                                className="px-4 py-2 bg-red-600 text-white rounded-lg cursor-pointer hover:bg-red-700 transition-colors flex items-center space-x-2"
                             >
                                 <X className="w-4 h-4" />
                                 <span>Reject Registration</span>
@@ -347,7 +347,7 @@ const RegisterCoursePage: React.FC = () => {
                             Quick Access Buttons
                         </label>
                         <button
-                            className="bg-red-800 text-white py-2 rounded text-sm hover:bg-red-900 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                            className="bg-red-800 text-white py-2 cursor-pointer rounded text-sm hover:bg-red-900 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                             onClick={() => handleGenerateRegistration()}
                             disabled={isGeneratingCode}
                         >
@@ -376,7 +376,7 @@ const RegisterCoursePage: React.FC = () => {
                                     />
                                     <button
                                         onClick={handleCopyCode}
-                                        className="flex-shrink-0 p-1 text-green-600 hover:text-green-800 hover:bg-green-100 rounded"
+                                        className="flex-shrink-0 p-1 text-green-600 hover:text-green-800 hover:bg-green-100 rounded cursor-pointer"
                                         title="Copy to clipboard"
                                     >
                                         {isCodeCopied ? (
@@ -462,7 +462,7 @@ const RegisterCoursePage: React.FC = () => {
                                                 <td className="py-2 flex space-x-4">
                                                     <button
                                                         title="View"
-                                                        className="text-gray-700 hover:text-gray-900"
+                                                        className="text-gray-700 hover:text-gray-900 cursor-pointer"
                                                         onClick={() => handleViewStudent(student.id)}
                                                     >
                                                         <Eye className="h-5 w-5" />
@@ -489,7 +489,7 @@ const RegisterCoursePage: React.FC = () => {
                                         <button
                                             onClick={() => handlePageChange(currentPage - 1)}
                                             disabled={currentPage === 1}
-                                            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
                                         >
                                             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -520,7 +520,7 @@ const RegisterCoursePage: React.FC = () => {
                                         <button
                                             onClick={() => handlePageChange(currentPage + 1)}
                                             disabled={currentPage === totalPages}
-                                            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
                                         >
                                             Next
                                             <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -781,7 +781,7 @@ const RegisterCoursePage: React.FC = () => {
                                         disabled={selectedRegistration.status !== 'PENDING' || isApproving || isRejecting}
                                         className={`px-4 py-2 rounded text-sm flex items-center space-x-2 ${selectedRegistration.status !== 'PENDING' || isApproving || isRejecting
                                             ? 'bg-gray-400 cursor-not-allowed'
-                                            : 'bg-gray-600 hover:bg-gray-700'
+                                            : 'bg-gray-600 hover:bg-gray-700 cursor-pointer'
                                             } text-white`}
                                     >
                                         {isRejecting ? (
@@ -804,7 +804,7 @@ const RegisterCoursePage: React.FC = () => {
                                                 ? 'bg-gray-400 cursor-not-allowed'
                                                 : showApproveConfirmation
                                                     ? 'bg-orange-600 hover:bg-orange-700'
-                                                    : 'bg-red-800 hover:bg-red-900'
+                                                    : 'bg-red-800 hover:bg-red-900 cursor-pointer'
                                         } text-white`}
                                     >
                                         {isApproving ? (

@@ -110,7 +110,7 @@ export default function AddAcademicTermModal({ isOpen, onClose, onAdd }: AddAcad
               type="date"
               value={formData.startDate}
               onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
-              className="text-gray-700 w-full border border-red-800 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+              className="text-gray-700 cursor-pointer w-full border border-red-800 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
               required
             />
           </div>
@@ -121,7 +121,7 @@ export default function AddAcademicTermModal({ isOpen, onClose, onAdd }: AddAcad
               type="date"
               value={formData.endDate}
               onChange={(e) => setFormData(prev => ({ ...prev, endDate: e.target.value }))}
-              className="text-gray-700 w-full border border-red-800 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+              className="text-gray-700 cursor-pointer w-full border border-red-800 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
               required
             />
           </div>
@@ -131,7 +131,7 @@ export default function AddAcademicTermModal({ isOpen, onClose, onAdd }: AddAcad
             <select
               value={formData.status}
               onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'ARCHIVED' }))}
-              className="text-gray-700 w-full border border-red-800 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+              className="text-gray-700 cursor-pointer w-full border border-red-800 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
             >
               <option value="ACTIVE">Active</option>
               <option value="INACTIVE">Inactive</option>
@@ -144,14 +144,14 @@ export default function AddAcademicTermModal({ isOpen, onClose, onAdd }: AddAcad
             <button
               type="button"
               onClick={handleClose}
-              className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md disabled:opacity-50"
+              className="bg-red-500 cursor-pointer hover:bg-red-600 text-white px-6 py-2 rounded-md disabled:opacity-50"
               disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md disabled:opacity-50"
+              className="bg-green-500 cursor-pointer hover:bg-green-600 text-white px-6 py-2 rounded-md disabled:opacity-50"
               disabled={loading}
             >
               {loading ? "Adding..." : "Add"}

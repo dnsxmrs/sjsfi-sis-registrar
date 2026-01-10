@@ -290,7 +290,7 @@ export default function SystemLogsPage() {
             onChange={(e) => setSearch(e.target.value)}
           />
           <Search className="absolute top-2.5 left-3 text-gray-700" size={18} />
-          <div className="relative export-dropdown">
+          <div className="relative export-dropdown cursor-pointer">
             <button
               onClick={() => setExportDropdownOpen(!exportDropdownOpen)}
               className="flex items-center justify-center bg-red-800 hover:bg-red-900 text-white px-3 py-2 rounded-md text-sm"
@@ -308,7 +308,7 @@ export default function SystemLogsPage() {
                     className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
                     <FileDown size={16} className="mr-2" />
-                    <div className="flex flex-col items-start">
+                    <div className="flex cursor-pointer flex-col items-start">
                       <span>Export as PDF</span>
                       <span className="text-xs text-gray-500">
                         {selectedRows.length > 0
@@ -324,7 +324,7 @@ export default function SystemLogsPage() {
                     className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
                     <FileDown size={16} className="mr-2" />
-                    <div className="flex flex-col items-start">
+                    <div className="flex cursor-pointer flex-col items-start">
                       <span>Export as CSV</span>
                       <span className="text-xs text-gray-500">
                         {selectedRows.length > 0
@@ -355,7 +355,7 @@ export default function SystemLogsPage() {
           <div className="relative export-dropdown">
             <button
               onClick={() => setExportDropdownOpen(!exportDropdownOpen)}
-              className="flex items-center justify-center bg-red-800 hover:bg-red-900 text-white px-4 py-2 rounded-md text-sm"
+              className="flex cursor-pointer items-center justify-center bg-red-800 hover:bg-red-900 text-white px-4 py-2 rounded-md text-sm"
             >
               <FileDown size={18} />
               <span className="ml-2">Export</span>
@@ -370,7 +370,7 @@ export default function SystemLogsPage() {
                     className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
                     <FileDown size={16} className="mr-2" />
-                    <div className="flex flex-col items-start">
+                    <div className="flex cursor-pointer flex-col items-start">
                       <span>Export as PDF</span>
                       <span className="text-xs text-gray-500">
                         {selectedRows.length > 0
@@ -386,7 +386,7 @@ export default function SystemLogsPage() {
                     className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
                     <FileDown size={16} className="mr-2" />
-                    <div className="flex flex-col items-start">
+                    <div className="flex cursor-pointer flex-col items-start">
                       <span>Export as CSV</span>
                       <span className="text-xs text-gray-500">
                         {selectedRows.length > 0
@@ -432,7 +432,7 @@ export default function SystemLogsPage() {
                 <th className="px-4 py-3 border-b text-center">
                   <input
                     type="checkbox"
-                    className="form-checkbox h-4 w-4 text-red-600"
+                    className="form-checkbox h-4 w-4 text-red-600 cursor-pointer"
                     checked={isAllSelected}
                     onChange={handleHeaderCheckbox}
                   />
@@ -462,7 +462,7 @@ export default function SystemLogsPage() {
                   <td className="px-4 py-2 border-t text-center">
                     <input
                       type="checkbox"
-                      className="form-checkbox h-4 w-4 text-red-600"
+                      className="form-checkbox cursor-pointer h-4 w-4 text-red-600"
                       checked={selectedRows.includes(log.logNumber)}
                       onChange={() => handleRowCheckbox(log.logNumber)}
                     />
@@ -486,7 +486,7 @@ export default function SystemLogsPage() {
                 setItemsPerPage(Number(e.target.value));
                 setCurrentPage(1);
               }}
-              className="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-red-500"
+              className="border border-gray-300 cursor-pointer rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-red-500"
             >
               <option value={5}>5</option>
               <option value={10}>10</option>
@@ -510,7 +510,7 @@ export default function SystemLogsPage() {
                 disabled={currentPage === 1}
                 className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${currentPage === 1
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer'
                   }`}
               >
                 <ChevronLeft size={16} />
@@ -538,7 +538,7 @@ export default function SystemLogsPage() {
                       onClick={() => setCurrentPage(pageNum)}
                       className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${currentPage === pageNum
                           ? 'bg-red-800 text-white'
-                          : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                          : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer'
                         }`}
                     >
                       {pageNum}
@@ -551,7 +551,7 @@ export default function SystemLogsPage() {
                     <span className="px-2 text-gray-500">...</span>
                     <button
                       onClick={() => setCurrentPage(totalPages)}
-                      className="px-3 py-1.5 rounded-md text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                      className="px-3 cursor-pointer py-1.5 rounded-md text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
                     >
                       {totalPages}
                     </button>
@@ -565,7 +565,7 @@ export default function SystemLogsPage() {
                 disabled={currentPage === totalPages}
                 className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${currentPage === totalPages
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer'
                   }`}
               >
                 <span className="hidden sm:inline">Next</span>

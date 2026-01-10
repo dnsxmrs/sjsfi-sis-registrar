@@ -81,7 +81,7 @@ export default function EditYearLevelModal({
                         type="button"
                         onClick={handleClose}
                         disabled={isLoading}
-                        className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md disabled:opacity-50"
+                        className="bg-red-500 cursor-pointer hover:bg-red-600 text-white px-6 py-2 rounded-md disabled:opacity-50"
                     >
                         Cancel
                     </button>
@@ -89,7 +89,7 @@ export default function EditYearLevelModal({
                         type="button"
                         onClick={handleSubmit}
                         disabled={isLoading}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md disabled:opacity-50"
+                        className="bg-blue-500 cursor-pointer hover:bg-blue-600 text-white px-6 py-2 rounded-md disabled:opacity-50"
                     >
                         {isLoading ? "Updating..." : "Update"}
                     </button>

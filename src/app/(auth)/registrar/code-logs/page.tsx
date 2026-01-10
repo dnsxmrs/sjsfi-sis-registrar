@@ -195,7 +195,7 @@ export default function CodeManagement() {
                         <select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 text-black bg-white"
+                            className="border border-gray-300 cursor-pointer rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 text-black bg-white"
                         >
                             <option value="all">All Status</option>
                             <option value="available">Available</option>
@@ -289,7 +289,7 @@ export default function CodeManagement() {
                                                 <button
                                                     onClick={() => handleMarkAsExpired(code.id)}
                                                     disabled={markingAsExpired === code.id}
-                                                    className="px-3 py-1.5 bg-orange-600 text-white text-xs font-medium rounded-md hover:bg-orange-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                                                    className="px-3 py-1.5 cursor-pointer bg-orange-600 text-white text-xs font-medium rounded-md hover:bg-orange-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                                                 >
                                                     {markingAsExpired === code.id ? 'Marking...' : 'Mark as Expired'}
                                                 </button>
@@ -317,7 +317,7 @@ export default function CodeManagement() {
                                 setItemsPerPage(Number(e.target.value));
                                 setCurrentPage(1);
                             }}
-                            className="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-red-500"
+                            className="border cursor-pointer border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-red-500"
                         >
                             <option value={5}>5</option>
                             <option value={10}>10</option>
@@ -341,7 +341,7 @@ export default function CodeManagement() {
                                 disabled={currentPage === 1}
                                 className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${currentPage === 1
                                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                                        : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer'
                                     }`}
                             >
                                 <ChevronLeft size={16} />
@@ -369,7 +369,7 @@ export default function CodeManagement() {
                                             onClick={() => setCurrentPage(pageNum)}
                                             className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${currentPage === pageNum
                                                     ? 'bg-red-800 text-white'
-                                                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                                                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer'
                                                 }`}
                                         >
                                             {pageNum}
@@ -382,7 +382,7 @@ export default function CodeManagement() {
                                         <span className="px-2 text-gray-500">...</span>
                                         <button
                                             onClick={() => setCurrentPage(totalPages)}
-                                            className="px-3 py-1.5 rounded-md text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                                            className="px-3 py-1.5 cursor-pointer rounded-md text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
                                         >
                                             {totalPages}
                                         </button>
@@ -396,7 +396,7 @@ export default function CodeManagement() {
                                 disabled={currentPage === totalPages}
                                 className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${currentPage === totalPages
                                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                                        : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer'
                                     }`}
                             >
                                 <span className="hidden sm:inline">Next</span>
