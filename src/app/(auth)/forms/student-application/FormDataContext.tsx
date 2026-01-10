@@ -177,7 +177,8 @@ export interface FormData {
         allergyDetails: string;
         currentMedication: string;
     };
-    registrationCode: string,
+    registrationCode: string;
+    registrationType: string;
 }
 
 // Create context for form data

@@ -19,65 +19,138 @@ export default function StudentApplicationPagedForm() {
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   const [visitedPages, setVisitedPages] = useState<number[]>([0]);
+  const [parentGuardianWarning, setParentGuardianWarning] = useState<string | null>(null);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [progressRestored, setProgressRestored] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // TODO: add a cookie-based tracking so when a page accidentally reloads, the user won't lose progress, includng the start page (the checkbox)
+  // LocalStorage key generator based on registration code
+  const getStorageKey = (code: string) => `student-application-progress-${code}`;
 
-  // Page titles for breadcrumbs
-  const pagesTitles = [
-    "Start",
-    "Personal Data",
-    "Health History",
-    "Father Background",
-    "Mother Background",
-    "Guardian Background",
-    "Family Members",
-    "Educational Background",
-    "Transferee"
-  ];
+  // Save progress to localStorage
+  const saveProgress = (code: string) => {
+    try {
+      const progressData = {
+        formData,
+        page,
+        confirmed,
+        visitedPages,
+        timestamp: new Date().toISOString(),
+      };
+      localStorage.setItem(getStorageKey(code), JSON.stringify(progressData));
+      // console.log('Saving formData:', formData);
+      // console.log('Registration Type:', formData.registrationType);
+      setLastSaved(new Date());
+    } catch (error) {
+      console.error('Failed to save progress:', error);
+    }
+  };
+
+  // Restore progress from localStorage
+  const restoreProgress = (code: string, registrationType?: string) => {
+    try {
+      const savedData = localStorage.getItem(getStorageKey(code));
+      if (savedData) {
+        const progressData = JSON.parse(savedData);
+        // Always use the fresh registrationType from database, not the cached one
+        const restoredFormData = {
+          ...progressData.formData,
+          registrationType: registrationType || progressData.formData.registrationType || 'NEW'
+        };
+        setFormData(restoredFormData);
+        setPage(progressData.page);
+        setConfirmed(progressData.confirmed);
+        setVisitedPages(progressData.visitedPages);
+        setProgressRestored(true);
+        setLastSaved(new Date(progressData.timestamp));
+        // console.log('Progress restored with registrationType (fresh from DB):', restoredFormData.registrationType);
+        return true;
+      }
+    } catch (error) {
+      console.error('Failed to restore progress:', error);
+    }
+    return false;
+  };
+
+  // Clear saved progress
+  // TODO: UNCOMMENT FOR IMPLEMENTATION WHEN SUBMITTING
+  // const clearProgress = (code: string) => {
+  //   try {
+  //     localStorage.removeItem(getStorageKey(code));
+  //     setLastSaved(null);
+  //     setProgressRestored(false);
+  //   } catch (error) {
+  //     console.error('Failed to clear progress:', error);
+  //   }
+  // };
 
   // Navigate to a specific page and track visited pages
   const navigateToPage = (pageNumber: number) => {
     setPage(pageNumber);
+    setParentGuardianWarning(null); // Clear warning when navigating
     if (!visitedPages.includes(pageNumber)) {
       setVisitedPages(prev => [...prev, pageNumber]);
     }
   };
 
-  // Breadcrumb component
-  const Breadcrumbs = () => (
-    <div className="w-full bg-white rounded-lg shadow p-4 mb-6 border border-gray-200">
-      <div className="flex flex-wrap items-center gap-2">
-        {pagesTitles.map((title, index) => {
-          const isActive = page === index;
-          const isVisited = visitedPages.includes(index);
-          const isClickable = isVisited;
+  // Auto-dismiss progress restored message
+  useEffect(() => {
+    if (progressRestored) {
+      const timer = setTimeout(() => {
+        setProgressRestored(false);
+      }, 5000); // Dismiss after 5 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [progressRestored]);
 
-          return (
-            <React.Fragment key={index}>
-              <button
-                onClick={() => isClickable && navigateToPage(index)}
-                disabled={!isClickable}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  isActive
+  // Breadcrumb component
+  const Breadcrumbs = () => {
+    // Page titles for breadcrumbs - conditionally include Transferee based on registration type
+    const pagesTitles = [
+      "Start",
+      "Personal Data",
+      "Health History",
+      "Father Background",
+      "Mother Background",
+      "Guardian Background",
+      "Family Members",
+      "Educational Background",
+      ...(formData.registrationType !== 'OLD' ? ["Transferee"] : [])
+    ];
+
+    return (
+      <div className="w-full bg-white rounded-lg shadow p-4 mb-6 border border-gray-200">
+        <div className="flex flex-wrap items-center gap-2">
+          {pagesTitles.map((title, index) => {
+            const isActive = page === index;
+            const isVisited = visitedPages.includes(index);
+            const isClickable = isVisited;
+
+            return (
+              <React.Fragment key={index}>
+                <button
+                  onClick={() => isClickable && navigateToPage(index)}
+                  disabled={!isClickable}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${isActive
                     ? 'bg-red-800 text-white'
                     : isVisited
-                    ? 'bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer'
-                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                }`}
-              >
-                {index + 1}. {title}
-              </button>
-              {index < pagesTitles.length - 1 && (
-                <span className="text-gray-400">→</span>
-              )}
-            </React.Fragment>
-          );
-        })}
+                      ? 'bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer'
+                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    }`}
+                >
+                  {index + 1}. {title}
+                </button>
+                {index < pagesTitles.length - 1 && (
+                  <span className="text-gray-400">→</span>
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   // Ensure component is mounted before using router
   useEffect(() => {
@@ -260,6 +333,7 @@ export default function StudentApplicationPagedForm() {
       currentMedication: "",
     },
     registrationCode: "",
+    registrationType: "",
   });
 
   // Handle registration code from search params and redirection
@@ -276,8 +350,21 @@ export default function StudentApplicationPagedForm() {
 
     if (upperCode.startsWith('APP-')) {
       validateApplicationCode(upperCode).then((result) => {
+        // console.log('Validation result:', result);
         if (result.success && result.isValid) {
-          setFormData(prev => ({ ...prev, registrationCode: code }));
+          const regType = result.registrationType || 'NEW';
+          // console.log('Registration Type from validation:', regType);
+          // Attempt to restore saved progress
+          const restored = restoreProgress(code, regType);
+          if (!restored) {
+            // If no saved progress, just set the registration code and registration type
+            // console.log('No saved progress, setting new formData with registrationType:', regType);
+            // setFormData(prev => ({ 
+            //   ...prev, 
+            //   registrationCode: code,
+            //   registrationType: regType
+            // }));
+          }
           setIsLoading(false);
         } else {
           // Redirect if validation failed or code is invalid
@@ -287,7 +374,20 @@ export default function StudentApplicationPagedForm() {
     } else {
       router.replace('/forms/home');
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMounted, searchParams, router]);
+
+  // Auto-save progress whenever formData, page, confirmed, or visitedPages change
+  useEffect(() => {
+    if (!isMounted || isLoading || !formData.registrationCode) return;
+
+    const timeoutId = setTimeout(() => {
+      saveProgress(formData.registrationCode);
+    }, 1000); // Debounce saves by 1 second
+
+    return () => clearTimeout(timeoutId);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData, page, confirmed, visitedPages, isMounted, isLoading]);
 
   // Function to update form data
   const updateFormData = <K extends keyof FormData>(section: K, data: FormData[K]) => {
@@ -295,6 +395,29 @@ export default function StudentApplicationPagedForm() {
       ...prev,
       [section]: data
     }));
+  };
+
+  // Helper function to check if a parent/guardian form is completely filled
+  const isFormComplete = (data: typeof formData.fatherBackground | typeof formData.motherBackground | typeof formData.guardianBackground) => {
+    const requiredFields = [
+      'familyName', 'firstName', 'birthDate', 'placeOfBirth', 'age',
+      'nationality', 'religion', 'mobileNumber', 'emailAddress',
+      'homeAddress', 'city', 'stateProvince', 'zipPostalCode',
+      'educationalAttainmentCourse', 'occupationalPositionHeld', 'employerCompany',
+      'companyAddress', 'companyCity', 'annualIncome', 'statusOfParent'
+    ];
+
+    return requiredFields.every(field => {
+      const value = data[field as keyof typeof data];
+      return value && String(value).trim() !== '';
+    });
+  };
+
+  // Check if at least one parent/guardian form is complete
+  const hasAtLeastOneParentGuardian = () => {
+    return isFormComplete(formData.fatherBackground) ||
+      isFormComplete(formData.motherBackground) ||
+      isFormComplete(formData.guardianBackground);
   };
 
   // Show loading screen while checking registration code or mounting
@@ -332,7 +455,16 @@ export default function StudentApplicationPagedForm() {
         <div className="w-full bg-[#f7f7f7] flex flex-col items-center py-2">
           <div className="w-full px-4">
             <Breadcrumbs />
-            <StudentEducationalBackgroundPage onBack={() => navigateToPage(6)} onNext={() => navigateToPage(8)} />
+            <StudentEducationalBackgroundPage
+              onBack={() => navigateToPage(6)}
+              onNext={() => {
+                // Only proceed to transferee for NEW/TRANSFER students
+                // OLD students will use the review modal directly in educationalbackground.tsx
+                if (formData.registrationType !== 'OLD') {
+                  navigateToPage(8);
+                }
+              }}
+            />
           </div>
         </div>
       </FormDataContext.Provider>
@@ -358,7 +490,33 @@ export default function StudentApplicationPagedForm() {
         <div className="w-full bg-[#f7f7f7] flex flex-col items-center py-2">
           <div className="w-full px-4">
             <Breadcrumbs />
-            <GuardianBackgroundPage onBack={() => navigateToPage(4)} onNext={() => navigateToPage(6)} />
+
+            {/* Validation Warning */}
+            {parentGuardianWarning && (
+              <div className="w-full bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded" role="alert">
+                <div className="flex items-start">
+                  <svg className="h-6 w-6 text-red-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  <div>
+                    <p className="font-semibold">{parentGuardianWarning}</p>
+                    {/* <p className="text-sm mt-1">{parentGuardianWarning}</p> */}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <GuardianBackgroundPage
+              onBack={() => navigateToPage(4)}
+              onNext={() => {
+                if (hasAtLeastOneParentGuardian()) {
+                  navigateToPage(6);
+                } else {
+                  setParentGuardianWarning('Please complete at least one form: Father, Mother, or Guardian before proceeding.');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+              }}
+            />
           </div>
         </div>
       </FormDataContext.Provider>
@@ -371,7 +529,10 @@ export default function StudentApplicationPagedForm() {
         <div className="w-full bg-[#f7f7f7] flex flex-col items-center py-2">
           <div className="w-full px-4">
             <Breadcrumbs />
-            <MotherBackgroundPage onBack={() => navigateToPage(3)} onNext={() => navigateToPage(5)} />
+            <MotherBackgroundPage
+              onBack={() => navigateToPage(3)}
+              onNext={() => navigateToPage(5)}
+            />
           </div>
         </div>
       </FormDataContext.Provider>
@@ -384,7 +545,10 @@ export default function StudentApplicationPagedForm() {
         <div className="w-full bg-[#f7f7f7] flex flex-col items-center py-2">
           <div className="w-full px-4">
             <Breadcrumbs />
-            <FatherBackgroundPage onBack={() => navigateToPage(2)} onNext={() => navigateToPage(4)} />
+            <FatherBackgroundPage
+              onBack={() => navigateToPage(2)}
+              onNext={() => navigateToPage(4)}
+            />
           </div>
         </div>
       </FormDataContext.Provider>
@@ -420,13 +584,49 @@ export default function StudentApplicationPagedForm() {
   return (
     <FormDataContext.Provider value={{ formData, updateFormData }}>
       <div className="w-full bg-[#f7f7f7] flex flex-col items-center py-2">
+        {/* Progress Restored Notification - Top of page */}
+        {progressRestored && (
+          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in">
+            <div className="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+              <span className="font-medium">Your previous progress has been restored</span>
+            </div>
+          </div>
+        )}
+
+        {/* Auto-save Indicator - Bottom right floating badge */}
+        {lastSaved && (
+          <div className="fixed bottom-6 right-6 z-50">
+            <div className="bg-white border border-gray-200 rounded-lg shadow-lg px-4 py-2 flex items-center gap-2 text-sm">
+              <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span className="text-gray-700 font-medium">Saved</span>
+              <span className="text-gray-400 text-xs">
+                {new Date(lastSaved).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            </div>
+          </div>
+        )}
+
         <div className="w-full px-4">
           <Breadcrumbs />
         </div>
         {/* Header */}
         <div className="w-full flex flex-col items-center mb-6">
           <div className="w-full flex items-center gap-4 mt-2">
-            <button className="bg-[#a10000] text-white px-8 py-2 rounded-md font-semibold text-md shadow hover:bg-[#7a0000] transition">Cancel</button>
+            <button
+              onClick={() => {
+                if (formData.registrationCode && confirm('Are you sure you want to cancel? Your progress will be saved and you can continue later.')) {
+                  router.push('/forms/home');
+                }
+              }}
+              className="bg-[#a10000] text-white px-8 py-2 rounded-md font-semibold text-md shadow hover:bg-[#7a0000] transition"
+            >
+              Cancel
+            </button>
             <div className="flex-1 flex justify-center">
               <h1 className="w-full bg-white rounded-md py-2 px-6 font-bold text-black text-lg tracking-widest text-center flex-grow ml-3 shadow">
                 STUDENT APPLICATION FORM
@@ -479,8 +679,7 @@ export default function StudentApplicationPagedForm() {
           <button
             type="button"
             disabled={!confirmed}
-            className={`bg-red-800 text-white px-6 py-2 rounded-md ${confirmed ? 'hover:bg-red-900 cursor-pointer' : 'opacity-50 cursor-not-allowed'
-              }`}
+            className={`bg-red-800 text-white px-6 py-2 rounded-md ${confirmed ? 'hover:bg-red-900 cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
             onClick={() => navigateToPage(1)}
           >
             Continue

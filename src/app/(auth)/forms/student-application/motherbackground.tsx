@@ -1,5 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useFormData } from "./FormDataContext";
+import { provinces as psgcProvinces, regions as psgcRegions, municipalities as psgcMunicipalities } from 'psgc';
+
+// PSGC types - flexible to match library's structure
+interface LocationItem {
+  name: string;
+  code?: string;
+  regionCode?: string;
+  provinceCode?: string;
+  region?: string;
+  province?: string;
+}
+
+// Extended type for municipalities from psgc
+interface PSGCMunicipality extends LocationItem {
+  province?: string;
+  region?: string;
+}
 
 interface MotherBackgroundPageProps {
   onBack?: () => void;
@@ -10,14 +27,247 @@ export default function MotherBackgroundPage({ onBack, onNext }: MotherBackgroun
   const { formData, updateFormData } = useFormData();
   const { motherBackground } = formData;
   const [otherStatus, setOtherStatus] = useState("");
+  const [provinces, setProvinces] = useState<LocationItem[]>([]);
+  const [cities, setCities] = useState<LocationItem[]>([]);
+  const [allMunicipalities, setAllMunicipalities] = useState<PSGCMunicipality[]>([]);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  // Define required fields
+  const requiredFields = [
+    'familyName', 'firstName', 'birthDate', 'placeOfBirth', 'age',
+    'nationality', 'religion', 'mobileNumber', 'emailAddress',
+    'homeAddress', 'city', 'stateProvince', 'zipPostalCode',
+    'educationalAttainmentCourse', 'occupationalPositionHeld', 'employerCompany',
+    'companyAddress', 'companyCity', 'annualIncome', 'statusOfParent'
+  ];
+
+  // Calculate completion percentage
+  const calculateCompletion = (): number => {
+    const filledCount = requiredFields.filter(field => {
+      const value = motherBackground[field as keyof typeof motherBackground];
+      return value && String(value).trim() !== '';
+    }).length;
+    return (filledCount / requiredFields.length) * 100;
+  };
+
+  const completionPercentage = calculateCompletion();
+  const requiresValidation = completionPercentage >= 50;
+
+  // Reusable function to filter and sort municipalities
+  const getFilteredCities = useCallback((locationName: string): LocationItem[] => {
+    if (!locationName || allMunicipalities.length === 0) return [];
+
+    const filtered = allMunicipalities.filter((muni) =>
+      muni.province === locationName || muni.region === locationName
+    );
+
+    return (filtered as LocationItem[]).sort((a, b) => a.name.localeCompare(b.name));
+  }, [allMunicipalities]);
+
+  // Load provinces, regions, and municipalities on component mount
+  useEffect(() => {
+    try {
+      const allProvinces = psgcProvinces.all();
+      const allRegions = psgcRegions.all();
+
+      const ncrRegion = allRegions.filter((region) =>
+        region.name.includes('Metro') || region.name.includes('NCR') ||
+        region.name.includes('National Capital Region')
+      );
+
+      const allLocations = [...allProvinces, ...ncrRegion] as LocationItem[];
+      const sortedLocations = allLocations.sort((a, b) => a.name.localeCompare(b.name));
+
+      setProvinces(sortedLocations);
+      setAllMunicipalities(psgcMunicipalities.all() as unknown as PSGCMunicipality[]);
+    } catch (error) {
+      console.error('Error loading location data:', error);
+    }
+  }, []);
+
+  // Memoize filtered cities to avoid recalculation
+  const filteredCities = useMemo(() =>
+    getFilteredCities(motherBackground.stateProvince),
+    [motherBackground.stateProvince, getFilteredCities]
+  );
+
+  // Update cities when memoized values change
+  useEffect(() => {
+    setCities(filteredCities);
+  }, [filteredCities]);
+
+  // Validation function - validates format only, does not require fields
+  const validateField = (field: string, value: unknown): string => {
+    // Skip validation if field is empty (all fields are optional)
+    if (!value || (typeof value === 'string' && !value.trim())) {
+      return '';
+    }
+
+    switch (field) {
+      case 'familyName':
+      case 'firstName':
+      case 'middleName':
+      case 'placeOfBirth':
+      case 'nationality':
+      case 'religion':
+      case 'educationalAttainmentCourse':
+      case 'occupationalPositionHeld':
+      case 'employerCompany':
+      case 'companyAddress':
+      case 'companyCity':
+      case 'homeAddress':
+        // String fields - should not be only numbers
+        if (typeof value === 'string' && /^\d+$/.test(value.trim())) {
+          return 'Please enter valid text, not just numbers';
+        }
+        return '';
+
+      case 'age':
+        // Age should be a valid number
+        if (typeof value === 'string') {
+          const ageNum = parseInt(value);
+          if (isNaN(ageNum) || ageNum < 1 || ageNum > 150) {
+            return 'Please enter a valid age';
+          }
+        }
+        return '';
+
+      case 'annualIncome':
+        // Annual income should be a valid number
+        if (typeof value === 'string') {
+          const cleanIncome = value.replace(/[,\s]/g, '');
+          if (isNaN(Number(cleanIncome)) || Number(cleanIncome) < 0) {
+            return 'Please enter a valid amount';
+          }
+        }
+        return '';
+
+      case 'mobileNumber':
+        // Mobile number validation (Philippine format)
+        if (typeof value === 'string') {
+          const cleanMobile = value.replace(/[\s\-\(\)]/g, '');
+          const mobilePattern = /^(\+63|0)[0-9]{10}$/;
+          if (!mobilePattern.test(cleanMobile)) {
+            return 'Mobile number must be a valid Philippine phone number (09171234567)';
+          }
+        }
+        return '';
+
+      case 'emailAddress':
+        // Email validation (Gmail only)
+        if (typeof value === 'string') {
+          const emailPattern = /^[^\s@]+@gmail\.com$/;
+          if (!emailPattern.test(value)) {
+            return 'Please enter a valid Gmail address (e.g., name@gmail.com)';
+          }
+        }
+        return '';
+
+      case 'landlineNumber':
+      case 'businessTelephoneNumber':
+        // Landline/telephone validation (optional, accepts N/A)
+        if (typeof value === 'string' && value.trim()) {
+          if (value.trim() === 'N/A') {
+            return '';
+          }
+          const cleanLandline = value.replace(/[\s\-\(\)]/g, '');
+          if (cleanLandline.length < 7) {
+            return 'Please enter a valid phone number or "N/A"';
+          }
+        }
+        return '';
+
+      case 'zipPostalCode':
+        // ZIP code should be 4 digits
+        if (typeof value === 'string' && value.trim() && !/^\d{4}$/.test(value)) {
+          return 'ZIP code must be 4 digits';
+        }
+        return '';
+
+      default:
+        return '';
+    }
+  };
+
+  // Function to calculate age from birth date
+  const calculateAge = (birthDate: string): number => {
+    if (!birthDate) return 0;
+
+    const today = new Date();
+    const birth = new Date(birthDate);
+
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDifference = today.getMonth() - birth.getMonth();
+
+    // If birthday hasn't occurred this year yet, subtract 1
+    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+
+    return Math.max(0, age); // Ensure age is not negative
+  };
 
   const handleInputChange = (field: keyof typeof motherBackground, value: string) => {
+    // Prepare updates object
+    const updates: Partial<typeof motherBackground> = { [field]: value };
+
+    // If birthDate is being changed, calculate age automatically
+    if (field === 'birthDate') {
+      const calculatedAge = calculateAge(value);
+      updates.age = calculatedAge.toString();
+    }
+
     updateFormData('motherBackground', {
       ...motherBackground,
-      [field]: value
+      ...updates
     });
+
+    // Validate the field and update errors
+    const error = validateField(field, value);
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      if (error) {
+        newErrors[field] = error;
+      } else {
+        delete newErrors[field];
+      }
+      
+      // Also clear age error when birthDate is updated
+      if (field === 'birthDate' && newErrors.age) {
+        delete newErrors.age;
+      }
+      
+      return newErrors;
+    });
+
     console.log(`Updated ${field} to: ${value}`);
     console.log(formData);
+  };
+
+  // Handle province/region selection and fetch cities
+  const handleProvinceChange = (locationName: string) => {
+    updateFormData('motherBackground', {
+      ...motherBackground,
+      stateProvince: locationName,
+      city: ''
+    });
+
+    // Clear errors for city when province changes
+    if (errors.city) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.city;
+        return newErrors;
+      });
+    }
+  };
+
+  // Error display component
+  const ErrorMessage: React.FC<{ error?: string }> = ({ error }) => {
+    if (!error) return null;
+    return (
+      <p className="error-message text-red-500 text-sm mt-1">{error}</p>
+    );
   };
 
   const handleStatusChange = (status: string) => {
@@ -25,6 +275,46 @@ export default function MotherBackgroundPage({ onBack, onNext }: MotherBackgroun
       handleInputChange('statusOfParent', `Others: ${otherStatus}`);
     } else {
       handleInputChange('statusOfParent', status);
+    }
+  };
+
+  // Validate all required fields
+  const validateAllRequiredFields = (): boolean => {
+    if (!requiresValidation) {
+      return true; // Skip validation if less than 50% complete
+    }
+
+    const newErrors: { [key: string]: string } = {};
+    
+    requiredFields.forEach(field => {
+      const value = motherBackground[field as keyof typeof motherBackground];
+      if (!value || String(value).trim() === '') {
+        newErrors[field] = 'This field is required';
+      } else {
+        // Check format validation
+        const formatError = validateField(field, value);
+        if (formatError) {
+          newErrors[field] = formatError;
+        }
+      }
+    });
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Handle Next button click
+  const handleNextClick = () => {
+    if (requiresValidation) {
+      const isValid = validateAllRequiredFields();
+      if (!isValid) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+    }
+    
+    if (onNext) {
+      onNext();
     }
   };
 
@@ -57,86 +347,109 @@ export default function MotherBackgroundPage({ onBack, onNext }: MotherBackgroun
         {/* Father Background Fields */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-1 text-black">Family Name:</label>
+            <label className="block text-sm font-medium mb-1 text-black">
+              Family Name: {requiresValidation && <span className="text-red-500">*</span>}
+            </label>
             <input
               type="text"
-              placeholder="Answer Here..."
-              className="border border-gray-300 rounded px-2 py-1 w-full text-black"
+              placeholder="e.g., Santos"
+              className={`border rounded px-2 py-1 w-full text-black ${errors.familyName ? 'border-red-500' : 'border-gray-300'}`}
               value={motherBackground.familyName}
               onChange={(e) => handleInputChange('familyName', e.target.value)}
             />
+            <ErrorMessage error={errors.familyName} />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1 text-black">First Name:</label>
+            <label className="block text-sm font-medium mb-1 text-black">
+              First Name: {requiresValidation && <span className="text-red-500">*</span>}
+            </label>
             <input
               type="text"
-              placeholder="Answer Here..."
-              className="border border-gray-300 rounded px-2 py-1 w-full text-black"
+              placeholder="e.g., Maria"
+              className={`border rounded px-2 py-1 w-full text-black ${errors.firstName ? 'border-red-500' : 'border-gray-300'}`}
               value={motherBackground.firstName}
               onChange={(e) => handleInputChange('firstName', e.target.value)}
             />
+            <ErrorMessage error={errors.firstName} />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1 text-black">Middle Name:</label>
             <input
               type="text"
-              placeholder="Answer Here..."
-              className="border border-gray-300 rounded px-2 py-1 w-full text-black"
+              placeholder="e.g., Dela Cruz"
+              className={`border rounded px-2 py-1 w-full text-black ${errors.middleName ? 'border-red-500' : 'border-gray-300'}`}
               value={motherBackground.middleName}
               onChange={(e) => handleInputChange('middleName', e.target.value)}
             />
+            <ErrorMessage error={errors.middleName} />
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-1 text-black">Birth Date:</label>
+            <label className="block text-sm font-medium mb-1 text-black">
+              Birth Date: {requiresValidation && <span className="text-red-500">*</span>}
+            </label>
             <input
               type="date"
-              className="border border-gray-300 rounded px-2 py-1 w-full text-black"
+              className={`border rounded px-2 py-1 w-full text-black ${errors.birthDate ? 'border-red-500' : 'border-gray-300'}`}
               value={motherBackground.birthDate}
               onChange={(e) => handleInputChange('birthDate', e.target.value)}
             />
+            <ErrorMessage error={errors.birthDate} />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1 text-black">Place of Birth:</label>
+            <label className="block text-sm font-medium mb-1 text-black">
+              Place of Birth: {requiresValidation && <span className="text-red-500">*</span>}
+            </label>
             <input
               type="text"
-              placeholder="Answer Here..."
-              className="border border-gray-300 rounded px-2 py-1 w-full text-black"
+              placeholder="e.g., Manila, Philippines"
+              className={`border rounded px-2 py-1 w-full text-black ${errors.placeOfBirth ? 'border-red-500' : 'border-gray-300'}`}
               value={motherBackground.placeOfBirth}
               onChange={(e) => handleInputChange('placeOfBirth', e.target.value)}
             />
+            <ErrorMessage error={errors.placeOfBirth} />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1 text-black">Age:</label>
+            <label className="block text-sm font-medium mb-1 text-black">
+              Age: {requiresValidation && <span className="text-red-500">*</span>}
+            </label>
             <input
               type="text"
-              placeholder="Answer Here..."
-              className="border border-gray-300 rounded px-2 py-1 w-full text-black"
+              disabled
+              placeholder="Auto-calculated"
+              className={`border rounded px-2 py-1 w-full text-black ${errors.age ? 'border-red-500' : 'border-gray-300'}`}
               value={motherBackground.age}
               onChange={(e) => handleInputChange('age', e.target.value)}
             />
+            <ErrorMessage error={errors.age} />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1 text-black">Nationality:</label>
+            <label className="block text-sm font-medium mb-1 text-black">
+              Nationality: {requiresValidation && <span className="text-red-500">*</span>}
+            </label>
             <input
               type="text"
-              placeholder="Answer Here..."
-              className="border border-gray-300 rounded px-2 py-1 w-full text-black"
+              placeholder="e.g., Filipino"
+              className={`border rounded px-2 py-1 w-full text-black ${errors.nationality ? 'border-red-500' : 'border-gray-300'}`}
               value={motherBackground.nationality}
               onChange={(e) => handleInputChange('nationality', e.target.value)}
             />
+            <ErrorMessage error={errors.nationality} />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1 text-black">Religion:</label>
+            <label className="block text-sm font-medium mb-1 text-black">
+              Religion: {requiresValidation && <span className="text-red-500">*</span>}
+            </label>
             <input
               type="text"
-              placeholder="Answer Here..."
-              className="border border-gray-300 rounded px-2 py-1 w-full text-black"
+              placeholder="e.g., Roman Catholic"
+              className={`border rounded px-2 py-1 w-full text-black ${errors.religion ? 'border-red-500' : 'border-gray-300'}`}
               value={motherBackground.religion}
               onChange={(e) => handleInputChange('religion', e.target.value)}
             />
+            <ErrorMessage error={errors.religion} />
           </div>
         </div>
 
@@ -145,160 +458,211 @@ export default function MotherBackgroundPage({ onBack, onNext }: MotherBackgroun
             <label className="block text-sm font-medium mb-1 text-black">Landline Number:</label>
             <input
               type="text"
-              placeholder="Answer Here..."
-              className="border border-gray-300 rounded px-2 py-1 w-full text-black"
+              placeholder="e.g., (02) 1234-5678 or N/A"
+              className={`border rounded px-2 py-1 w-full text-black ${errors.landlineNumber ? 'border-red-500' : 'border-gray-300'}`}
               value={motherBackground.landlineNumber}
               onChange={(e) => handleInputChange('landlineNumber', e.target.value)}
             />
+            <ErrorMessage error={errors.landlineNumber} />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1 text-black">Mobile Number:</label>
+            <label className="block text-sm font-medium mb-1 text-black">
+              Mobile Number: {requiresValidation && <span className="text-red-500">*</span>}
+            </label>
             <input
               type="text"
-              placeholder="Answer Here..."
-              className="border border-gray-300 rounded px-2 py-1 w-full text-black"
+              placeholder="e.g., 09171234567"
+              className={`border rounded px-2 py-1 w-full text-black ${errors.mobileNumber ? 'border-red-500' : 'border-gray-300'}`}
               value={motherBackground.mobileNumber}
               onChange={(e) => handleInputChange('mobileNumber', e.target.value)}
             />
+            <ErrorMessage error={errors.mobileNumber} />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1 text-black">E-mail Address:</label>
+            <label className="block text-sm font-medium mb-1 text-black">
+              E-mail Address: {requiresValidation && <span className="text-red-500">*</span>}
+            </label>
             <input
               type="text"
-              placeholder="Answer Here..."
-              className="border border-gray-300 rounded px-2 py-1 w-full text-black"
+              placeholder="e.g., maria.santos@gmail.com"
+              className={`border rounded px-2 py-1 w-full text-black ${errors.emailAddress ? 'border-red-500' : 'border-gray-300'}`}
               value={motherBackground.emailAddress}
               onChange={(e) => handleInputChange('emailAddress', e.target.value)}
             />
+            <ErrorMessage error={errors.emailAddress} />
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="md:col-span-1">
-            <label className="block text-sm font-medium mb-1 text-black">Home Address:</label>
+            <label className="block text-sm font-medium mb-1 text-black">
+              Home Address: {requiresValidation && <span className="text-red-500">*</span>}
+            </label>
             <input
               type="text"
-              placeholder="Answer Here..."
-              className="border border-gray-300 rounded px-2 py-1 w-full text-black"
+              placeholder="e.g., 123 Main St., Brgy. San Jose"
+              className={`border rounded px-2 py-1 w-full text-black ${errors.homeAddress ? 'border-red-500' : 'border-gray-300'}`}
               value={motherBackground.homeAddress}
               onChange={(e) => handleInputChange('homeAddress', e.target.value)}
             />
+            <ErrorMessage error={errors.homeAddress} />
           </div>
           <div className="md:col-span-1">
-            <label className="block text-sm font-medium mb-1 text-black">City:</label>
-            <input
-              type="text"
-              placeholder="Answer Here..."
-              className="border border-gray-300 rounded px-2 py-1 w-full text-black"
+            <label className="block text-sm font-medium mb-1 text-black">
+              City: {requiresValidation && <span className="text-red-500">*</span>}
+            </label>
+            <select
+              className={`border rounded px-2 py-1 w-full text-black ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
               value={motherBackground.city}
               onChange={(e) => handleInputChange('city', e.target.value)}
-            />
+              disabled={!motherBackground.stateProvince}
+            >
+              <option value="">{motherBackground.stateProvince ? 'Select City' : 'Select Province First'}</option>
+              {cities.map((city) => (
+                <option key={city.name} value={city.name}>
+                  {city.name}
+                </option>
+              ))}
+            </select>
+            <ErrorMessage error={errors.city} />
           </div>
           <div className="md:col-span-1">
-            <label className="block text-sm font-medium mb-1 text-black">State/ Province:</label>
-            <input
-              type="text"
-              placeholder="Answer Here..."
-              className="border border-gray-300 rounded px-2 py-1 w-full text-black"
+            <label className="block text-sm font-medium mb-1 text-black">
+              State/ Province: {requiresValidation && <span className="text-red-500">*</span>}
+            </label>
+            <select
+              className={`border rounded px-2 py-1 w-full text-black ${errors.stateProvince ? 'border-red-500' : 'border-gray-300'}`}
               value={motherBackground.stateProvince}
-              onChange={(e) => handleInputChange('stateProvince', e.target.value)}
-            />
+              onChange={(e) => handleProvinceChange(e.target.value)}
+            >
+              <option value="">Select Province/Region</option>
+              {provinces.map((location) => (
+                <option key={location.name} value={location.name}>
+                  {location.name}
+                </option>
+              ))}
+            </select>
+            <ErrorMessage error={errors.stateProvince} />
           </div>
           <div className="md:col-span-1">
-            <label className="block text-sm font-medium mb-1 text-black">Zip/ Postal Code:</label>
+            <label className="block text-sm font-medium mb-1 text-black">
+              Zip/ Postal Code: {requiresValidation && <span className="text-red-500">*</span>}
+            </label>
             <input
               type="text"
-              placeholder="Answer Here..."
-              className="border border-gray-300 rounded px-2 py-1 w-full text-black"
+              placeholder="e.g., 1234"
+              className={`border rounded px-2 py-1 w-full text-black ${errors.zipPostalCode ? 'border-red-500' : 'border-gray-300'}`}
               value={motherBackground.zipPostalCode}
               onChange={(e) => handleInputChange('zipPostalCode', e.target.value)}
             />
+            <ErrorMessage error={errors.zipPostalCode} />
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-1 text-black">Educational Attainment/ Course:</label>
+            <label className="block text-sm font-medium mb-1 text-black">
+              Educational Attainment/ Course: {requiresValidation && <span className="text-red-500">*</span>}
+            </label>
             <input
               type="text"
-              placeholder="Answer Here..."
-              className="border border-gray-300 rounded px-2 py-1 w-full text-black"
+              placeholder="e.g., Bachelor of Science in Nursing"
+              className={`border rounded px-2 py-1 w-full text-black ${errors.educationalAttainmentCourse ? 'border-red-500' : 'border-gray-300'}`}
               value={motherBackground.educationalAttainmentCourse}
               onChange={(e) => handleInputChange('educationalAttainmentCourse', e.target.value)}
             />
+            <ErrorMessage error={errors.educationalAttainmentCourse} />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1 text-black">Occupational/ Position Held:</label>
+            <label className="block text-sm font-medium mb-1 text-black">
+              Occupational/ Position Held: {requiresValidation && <span className="text-red-500">*</span>}
+            </label>
             <input
               type="text"
-              placeholder="Answer Here..."
-              className="border border-gray-300 rounded px-2 py-1 w-full text-black"
+              placeholder="e.g., Registered Nurse"
+              className={`border rounded px-2 py-1 w-full text-black ${errors.occupationalPositionHeld ? 'border-red-500' : 'border-gray-300'}`}
               value={motherBackground.occupationalPositionHeld}
               onChange={(e) => handleInputChange('occupationalPositionHeld', e.target.value)}
             />
+            <ErrorMessage error={errors.occupationalPositionHeld} />
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-1 text-black">Employer/ Company:</label>
+            <label className="block text-sm font-medium mb-1 text-black">
+              Employer/ Company: {requiresValidation && <span className="text-red-500">*</span>}
+            </label>
             <input
               type="text"
-              placeholder="Answer Here..."
-              className="border border-gray-300 rounded px-2 py-1 w-full text-black"
+              placeholder="e.g., ABC Hospital"
+              className={`border rounded px-2 py-1 w-full text-black ${errors.employerCompany ? 'border-red-500' : 'border-gray-300'}`}
               value={motherBackground.employerCompany}
               onChange={(e) => handleInputChange('employerCompany', e.target.value)}
             />
+            <ErrorMessage error={errors.employerCompany} />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1 text-black">Company Address:</label>
+            <label className="block text-sm font-medium mb-1 text-black">
+              Company Address: {requiresValidation && <span className="text-red-500">*</span>}
+            </label>
             <input
               type="text"
-              placeholder="Answer Here..."
-              className="border border-gray-300 rounded px-2 py-1 w-full text-black"
+              placeholder="e.g., 456 Medical Ave., Quezon City"
+              className={`border rounded px-2 py-1 w-full text-black ${errors.companyAddress ? 'border-red-500' : 'border-gray-300'}`}
               value={motherBackground.companyAddress}
               onChange={(e) => handleInputChange('companyAddress', e.target.value)}
             />
+            <ErrorMessage error={errors.companyAddress} />
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-1 text-black">Company City:</label>
+            <label className="block text-sm font-medium mb-1 text-black">
+              Company City: {requiresValidation && <span className="text-red-500">*</span>}
+            </label>
             <input
               type="text"
-              placeholder="Answer Here..."
-              className="border border-gray-300 rounded px-2 py-1 w-full text-black"
+              placeholder="e.g., Quezon City"
+              className={`border rounded px-2 py-1 w-full text-black ${errors.companyCity ? 'border-red-500' : 'border-gray-300'}`}
               value={motherBackground.companyCity}
               onChange={(e) => handleInputChange('companyCity', e.target.value)}
             />
+            <ErrorMessage error={errors.companyCity} />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1 text-black">Business Telephone Number:</label>
             <input
               type="text"
-              placeholder="Answer Here..."
-              className="border border-gray-300 rounded px-2 py-1 w-full text-black"
+              placeholder="e.g., (02) 8765-4321 or N/A"
+              className={`border rounded px-2 py-1 w-full text-black ${errors.businessTelephoneNumber ? 'border-red-500' : 'border-gray-300'}`}
               value={motherBackground.businessTelephoneNumber}
               onChange={(e) => handleInputChange('businessTelephoneNumber', e.target.value)}
             />
+            <ErrorMessage error={errors.businessTelephoneNumber} />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1 text-black">Annual Income:</label>
+            <label className="block text-sm font-medium mb-1 text-black">
+              Annual Income: {requiresValidation && <span className="text-red-500">*</span>}
+            </label>
             <input
               type="text"
-              placeholder="Answer Here..."
-              className="border border-gray-300 rounded px-2 py-1 w-full text-black"
+              placeholder="e.g., 400000"
+              className={`border rounded px-2 py-1 w-full text-black ${errors.annualIncome ? 'border-red-500' : 'border-gray-300'}`}
               value={motherBackground.annualIncome}
               onChange={(e) => handleInputChange('annualIncome', e.target.value)}
             />
+            <ErrorMessage error={errors.annualIncome} />
           </div>
         </div>
 
         {/* Status of Parent */}
         <div>
-          <fieldset className="border border-gray-300 rounded p-2">
-            <legend className="block text-sm font-medium mb-1 text-black px-2">Status of Parent:</legend>
+          <fieldset className={`border rounded p-2 ${errors.statusOfParent ? 'border-red-500' : 'border-gray-300'}`}>
+            <legend className="block text-sm font-medium mb-1 text-black px-2">
+              Status of Parent: {requiresValidation && <span className="text-red-500">*</span>}
+            </legend>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-2">
               <label className="flex items-center gap-2 text-black font-medium">
                 <input
@@ -369,14 +733,22 @@ export default function MotherBackgroundPage({ onBack, onNext }: MotherBackgroun
               </label>
             </div>
           </fieldset>
+          <ErrorMessage error={errors.statusOfParent} />
         </div>
       </div>
 
       {/* Next Page Button */}
       <div className="w-full flex justify-end mt-8">
+        {requiresValidation && Object.keys(errors).length > 0 && (
+          <div className="flex-1 mr-4 bg-red-50 border border-red-200 rounded-lg p-3">
+            <p className="text-red-700 text-sm font-medium">
+              Please complete all required fields before proceeding. ({Object.keys(errors).length} field{Object.keys(errors).length !== 1 ? 's' : ''} remaining)
+            </p>
+          </div>
+        )}
         <button
           className="bg-red-800 text-white px-6 py-2 rounded-md shadow hover:bg-[#7a0000] transition"
-          onClick={onNext}
+          onClick={handleNextClick}
         >
           Next Page
         </button>

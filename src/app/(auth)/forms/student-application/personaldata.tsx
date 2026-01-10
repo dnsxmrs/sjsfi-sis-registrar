@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useFormData } from "./FormDataContext";
 import { getRegistrationByCode } from "@/app/_actions/getRegistrationByCode";
 import { useSearchParams } from "next/navigation";
@@ -38,16 +38,38 @@ export default function StudentPersonalDataPage({ onBack, onNext }: StudentPerso
   const [allMunicipalities, setAllMunicipalities] = useState<PSGCMunicipality[]>([]);
   const [sameAsHomeAddress, setSameAsHomeAddress] = useState(false);
 
+  // Reusable function to filter and sort municipalities
+  const getFilteredCities = useCallback((locationName: string): LocationItem[] => {
+    if (!locationName || allMunicipalities.length === 0) return [];
+    
+    const filtered = allMunicipalities.filter((muni) => 
+      muni.province === locationName || muni.region === locationName
+    );
+    
+    return (filtered as LocationItem[]).sort((a, b) => a.name.localeCompare(b.name));
+  }, [allMunicipalities]);
+
   // Fetch registration data on component mount
   useEffect(() => {
-    const fetchRegistrationData = async () => {
-      const code = searchParams.get('code');
-      
-      if (!code) {
-        setError('No registration code provided');
-        return;
-      }
+    const code = searchParams.get('code');
+    
+    if (!code) {
+      setError('No registration code provided');
+      return;
+    }
 
+    // Check if required fields are already filled - skip fetch if they are
+    const hasRequiredData = personalData.familyName && 
+                            personalData.firstName && 
+                            personalData.birthDate &&
+                            personalData.email;
+    
+    if (hasRequiredData) {
+      console.log('Form already populated, skipping registration fetch');
+      return;
+    }
+
+    const fetchRegistrationData = async () => {
       setIsLoading(true);
       setError(null);
 
@@ -55,7 +77,6 @@ export default function StudentPersonalDataPage({ onBack, onNext }: StudentPerso
         const result = await getRegistrationByCode(code);
 
         if (result.success && result.data) {
-          // Update form data with fetched data
           updateFormData('personalData', {
             ...personalData,
             ...result.data
@@ -74,75 +95,48 @@ export default function StudentPersonalDataPage({ onBack, onNext }: StudentPerso
 
     fetchRegistrationData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]); // Only run once when component mounts
+  }, [searchParams]);
 
   // Load provinces, regions, and municipalities on component mount
   useEffect(() => {
     try {
-      // Get provinces and regions using psgc library
       const allProvinces = psgcProvinces.all();
       const allRegions = psgcRegions.all();
 
-      // Filter NCR/Metro Manila region
       const ncrRegion = allRegions.filter((region) =>
         region.name.includes('Metro') || region.name.includes('NCR') ||
         region.name.includes('National Capital Region')
       );
 
-      // Combine provinces and NCR region
       const allLocations = [...allProvinces, ...ncrRegion] as LocationItem[];
-
-      // Sort all locations alphabetically by name
-      const sortedLocations = allLocations.sort((a, b) =>
-        a.name.localeCompare(b.name)
-      );
+      const sortedLocations = allLocations.sort((a, b) => a.name.localeCompare(b.name));
+      
       setProvinces(sortedLocations);
-
-      // Pre-load all municipalities once
-      const municipalities = psgcMunicipalities.all() as unknown as PSGCMunicipality[];
-      setAllMunicipalities(municipalities);
+      setAllMunicipalities(psgcMunicipalities.all() as unknown as PSGCMunicipality[]);
     } catch (error) {
       console.error('Error loading location data:', error);
     }
   }, []);
 
-  // Load cities when province is set (from registration data or user selection)
+  // Memoize filtered cities to avoid recalculation
+  const filteredHomeCities = useMemo(() => 
+    getFilteredCities(personalData.homeStateProvince),
+    [personalData.homeStateProvince, getFilteredCities]
+  );
+
+  const filteredProvincialCities = useMemo(() => 
+    getFilteredCities(personalData.provincialStateProvince),
+    [personalData.provincialStateProvince, getFilteredCities]
+  );
+
+  // Update cities when memoized values change
   useEffect(() => {
-    if (personalData.homeStateProvince && allMunicipalities.length > 0) {
-      // Filter municipalities based on the loaded province
-      const filteredMunicipalities = allMunicipalities.filter((muni) => {
-        return muni.province === personalData.homeStateProvince || muni.region === personalData.homeStateProvince;
-      });
+    setCities(filteredHomeCities);
+  }, [filteredHomeCities]);
 
-      // Sort alphabetically
-      const sortedCities = (filteredMunicipalities as LocationItem[]).sort((a, b) =>
-        a.name.localeCompare(b.name)
-      );
-
-      setCities(sortedCities);
-    } else {
-      setCities([]);
-    }
-  }, [personalData.homeStateProvince, allMunicipalities]);
-
-  // Load provincial cities when provincial province is set
   useEffect(() => {
-    if (personalData.provincialStateProvince && allMunicipalities.length > 0) {
-      // Filter municipalities based on the loaded province
-      const filteredMunicipalities = allMunicipalities.filter((muni) => {
-        return muni.province === personalData.provincialStateProvince || muni.region === personalData.provincialStateProvince;
-      });
-
-      // Sort alphabetically
-      const sortedCities = (filteredMunicipalities as LocationItem[]).sort((a, b) =>
-        a.name.localeCompare(b.name)
-      );
-
-      setProvincialCities(sortedCities);
-    } else {
-      setProvincialCities([]);
-    }
-  }, [personalData.provincialStateProvince, allMunicipalities]);
+    setProvincialCities(filteredProvincialCities);
+  }, [filteredProvincialCities]);
 
   // Validation functions
   const validateField = (field: string, value: unknown): string => {
@@ -217,7 +211,7 @@ export default function StudentPersonalDataPage({ onBack, onNext }: StudentPerso
         return '';
       case 'email':
         if (!value || typeof value !== 'string' || !value.trim()) return 'Email address is required';
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailPattern = /^[^\s@]+@gmail\.com$/;
         if (!emailPattern.test(value)) {
           return 'Please enter a valid email address';
         }
@@ -239,11 +233,14 @@ export default function StudentPersonalDataPage({ onBack, onNext }: StudentPerso
         }
         return '';
       case 'landline':
-        // Optional, but if provided, validate format
+        // Optional, but if provided, validate format (accept "N/A")
         if (value && typeof value === 'string' && value.trim()) {
+          if (value.trim() === 'N/A') {
+            return ''; // "N/A" is acceptable
+          }
           const cleanLandline = value.replace(/[\s\-\(\)]/g, '');
           if (cleanLandline.length < 7) {
-            return 'Please enter a valid landline number';
+            return 'Please enter a valid landline number or "N/A"';
           }
         }
         return '';
@@ -299,13 +296,11 @@ export default function StudentPersonalDataPage({ onBack, onNext }: StudentPerso
 
   // Handle province/region selection and fetch cities
   const handleProvinceChange = (locationName: string) => {
-    // Update both province and city together
     const updates: Partial<typeof personalData> = {
       homeStateProvince: locationName,
-      homeCity: '' // Reset city when province changes
+      homeCity: ''
     };
 
-    // If checkbox is ticked, also update provincial address
     if (sameAsHomeAddress) {
       updates.provincialStateProvince = locationName;
       updates.provincialCity = '';
@@ -325,64 +320,41 @@ export default function StudentPersonalDataPage({ onBack, onNext }: StudentPerso
         return newErrors;
       });
     }
-
-    if (locationName && allMunicipalities.length > 0) {
-      // Filter municipalities from pre-loaded data
-      const filteredMunicipalities = allMunicipalities.filter((muni) => {
-        return muni.province === locationName || muni.region === locationName;
-      });
-
-      // Sort alphabetically
-      const sortedCities = (filteredMunicipalities as LocationItem[]).sort((a, b) =>
-        a.name.localeCompare(b.name)
-      );
-
-      setCities(sortedCities);
-
-      // If checkbox is ticked, also update provincial cities
-      if (sameAsHomeAddress) {
-        setProvincialCities(sortedCities);
-      }
-    } else {
-      setCities([]);
-      if (sameAsHomeAddress) {
-        setProvincialCities([]);
-      }
-    }
   };
 
   // Handle provincial province/region selection and fetch cities
   const handleProvincialProvinceChange = (locationName: string) => {
-    // Update both province and city together
     updateFormData('personalData', {
       ...personalData,
       provincialStateProvince: locationName,
-      provincialCity: '' // Reset city when province changes
+      provincialCity: ''
     });
-
-    if (locationName && allMunicipalities.length > 0) {
-      // Filter municipalities from pre-loaded data
-      const filteredMunicipalities = allMunicipalities.filter((muni) => {
-        return muni.province === locationName || muni.region === locationName;
-      });
-
-      // Sort alphabetically
-      const sortedCities = (filteredMunicipalities as LocationItem[]).sort((a, b) =>
-        a.name.localeCompare(b.name)
-      );
-
-      setProvincialCities(sortedCities);
-    } else {
-      setProvincialCities([]);
-    }
   };
+
+  // Detect if addresses are the same and auto-tick checkbox
+  useEffect(() => {
+    const addressesMatch = 
+      personalData.homeAddress === personalData.provincialAddress &&
+      personalData.homeCity === personalData.provincialCity &&
+      personalData.homeStateProvince === personalData.provincialStateProvince &&
+      personalData.homeZip === personalData.provincialZip &&
+      personalData.homeAddress !== '' && // Don't auto-tick if addresses are empty
+      personalData.provincialAddress !== '';
+
+    if (addressesMatch && !sameAsHomeAddress) {
+      setSameAsHomeAddress(true);
+    } else if (!addressesMatch && sameAsHomeAddress && personalData.provincialAddress !== '') {
+      // Only uncheck if provincial address is manually different and not empty
+      setSameAsHomeAddress(false);
+    }
+  }, [personalData.homeAddress, personalData.homeCity, personalData.homeStateProvince, personalData.homeZip, 
+      personalData.provincialAddress, personalData.provincialCity, personalData.provincialStateProvince, personalData.provincialZip, sameAsHomeAddress]);
 
   // Handle 'Same as Home Address' checkbox
   const handleSameAsHomeAddress = (checked: boolean) => {
     setSameAsHomeAddress(checked);
 
     if (checked) {
-      // Copy home address to provincial address
       updateFormData('personalData', {
         ...personalData,
         provincialAddress: personalData.homeAddress,
@@ -390,19 +362,7 @@ export default function StudentPersonalDataPage({ onBack, onNext }: StudentPerso
         provincialCity: personalData.homeCity,
         provincialZip: personalData.homeZip
       });
-
-      // Also update provincial cities dropdown
-      if (personalData.homeStateProvince && allMunicipalities.length > 0) {
-        const filteredMunicipalities = allMunicipalities.filter((muni) => {
-          return muni.province === personalData.homeStateProvince || muni.region === personalData.homeStateProvince;
-        });
-        const sortedCities = (filteredMunicipalities as LocationItem[]).sort((a, b) =>
-          a.name.localeCompare(b.name)
-        );
-        setProvincialCities(sortedCities);
-      }
     } else {
-      // Clear provincial address fields
       updateFormData('personalData', {
         ...personalData,
         provincialAddress: '',
@@ -410,7 +370,6 @@ export default function StudentPersonalDataPage({ onBack, onNext }: StudentPerso
         provincialCity: '',
         provincialZip: ''
       });
-      setProvincialCities([]);
     }
   };
 
@@ -564,6 +523,23 @@ export default function StudentPersonalDataPage({ onBack, onNext }: StudentPerso
         <div className="w-full flex justify-center">
           <div className="font-bold text-lg tracking-wide py-2 text-white bg-[#a10000] rounded w-full text-center">PERSONAL DATA</div>
         </div>
+
+        {/* Instruction Notice */}
+        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-blue-700">
+                <span className="font-semibold">Note:</span> Fields marked with <span className="text-red-500 font-bold">*</span> are required. For optional fields, please enter <span className="font-semibold">&quot;N/A&quot;</span> if not applicable.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Academic Year and Grade */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -771,7 +747,7 @@ export default function StudentPersonalDataPage({ onBack, onNext }: StudentPerso
             <label className="block text-sm font-medium mb-1 text-black">Blood Type: <span className="text-red-500">*</span></label>
             <select
               className={`border rounded px-2 py-1 w-full text-black ${errors.bloodType ? 'border-red-500' : 'border-gray-300'}`}
-              value={personalData.bloodType || 'O+'}
+              value={personalData.bloodType || ''}
               onChange={(e) => handleInputChange('bloodType', e.target.value)}
             >
               <option value="">Select blood type</option>
@@ -867,7 +843,7 @@ export default function StudentPersonalDataPage({ onBack, onNext }: StudentPerso
               placeholder="example@gmail.com"
               className={`border rounded px-2 py-1 w-full text-black ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
               value={personalData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
+              onChange={(e: { target: { value: string; }; }) => handleInputChange('email', e.target.value)}
             />
             <ErrorMessage error={errors.email} />
           </div>

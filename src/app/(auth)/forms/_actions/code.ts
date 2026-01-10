@@ -253,6 +253,7 @@ export async function validateApplicationCode(code: string): Promise<{
     success: boolean;
     isValid?: boolean;
     applicationId?: number;
+    registrationType?: string;
     error?: string;
 }> {
     try {
@@ -270,7 +271,12 @@ export async function validateApplicationCode(code: string): Promise<{
                 status: true,
                 expirationDate: true,
                 registrationId: true,
-                createdAt: true
+                createdAt: true,
+                registration: {
+                    select: {
+                        registrationType: true
+                    }
+                }
             }
         });
 
@@ -290,7 +296,8 @@ export async function validateApplicationCode(code: string): Promise<{
         return {
             success: true,
             isValid: true,
-            applicationId: application.registrationId
+            applicationId: application.registrationId,
+            registrationType: application.registration?.registrationType || 'NEW'
         };
     } catch (error) {
         console.error('Error validating application code:', error);
