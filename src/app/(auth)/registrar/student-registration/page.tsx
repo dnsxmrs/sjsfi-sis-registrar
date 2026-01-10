@@ -324,8 +324,8 @@ const RegisterCoursePage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen p-6 space-y-6 bg-gray-100">
-            <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-6 md:gap-8">
+        <div className="h-screen w-full space-y-6 bg-gray-100">
+            <div className="w-full h-full flex flex-col md:flex-row gap-6 md:gap-8">
                 <aside className="w-full md:w-56 space-y-4 flex-shrink-0 order-1 md:order-2">
                     <div className="bg-white rounded-lg shadow p-4 flex flex-col space-y-3">
                         <label className="block text-sm font-medium text-black px-3">
@@ -415,7 +415,8 @@ const RegisterCoursePage: React.FC = () => {
                                 <div className="text-gray-500">Loading students...</div>
                             </div>
                         ) : (
-                            <table className="w-full text-left text-sm"><thead>
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full text-left text-sm"><thead>
                                 <tr className="border-b border-gray-300 text-black">
                                     <th className="py-2 font-semibold">Registration ID</th>
                                     <th className="py-2 font-semibold">Date & Time</th>
@@ -457,6 +458,7 @@ const RegisterCoursePage: React.FC = () => {
                                     )}
                                 </tbody>
                             </table>
+                            </div>
                         )}
                         {/* Pagination Controls */}
                         {students.length > 0 && (
@@ -535,7 +537,7 @@ const RegisterCoursePage: React.FC = () => {
                                 {/* Basic Information */}
                                 <div>
                                     <h3 className="text-md font-semibold mb-3 text-gray-800 border-b pb-2">Basic Information</h3>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-sm font-medium mb-1 text-black">Registration ID</label>
                                             <div className="w-full text-black border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100">
