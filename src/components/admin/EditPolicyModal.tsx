@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import RichTextEditor from './RichTextEditor';
 
 interface EditPolicyModalProps {
@@ -13,6 +13,13 @@ interface EditPolicyModalProps {
 export default function EditPolicyModal({ isOpen, onClose, policyText, onSave }: EditPolicyModalProps) {
   const [text, setText] = useState(policyText);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Update text when policyText prop changes or when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setText(policyText);
+    }
+  }, [isOpen, policyText]);
 
   const handleClose = () => {
     setText(policyText); // Reset to original text

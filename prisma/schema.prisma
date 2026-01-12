@@ -64,6 +64,7 @@ model YearLevel {
   deletedAt           DateTime?
   registrations       Registration[]
   studentApplications StudentApplication[]
+  termYearLevels      TermYearLevel[]
 
   @@index([status])
   @@index([name, status])
@@ -80,6 +81,7 @@ model AcademicTerm {
   deletedAt           DateTime?
   registrations       Registration[]
   studentApplications StudentApplication[]
+  termYearLevels      TermYearLevel[]
 
   @@index([status, startDate])
   @@index([year, status])
@@ -178,7 +180,7 @@ model StudentApplication {
   id                      Int                    @id @default(autoincrement())
   familyName              String                 @db.VarChar(255)
   firstName               String                 @db.VarChar(255)
-  middleName              String?                 @db.VarChar(255)
+  middleName              String?                @db.VarChar(255)
   nickName                String                 @db.VarChar(100)
   birthdate               DateTime               @db.Date
   placeOfBirth            String                 @db.VarChar(255)
@@ -349,6 +351,7 @@ model SystemLog {
   metadata          Json?
   isSensitiveData   Boolean       @default(false)
   createdAt         DateTime      @default(now())
+  deletedAt         DateTime?
   archivedAt        DateTime?
 
   @@index([timestamp])
@@ -448,34 +451,100 @@ model Siblings {
 }
 
 model Subject {
-  id          Int        @id @default(autoincrement())
-  code        String     @unique
-  name        String
-  description String?
-  units       Int
-  gradeLevel  String
-  department  String
-  isActive    Boolean    @default(true)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  grades      Grade[]
-  schedules   Schedule[]
+  id           Int           @id @default(autoincrement())
+  code         String        @unique
+  name         String
+  description  String?
+  units        Int
+  // gradeLevel   String
+  // department   String
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  deletedAt    DateTime?
+  grades       Grade[]
+  termSubjects TermSubject[]
+}
+
+model TermYearLevel {
+  id             Int           @id @default(autoincrement())
+  academicTermId Int
+  yearLevelId    Int
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  deletedAt      DateTime?
+  academicTerm   AcademicTerm  @relation(fields: [academicTermId], references: [id])
+  yearLevel      YearLevel     @relation(fields: [yearLevelId], references: [id])
+  termSubjects   TermSubject[]
+  sections       Section[]
+
+  @@unique([academicTermId, yearLevelId, deletedAt])
+  @@index([academicTermId, deletedAt])
+  @@index([yearLevelId, deletedAt])
+}
+
+model TermSubject {
+  id               Int             @id @default(autoincrement())
+  termYearLevelId  Int
+  subjectId        Int
+  isRequired       Boolean         @default(true)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  deletedAt        DateTime?
+  termYearLevel    TermYearLevel   @relation(fields: [termYearLevelId], references: [id])
+  subject          Subject         @relation(fields: [subjectId], references: [id])
+  schedules        Schedule[]
+
+  @@unique([termYearLevelId, subjectId, deletedAt])
+  @@index([termYearLevelId, deletedAt])
+  @@index([subjectId, deletedAt])
+  @@index([isRequired, deletedAt])
+}
+
+model Section {
+  id               Int            @id @default(autoincrement())
+  termYearLevelId  Int
+  name             String         @db.VarChar(100)
+  capacity         Int
+  currentStudents  Int            @default(0)
+  status           GeneralStatus  @default(ACTIVE)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  deletedAt        DateTime?
+  termYearLevel    TermYearLevel  @relation(fields: [termYearLevelId], references: [id])
+  schedules        Schedule[]
+
+  @@unique([termYearLevelId, name, deletedAt])
+  @@index([termYearLevelId, status, deletedAt])
+  @@index([status, deletedAt])
 }
 
 model Schedule {
-  id         Int      @id @default(autoincrement())
-  subjectId  Int
-  time       String
-  room       String
-  instructor String
-  day        String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  subject    Subject  @relation(fields: [subjectId], references: [id])
+  id            Int          @id @default(autoincrement())
+  termSubjectId Int
+  sectionId     Int?
+  day           String       @db.VarChar(20)
+  startTime     String       @db.VarChar(20)
+  endTime       String       @db.VarChar(20)
+  room          String       @db.VarChar(100)
+  teacherId     String?      @db.VarChar(100)
+  teacherName   String?      @db.VarChar(255)
+  teacherEmail  String?      @db.VarChar(255)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  deletedAt     DateTime?
+  termSubject   TermSubject  @relation(fields: [termSubjectId], references: [id])
+  section       Section?     @relation(fields: [sectionId], references: [id])
+
+  @@index([termSubjectId, deletedAt])
+  @@index([sectionId, deletedAt])
+  @@index([day, startTime, deletedAt])
+  @@index([room, day, startTime, deletedAt])
+  @@index([teacherId, deletedAt])
 }
 
 model Grade {
-  id            Int      @id @default(autoincrement())
+  id            Int       @id @default(autoincrement())
   subjectId     Int
   firstGrading  Int?
   secondGrading Int?
@@ -483,9 +552,10 @@ model Grade {
   fourthGrading Int?
   finalGrade    Int?
   remarks       String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  subject       Subject  @relation(fields: [subjectId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+  subject       Subject   @relation(fields: [subjectId], references: [id])
 }
 
 model Notification {
@@ -507,6 +577,7 @@ model NotificationRecipient {
   userId         Int
   isRead         Boolean      @default(false)
   readAt         DateTime?
+  deletedAt      DateTime?
   notification   Notification @relation(fields: [notificationId], references: [id])
   user           User         @relation(fields: [userId], references: [id])
 

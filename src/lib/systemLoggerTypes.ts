@@ -11,7 +11,7 @@ export interface LogSystemActionParams {
     sessionId?: string;
 
     // Action details (required)
-    actionCategory: 'AUTH' | 'REGISTRATION' | 'ACADEMIC' | 'USER' | 'SYSTEM' | 'SECURITY';
+    actionCategory: 'AUTH' | 'REGISTRATION' | 'ACADEMIC' | 'USER' | 'SYSTEM' | 'SECURITY' | 'SCHEDULE_MANAGEMENT' | 'PAYMENT_PROCESSING' | 'NOTIFICATION' | 'DATA_EXPORT' | 'DATA_IMPORT';
     actionType: 'CREATE' | 'UPDATE' | 'DELETE' | 'SIGN-IN' | 'SIGN-OUT' | 'EXPORT' | 'IMPORT' | 'VIEW' | 'PASSWORD_CHANGE' | 'UNAUTHORIZED_ACCESS' | 'SUSPICIOUS_ACTIVITY' | 'DATA_BREACH' | 'BRUTE_FORCE';
     actionSubType?: string;
     actionDescription: string;

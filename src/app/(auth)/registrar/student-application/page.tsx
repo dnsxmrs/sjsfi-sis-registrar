@@ -1,14 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Eye, Trash, X } from 'lucide-react';
+import { Eye, X } from 'lucide-react';
 import { getStudentApplicationTableData } from '@/app/_actions/getStudentsList';
 import { sendMissingRequirementsNotification } from '@/app/_actions/sendNotification';
 import { approveApplication } from '@/app/_actions/studentApplication';
 import toast from 'react-hot-toast';
 import { FileUpload } from '@/components/registrar/FileUpload';
 
-const RegisterCoursePage: React.FC = () => {
+const ApplicationPage: React.FC = () => {
     // Temporary data for Application Details sections (except Personal Data)
     // const temporaryHealthHistory = {
     //     allergies: 'Peanuts, Shellfish, Penicillin',
@@ -677,7 +677,7 @@ const RegisterCoursePage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 p-6">
+        <div className="min-h-screen bg-gray-100">
             <div className="w-full flex flex-col md:flex-row gap-6 md:gap-8">
                 {/* First Column: Add Student Form + All Students Table */}
                 <div className="flex-1 space-y-6 order-2 md:order-1">
@@ -742,13 +742,13 @@ const RegisterCoursePage: React.FC = () => {
                                                         >
                                                             <Eye className="h-5 w-5" />
                                                         </button>
-                                                        <button
+                                                        {/* <button
                                                             title="Delete"
                                                             className="text-red-600 hover:text-red-800 cursor-pointer p-1"
                                                             onClick={() => toast(`Delete student ${student.applicationNumber}`)}
                                                         >
                                                             <Trash className="h-5 w-5" />
-                                                        </button>
+                                                        </button> */}
                                                     </div>
                                                 </div>
                                                 <div className="space-y-2">
@@ -806,13 +806,13 @@ const RegisterCoursePage: React.FC = () => {
                                                             >
                                                                 <Eye className="h-5 w-5" />
                                                             </button>
-                                                            <button
+                                                            {/* <button
                                                                 title="Delete"
                                                                 className="text-red-600 cursor-pointer hover:text-red-800 transition-colors"
                                                                 onClick={() => toast(`Delete student ${student.applicationNumber}`)}
                                                             >
                                                                 <Trash className="h-5 w-5" />
-                                                            </button>
+                                                            </button> */}
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -1052,4 +1052,4 @@ const RegisterCoursePage: React.FC = () => {
     );
 };
 
-export default RegisterCoursePage;
+export default ApplicationPage;

@@ -175,6 +175,19 @@ export default function CodeManagement() {
         return <ArrowDown className="w-4 h-4" />;
     };
 
+    const getStatusColor = (status: string) => {
+        switch (status.toLowerCase()) {
+            case 'available':
+                return 'bg-green-100 text-green-800';
+            case 'inactive':
+                return 'bg-gray-100 text-gray-800';
+            case 'expired':
+                return 'bg-red-100 text-red-800';
+            default:
+                return 'bg-gray-100 text-gray-800';
+        }
+    };
+
     return (
         <div className="p-4 md:p-8">
             <div className="flex justify-between items-center mb-4">
@@ -265,7 +278,7 @@ export default function CodeManagement() {
                                                 </p>
                                                 <p className="text-sm text-gray-600">{formatDate(code.createdAt)}</p>
                                             </div>
-                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(code.status)}`}>
                                                 {code.status}
                                             </span>
                                         </div>
@@ -358,7 +371,7 @@ export default function CodeManagement() {
                                             {code.registrationCode}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(code.status)}`}>
                                                 {code.status}
                                             </span>
                                         </td>
@@ -429,11 +442,10 @@ export default function CodeManagement() {
                                             <button
                                                 key={pageNum}
                                                 onClick={() => setCurrentPage(pageNum)}
-                                                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
-                                                    currentPage === pageNum
+                                                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${currentPage === pageNum
                                                         ? 'bg-blue-500 text-white'
                                                         : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
-                                                }`}
+                                                    }`}
                                             >
                                                 {pageNum}
                                             </button>
@@ -445,11 +457,10 @@ export default function CodeManagement() {
                                             <span className="px-2 text-gray-500">...</span>
                                             <button
                                                 onClick={() => setCurrentPage(totalPages)}
-                                                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
-                                                    currentPage === totalPages
+                                                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${currentPage === totalPages
                                                         ? 'bg-blue-500 text-white'
                                                         : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
-                                                }`}
+                                                    }`}
                                             >
                                                 {totalPages}
                                             </button>

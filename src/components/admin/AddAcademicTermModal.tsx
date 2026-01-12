@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 type AddAcademicTermModalProps = {
   isOpen: boolean;
@@ -20,6 +20,16 @@ export default function AddAcademicTermModal({ isOpen, onClose, onAdd }: AddAcad
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      // Small delay to ensure modal is fully rendered
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,7 +91,7 @@ export default function AddAcademicTermModal({ isOpen, onClose, onAdd }: AddAcad
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-center items-center bg-gray-600/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex justify-center items-center bg-black/50">
       <div className="bg-white p-6 rounded-md shadow-lg w-full max-w-md">
         <h2 className="text-gray-700 text-xl font-bold text-center mb-4">Add Academic Term</h2>
 
@@ -95,10 +105,11 @@ export default function AddAcademicTermModal({ isOpen, onClose, onAdd }: AddAcad
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">Academic Term:</label>
             <input
+              ref={inputRef}
               type="text"
               value={formData.year}
               onChange={(e) => setFormData(prev => ({ ...prev, year: e.target.value }))}
-              placeholder="SY 2024–2025"
+              placeholder="2024–2025"
               className="text-gray-700 w-full border border-red-800 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
               required
             />

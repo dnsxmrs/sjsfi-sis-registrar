@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 type AddYearLevelModalProps = {
     isOpen: boolean;
@@ -10,6 +10,16 @@ export default function AddYearLevelModal({ isOpen, onClose, onAdd }: AddYearLev
     const [name, setName] = useState("");
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (isOpen && inputRef.current) {
+            // Small delay to ensure modal is fully rendered
+            setTimeout(() => {
+                inputRef.current?.focus();
+            }, 100);
+        }
+    }, [isOpen]);
 
     const handleSubmit = async () => {
         if (!name.trim()) {
@@ -44,13 +54,14 @@ export default function AddYearLevelModal({ isOpen, onClose, onAdd }: AddYearLev
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex justify-center items-center bg-gray-600/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex justify-center items-center bg-black/50">
             <div className="bg-white p-6 rounded-md shadow-lg w-full max-w-sm">
                 <h2 className="text-gray-700 text-xl font-bold text-center mb-4">Add Year Level</h2>
 
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Year Level Name:</label>
                     <input
+                        ref={inputRef}
                         type="text"
                         value={name}
                         onChange={(e) => {

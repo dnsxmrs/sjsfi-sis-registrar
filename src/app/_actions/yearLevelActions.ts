@@ -14,10 +14,13 @@ export async function addYearLevel(name: string) {
             };
         }
 
-        // Check if year level already exists
+        // Check if year level already exists (case-insensitive)
         const existingYearLevel = await prisma.yearLevel.findFirst({
             where: {
-                name: name.trim(),
+                name: {
+                    equals: name.trim(),
+                    mode: 'insensitive'
+                },
                 deletedAt: null
             }
         });
@@ -71,10 +74,13 @@ export async function updateYearLevel(id: number, name: string) {
             };
         }
 
-        // Check if another year level with the same name exists
+        // Check if another year level with the same name exists (case-insensitive)
         const existingYearLevel = await prisma.yearLevel.findFirst({
             where: {
-                name: name.trim(),
+                name: {
+                    equals: name.trim(),
+                    mode: 'insensitive'
+                },
                 deletedAt: null,
                 NOT: { id }
             }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 type EditYearLevelModalProps = {
     isOpen: boolean;
@@ -16,6 +16,16 @@ export default function EditYearLevelModal({
     const [name, setName] = useState("");
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (isOpen && inputRef.current) {
+            // Small delay to ensure modal is fully rendered
+            setTimeout(() => {
+                inputRef.current?.focus();
+            }, 100);
+        }
+    }, [isOpen]);
 
     useEffect(() => {
         if (yearLevel) {
@@ -64,6 +74,7 @@ export default function EditYearLevelModal({
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Year Level Name:</label>
                     <input
+                        ref={inputRef}
                         type="text"
                         value={name}
                         onChange={(e) => {
