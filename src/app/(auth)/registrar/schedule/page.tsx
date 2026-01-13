@@ -166,6 +166,8 @@ export default function SchedulePage() {
                     fetchSubjects();
                 }
                 break;
+            default:
+                break;
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedTab]);
@@ -677,18 +679,38 @@ export default function SchedulePage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 p-6">
+        <div className="min-h-screen bg-gray-100 p-4 lg:p-6">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
-                <div className="bg-white rounded-lg shadow p-6 mb-6">
-                    <h1 className="text-2xl font-bold text-gray-800 mb-2">Schedule Management</h1>
-                    <p className="text-gray-600">Manage academic terms, year levels, subjects, sections, and schedules</p>
+                <div className="bg-white rounded-lg shadow p-4 lg:p-6 mb-4 lg:mb-6">
+                    <h1 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">Schedule Management</h1>
+                    <p className="text-sm lg:text-base text-gray-600">Manage academic terms, year levels, subjects, sections, and schedules</p>
                 </div>
 
                 {/* Tabs */}
-                <div className="bg-white rounded-lg shadow mb-6">
+                <div className="bg-white rounded-lg shadow mb-4 lg:mb-6">
                     <div className="border-b border-gray-200">
-                        <nav className="flex -mb-px" role="tablist" aria-label="Schedule management tabs">
+                        {/* Mobile Tab Selector */}
+                        <div className="block md:hidden p-4">
+                            <label htmlFor="mobile-tab-select" className="block text-sm font-medium text-gray-700 mb-2">
+                                Select Section
+                            </label>
+                            <select
+                                id="mobile-tab-select"
+                                value={selectedTab}
+                                onChange={(e) => setSelectedTab(e.target.value as typeof selectedTab)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-800 text-black"
+                            >
+                                <option value="schedules">Schedules</option>
+                                <option value="terms">Academic Terms</option>
+                                <option value="yearLevels">Year Levels</option>
+                                <option value="subjects">Subjects</option>
+                                <option value="sections">Sections</option>
+                            </select>
+                        </div>
+
+                        {/* Desktop Tabs */}
+                        <nav className="hidden md:flex overflow-x-auto -mb-px scrollbar-hide" role="tablist" aria-label="Schedule management tabs">
                             {[
                                 { id: 'schedules', label: 'Schedules' },
                                 { id: 'terms', label: 'Academic Terms' },
@@ -699,7 +721,7 @@ export default function SchedulePage() {
                                 <button
                                     key={tab.id}
                                     onClick={() => setSelectedTab(tab.id as typeof selectedTab)}
-                                    className={`px-6 py-3 text-sm font-medium transition-colors ${selectedTab === tab.id
+                                    className={`px-4 lg:px-6 py-3 text-sm font-medium transition-colors whitespace-nowrap ${selectedTab === tab.id
                                             ? 'border-b-2 border-red-800 text-red-800'
                                             : 'text-black hover:text-gray-700 hover:border-gray-300'
                                         }`}
@@ -796,7 +818,91 @@ export default function SchedulePage() {
                             </div>
                         </div>
 
-                        <div className="overflow-x-auto">
+                        {/* Mobile View - Cards */}
+                        <div className="block lg:hidden">
+                            <div className="divide-y divide-gray-200">
+                                {schedulesLoading ? (
+                                    <div className="p-8 text-center text-gray-500">
+                                        Loading schedules...
+                                    </div>
+                                ) : schedules.length === 0 ? (
+                                    <div className="p-8 text-center text-gray-500">
+                                        No schedules found
+                                    </div>
+                                ) : (
+                                    schedules
+                                        .filter((s) => !selectedSection || s.section?.id === selectedSection)
+                                        .map((schedule) => (
+                                            <div key={schedule.id} className="p-4 hover:bg-gray-50">
+                                                <div className="space-y-3">
+                                                    <div className="flex justify-between items-start">
+                                                        <div className="flex-1">
+                                                            <div className="font-semibold text-gray-900">
+                                                                {schedule.termSubject.subject.code}
+                                                            </div>
+                                                            <div className="text-sm text-gray-600">{schedule.termSubject.subject.name}</div>
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <button
+                                                                onClick={() => openEditScheduleModal(schedule)}
+                                                                className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2 py-1 rounded text-sm"
+                                                            >
+                                                                Edit
+                                                            </button>
+                                                            <button
+                                                                onClick={() => openDeleteModal('schedule', schedule.id, `${schedule.termSubject.subject.code} - ${schedule.day}`)}
+                                                                className="text-red-600 hover:text-red-800 hover:bg-red-50 px-2 py-1 rounded text-sm"
+                                                            >
+                                                                Delete
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-4 text-sm">
+                                                        <div>
+                                                            <span className="text-gray-500">Section:</span>
+                                                            <div className="font-medium text-gray-900">
+                                                                {schedule.section?.name || <span className="text-gray-400 italic">No section</span>}
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <span className="text-gray-500">Day:</span>
+                                                            <div className="font-medium text-gray-900">{schedule.day}</div>
+                                                        </div>
+                                                        <div>
+                                                            <span className="text-gray-500">Time:</span>
+                                                            <div className="font-medium text-gray-900">
+                                                                {schedule.startTime} - {schedule.endTime}
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <span className="text-gray-500">Room:</span>
+                                                            <div className="font-medium text-gray-900">{schedule.room}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-gray-500 text-sm">Teacher:</span>
+                                                        <div className="mt-1">
+                                                            {schedule.teacherName ? (
+                                                                <div>
+                                                                    <div className="font-medium text-gray-900">{schedule.teacherName}</div>
+                                                                    <div className="text-xs text-gray-500">{schedule.teacherEmail}</div>
+                                                                </div>
+                                                            ) : (
+                                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                                    Unassigned
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Desktop View - Table */}
+                        <div className="hidden lg:block overflow-x-auto">
                             <table className="w-full">
                                 <thead className="bg-gray-50 border-b">
                                     <tr>
@@ -885,7 +991,147 @@ export default function SchedulePage() {
                                 <Plus size={16} /> Add Term
                             </button>
                         </div>
-                        <div className="overflow-x-auto">
+
+                        {/* Mobile View - Cards */}
+                        <div className="block lg:hidden">
+                            <div className="divide-y divide-gray-200">
+                                {loading ? (
+                                    <div className="p-8 text-center text-gray-500">
+                                        Loading academic terms...
+                                    </div>
+                                ) : terms.length === 0 ? (
+                                    <div className="p-8 text-center text-gray-500">
+                                        No academic terms found
+                                    </div>
+                                ) : (
+                                    terms.map((term) => {
+                                        const startDate = new Date(term.startDate);
+                                        const endDate = new Date(term.endDate);
+                                        const currentDate = new Date();
+
+                                        let statusDisplay = '';
+                                        let statusColor = '';
+                                        let actionButtons = null;
+
+                                        if (term.status === 'ACTIVE') {
+                                            if (currentDate < startDate) {
+                                                statusDisplay = 'Upcoming';
+                                                statusColor = 'bg-blue-100 text-blue-800';
+                                                actionButtons = (
+                                                    <button
+                                                        onClick={() => handleAcademicTermAction('cancel', term.id)}
+                                                        className="text-red-600 hover:text-red-800 hover:bg-red-50 px-2 py-1 rounded text-sm"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                );
+                                            } else if (currentDate >= startDate && currentDate <= endDate) {
+                                                statusDisplay = 'Ongoing';
+                                                statusColor = 'bg-green-100 text-green-800';
+                                                actionButtons = (
+                                                    <div className="flex gap-1">
+                                                        <button
+                                                            onClick={() => handleAcademicTermAction('complete', term.id)}
+                                                            className="text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50 px-2 py-1 rounded text-sm"
+                                                        >
+                                                            Finish Early
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleAcademicTermAction('suspend', term.id)}
+                                                            className="text-orange-600 hover:text-orange-800 hover:bg-orange-50 px-2 py-1 rounded text-sm"
+                                                        >
+                                                            Suspend
+                                                        </button>
+                                                    </div>
+                                                );
+                                            } else {
+                                                statusDisplay = 'Overdue';
+                                                statusColor = 'bg-orange-100 text-orange-800';
+                                                actionButtons = (
+                                                    <div className="flex gap-1">
+                                                        <button
+                                                            onClick={() => handleAcademicTermAction('complete', term.id)}
+                                                            className="text-green-600 hover:text-green-800 hover:bg-green-50 px-2 py-1 rounded text-sm"
+                                                        >
+                                                            Mark Complete
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleAcademicTermAction('delete', term.id)}
+                                                            className="text-red-600 hover:text-red-800 hover:bg-red-50 px-2 py-1 rounded text-sm"
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    </div>
+                                                );
+                                            }
+                                        } else if (term.status === 'INACTIVE') {
+                                            statusDisplay = 'Completed';
+                                            statusColor = 'bg-gray-100 text-gray-800';
+                                            actionButtons = <span className="text-sm text-gray-500">No actions</span>;
+                                        } else if (term.status === 'SUSPENDED') {
+                                            statusDisplay = 'Suspended';
+                                            statusColor = 'bg-red-100 text-red-800';
+                                            actionButtons = (
+                                                <div className="flex gap-1">
+                                                    <button
+                                                        onClick={() => handleAcademicTermAction('reactivate', term.id)}
+                                                        className="text-green-600 hover:text-green-800 hover:bg-green-50 px-2 py-1 rounded text-sm"
+                                                    >
+                                                        Reactivate
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleAcademicTermAction('delete', term.id)}
+                                                        className="text-red-600 hover:text-red-800 hover:bg-red-50 px-2 py-1 rounded text-sm"
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            );
+                                        } else {
+                                            statusDisplay = term.status;
+                                            statusColor = 'bg-gray-100 text-gray-800';
+                                            actionButtons = <span className="text-sm text-gray-500">N/A</span>;
+                                        }
+
+                                        return (
+                                            <div key={term.id} className="p-4 hover:bg-gray-50">
+                                                <div className="space-y-3">
+                                                    <div className="flex justify-between items-start">
+                                                        <div className="flex-1">
+                                                            <div className="font-semibold text-gray-900 text-lg">
+                                                                {term.year}
+                                                            </div>
+                                                            <div className="mt-2">
+                                                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusColor}`}>
+                                                                    {statusDisplay}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="grid grid-cols-1 gap-2 text-sm">
+                                                        <div>
+                                                            <span className="text-gray-500">Duration:</span>
+                                                            <div className="font-medium text-gray-900">
+                                                                {startDate.toLocaleDateString()} - {endDate.toLocaleDateString()}
+                                                            </div>
+                                                            <div className="text-xs text-gray-500">
+                                                                {Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))} days
+                                                            </div>
+                                                            <div className="flex gap-2 mt-2">
+                                                                {actionButtons}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Desktop View - Table */}
+                        <div className="hidden lg:block overflow-x-auto">
                             <table className="w-full">
                                 <thead className="bg-gray-50 border-b">
                                     <tr>
@@ -1029,23 +1275,25 @@ export default function SchedulePage() {
 
                 {selectedTab === 'yearLevels' && (
                     <div className="bg-white rounded-lg shadow p-6 text-black">
-                        <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-xl font-semibold text-black">Year Levels by Term</h2>
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={() => setShowAddYearLevelModal(true)}
-                                    className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors flex items-center gap-2"
-                                >
-                                    <Plus size={16} /> Create Year Level
-                                </button>
-                                {selectedTerm && (
+                        <div className="mb-4">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+                                <h2 className="text-xl font-semibold text-black">Year Levels by Term</h2>
+                                <div className="flex gap-2 mt-4 sm:mt-0">
                                     <button
-                                        onClick={() => setShowAddYearLevelToTermModal(true)}
-                                        className="bg-red-800 text-white px-4 py-2 rounded hover:bg-red-900 transition-colors flex items-center gap-2"
+                                        onClick={() => setShowAddYearLevelModal(true)}
+                                        className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors flex items-center gap-2"
                                     >
-                                        <Plus size={16} /> Add to Term
+                                        <Plus size={16} /> Create Year Level
                                     </button>
-                                )}
+                                    {selectedTerm && (
+                                        <button
+                                            onClick={() => setShowAddYearLevelToTermModal(true)}
+                                            className="bg-red-800 text-white px-4 py-2 rounded hover:bg-red-900 transition-colors flex items-center gap-2"
+                                        >
+                                            <Plus size={16} /> Add to Term
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
@@ -1074,54 +1322,116 @@ export default function SchedulePage() {
                                 <p className="text-sm">Year levels are organized by academic term</p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {termYearLevelsLoading ? (
-                                    <div className="col-span-full text-center py-8 text-gray-500">
-                                        Loading year levels...
-                                    </div>
-                                ) : termYearLevels.length === 0 ? (
-                                    <div className="col-span-full text-center py-8 text-gray-500">
-                                        <p className="mb-2">No year levels added to this term</p>
-                                        <button
-                                            onClick={() => setShowAddYearLevelToTermModal(true)}
-                                            className="text-red-800 hover:underline"
-                                        >
-                                            Add year level to this term
-                                        </button>
-                                    </div>
-                                ) : (
-                                    termYearLevels.filter(tyl => tyl && tyl.yearLevel).map((tyl) => (
-                                        <div key={tyl.id} className="bg-gray-50 border rounded-lg p-4">
-                                            <div className="flex items-start justify-between mb-3">
-                                                <h3 className="text-lg font-semibold text-gray-900">{tyl.yearLevel.name}</h3>
+                            <>
+                                {/* Mobile View - Cards */}
+                                <div className="block lg:hidden">
+                                    <div className="divide-y divide-gray-200">
+                                        {termYearLevelsLoading ? (
+                                            <div className="p-8 text-center text-gray-500">
+                                                Loading year levels...
+                                            </div>
+                                        ) : termYearLevels.length === 0 ? (
+                                            <div className="p-8 text-center text-gray-500">
+                                                <p className="mb-2">No year levels added to this term</p>
                                                 <button
-                                                    onClick={() => openDeleteModal('termYearLevel', tyl.id, tyl.yearLevel.name)}
-                                                    className="p-1 text-red-600 hover:text-red-800 hover:bg-red-100 rounded"
-                                                    title="Remove from term"
+                                                    onClick={() => setShowAddYearLevelToTermModal(true)}
+                                                    className="text-red-800 hover:underline"
                                                 >
-                                                    <Trash2 size={16} />
+                                                    Add year level to this term
                                                 </button>
                                             </div>
-                                            <div className="space-y-2 mb-3">
-                                                <div className="flex items-center justify-between text-sm">
-                                                    <span className="text-gray-600">Subjects:</span>
-                                                    <span className="font-medium text-gray-900">{tyl._count?.termSubjects || 0}</span>
+                                        ) : (
+                                            termYearLevels.filter(tyl => tyl && tyl.yearLevel).map((tyl) => (
+                                                <div key={tyl.id} className="p-4 hover:bg-gray-50">
+                                                    <div className="space-y-3">
+                                                        <div className="flex justify-between items-start">
+                                                            <div className="flex-1">
+                                                                <div className="font-semibold text-gray-900 text-lg">
+                                                                    {tyl.yearLevel.name}
+                                                                </div>
+                                                            </div>
+                                                            <button
+                                                                onClick={() => openDeleteModal('termYearLevel', tyl.id, tyl.yearLevel.name)}
+                                                                className="text-red-600 hover:text-red-800 hover:bg-red-50 px-2 py-1 rounded text-sm"
+                                                            >
+                                                                Remove
+                                                            </button>
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-4 text-sm">
+                                                            <div>
+                                                                <span className="text-gray-500">Subjects:</span>
+                                                                <div className="font-medium text-gray-900">{tyl._count?.termSubjects || 0}</div>
+                                                            </div>
+                                                            <div>
+                                                                <span className="text-gray-500">Sections:</span>
+                                                                <div className="font-medium text-gray-900">{tyl._count?.sections || 0}</div>
+                                                            </div>
+                                                        </div>
+                                                        <button
+                                                            onClick={() => openConfigureSubjectsModal(tyl.id)}
+                                                            className="w-full bg-red-800 text-white px-3 py-2 rounded hover:bg-red-900 transition-colors flex items-center justify-center gap-2 text-sm"
+                                                        >
+                                                            <Settings size={14} /> Configure Subjects
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                                <div className="flex items-center justify-between text-sm">
-                                                    <span className="text-gray-600">Sections:</span>
-                                                    <span className="font-medium text-gray-900">{tyl._count?.sections || 0}</span>
-                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Desktop View - Grid */}
+                                <div className="hidden lg:block">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        {termYearLevelsLoading ? (
+                                            <div className="col-span-full text-center py-8 text-gray-500">
+                                                Loading year levels...
                                             </div>
-                                            <button
-                                                onClick={() => openConfigureSubjectsModal(tyl.id)}
-                                                className="w-full bg-white border border-red-800 text-red-800 px-3 py-2 rounded hover:bg-red-50 transition-colors flex items-center justify-center gap-2 text-sm"
-                                            >
-                                                <Settings size={14} /> Configure Subjects
-                                            </button>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
+                                        ) : termYearLevels.length === 0 ? (
+                                            <div className="col-span-full text-center py-8 text-gray-500">
+                                                <p className="mb-2">No year levels added to this term</p>
+                                                <button
+                                                    onClick={() => setShowAddYearLevelToTermModal(true)}
+                                                    className="text-red-800 hover:underline"
+                                                >
+                                                    Add year level to this term
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            termYearLevels.filter(tyl => tyl && tyl.yearLevel).map((tyl) => (
+                                                <div key={tyl.id} className="bg-gray-50 border rounded-lg p-4">
+                                                    <div className="flex items-start justify-between mb-3">
+                                                        <h3 className="text-lg font-semibold text-gray-900">{tyl.yearLevel.name}</h3>
+                                                        <button
+                                                            onClick={() => openDeleteModal('termYearLevel', tyl.id, tyl.yearLevel.name)}
+                                                            className="p-1 text-red-600 hover:text-red-800 hover:bg-red-100 rounded"
+                                                            title="Remove from term"
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    </div>
+                                                    <div className="space-y-2 mb-3">
+                                                        <div className="flex items-center justify-between text-sm">
+                                                            <span className="text-gray-600">Subjects:</span>
+                                                            <span className="font-medium text-gray-900">{tyl._count?.termSubjects || 0}</span>
+                                                        </div>
+                                                        <div className="flex items-center justify-between text-sm">
+                                                            <span className="text-gray-600">Sections:</span>
+                                                            <span className="font-medium text-gray-900">{tyl._count?.sections || 0}</span>
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => openConfigureSubjectsModal(tyl.id)}
+                                                        className="w-full bg-white border border-red-800 text-red-800 px-3 py-2 rounded hover:bg-red-50 transition-colors flex items-center justify-center gap-2 text-sm"
+                                                    >
+                                                        <Settings size={14} /> Configure Subjects
+                                                    </button>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            </>
                         )}
                     </div>
                 )}
@@ -1138,7 +1448,69 @@ export default function SchedulePage() {
                             </button>
                         </div>
 
-                        <div className="overflow-x-auto">
+                        {/* Mobile View - Cards */}
+                        <div className="block lg:hidden">
+                            <div className="divide-y divide-gray-200">
+                                {subjectsLoading ? (
+                                    <div className="p-8 text-center text-gray-500">
+                                        Loading subjects...
+                                    </div>
+                                ) : subjects.length === 0 ? (
+                                    <div className="p-8 text-center text-gray-500">
+                                        No subjects found. Create one to get started.
+                                    </div>
+                                ) : (
+                                    subjects.map((subject) => (
+                                        <div key={subject.id} className="p-4 hover:bg-gray-50">
+                                            <div className="space-y-3">
+                                                <div className="flex justify-between items-start">
+                                                    <div className="flex-1">
+                                                        <div className="font-semibold text-gray-900">{subject.code}</div>
+                                                        <div className="text-sm text-gray-600">{subject.name}</div>
+                                                        {subject.description && (
+                                                            <div className="text-xs text-gray-500">{subject.description}</div>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            onClick={() => openEditSubjectModal(subject)}
+                                                            className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2 py-1 rounded text-sm"
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                        <button
+                                                            onClick={() => openDeleteModal('subject', subject.id, subject.code)}
+                                                            className="text-red-600 hover:text-red-800 hover:bg-red-50 px-2 py-1 rounded text-sm"
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                                    <div>
+                                                        <span className="text-gray-500">Units:</span>
+                                                        <div className="font-medium text-gray-900">{subject.units}</div>
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-gray-500">Status:</span>
+                                                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                                            subject.isActive
+                                                                ? 'bg-green-100 text-green-800'
+                                                                : 'bg-gray-100 text-gray-800'
+                                                        }`}>
+                                                            {subject.isActive ? 'Active' : 'Inactive'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Desktop View - Table */}
+                        <div className="hidden lg:block overflow-x-auto">
                             <table className="w-full">
                                 <thead className="bg-gray-50 border-b">
                                     <tr>
