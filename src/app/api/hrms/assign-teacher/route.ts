@@ -13,7 +13,12 @@ const VALID_API_KEYS = {
 }
 
 const schema = z.object({
-    data: z.string()
+    scheduleId: z.number(),
+    teacher: z.object({
+        teacherId: z.string(),
+        teacherName: z.string(),
+        teacherEmail: z.string().email(),
+    }),
 });
 
 function verifySignature(body: string, timestamp: string, signature: string): boolean {
@@ -35,7 +40,7 @@ function verifySignature(body: string, timestamp: string, signature: string): bo
 }
 
 export async function POST(request: NextRequest) {
-    console.log('POST /xr/user-access-lookup called');
+    console.log('POST /api/hrms/assign-teacher called');
 
     // Enforce HTTPS in production
     if (process.env.NODE_ENV === 'production') {
@@ -109,28 +114,32 @@ export async function POST(request: NextRequest) {
         return Response.json({ error: 'Invalid request' }, { status: 403 });
     }
 
-    let data: string;
+    let scheduleId: number;
+    let teacher: { teacherId: string; teacherName: string; teacherEmail: string };
+    
     try {
         const parsed = schema.parse(JSON.parse(rawBody));
-        data = parsed.data;
-        console.log('Parsed data:', data);
+        scheduleId = parsed.scheduleId;
+        teacher = parsed.teacher;
+        console.log('Parsed data - Schedule ID:', scheduleId);
+        console.log('Teacher info:', teacher.teacherName, teacher.teacherEmail);
     } catch (err) {
         console.error('Zod validation failed:', err);
-        return Response.json({ error: 'Invalid request' }, { status: 400 });
-    }
-
-    if (!data) {
-        console.warn('data not present after parsing.');
-        return Response.json({ error: 'Invalid request' }, { status: 400 });
+        return Response.json({ 
+            success: false,
+            error: 'Invalid request data', 
+            details: err instanceof Error ? err.message : 'Validation failed'
+        }, { status: 400 });
     }
 
     try {
-        console.log('Fetching all available schedules from database...');
+        console.log(`Assigning teacher to schedule ID: ${scheduleId}`);
         
-        // Fetch all available schedules from any academic term, year level, subject, section
-        const schedules = await prisma.schedule.findMany({
+        // Check if schedule exists and is not deleted
+        const existingSchedule = await prisma.schedule.findFirst({
             where: {
-                deletedAt: null, // Only active schedules
+                id: scheduleId,
+                deletedAt: null,
             },
             include: {
                 termSubject: {
@@ -146,64 +155,108 @@ export async function POST(request: NextRequest) {
                 },
                 section: true,
             },
-            orderBy: {
-                id: 'desc', // Order by ID descending (newest first)
+        });
+
+        if (!existingSchedule) {
+            console.warn(`Schedule not found: ${scheduleId}`);
+            return Response.json({
+                success: false,
+                error: 'Schedule not found',
+            }, { status: 404 });
+        }
+
+        // Check if schedule already has a teacher assigned
+        if (existingSchedule.teacherId) {
+            console.warn(`Schedule ${scheduleId} already has a teacher assigned: ${existingSchedule.teacherName}`);
+            return Response.json({
+                success: false,
+                error: 'Schedule already has a teacher assigned',
+                currentTeacher: {
+                    teacherId: existingSchedule.teacherId,
+                    teacherName: existingSchedule.teacherName,
+                    teacherEmail: existingSchedule.teacherEmail,
+                },
+            }, { status: 409 });
+        }
+
+        // Update the schedule with teacher information
+        const updatedSchedule = await prisma.schedule.update({
+            where: {
+                id: scheduleId,
+            },
+            data: {
+                teacherId: teacher.teacherId,
+                teacherName: teacher.teacherName,
+                teacherEmail: teacher.teacherEmail,
+            },
+            include: {
+                termSubject: {
+                    include: {
+                        subject: true,
+                        termYearLevel: {
+                            include: {
+                                academicTerm: true,
+                                yearLevel: true,
+                            },
+                        },
+                    },
+                },
+                section: true,
             },
         });
 
-        console.log(`Found ${schedules.length} schedules`);
+        console.log(`✅ Successfully assigned teacher ${teacher.teacherName} to schedule ${scheduleId}`);
 
-        // Format the response
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const formattedSchedules = schedules.map((schedule: any) => ({
-            scheduleId: schedule.id,
-            subject: {
-                id: schedule.termSubject.subject.id,
-                name: schedule.termSubject.subject.name,
-                code: schedule.termSubject.subject.code,
-            },
-            term: {
-                id: schedule.termSubject.termYearLevel.academicTerm.id,
-                name: schedule.termSubject.termYearLevel.academicTerm.year,
-            },
-            yearLevel: {
-                id: schedule.termSubject.termYearLevel.yearLevel.id,
-                name: schedule.termSubject.termYearLevel.yearLevel.name,
-            },
-            section: schedule.section ? {
-                id: schedule.section.id,
-                name: schedule.section.name,
-                capacity: schedule.section.capacity,
-            } : null,
-            schedule: {
-                day: schedule.day,
-                startTime: schedule.startTime,
-                endTime: schedule.endTime,
-                room: schedule.room,
-            },
-            teacher: {
-                assigned: !!schedule.teacherId,
-                teacherId: schedule.teacherId,
-                teacherName: schedule.teacherName,
-                teacherEmail: schedule.teacherEmail,
-            },
-            metadata: {
-                createdAt: schedule.createdAt,
-                updatedAt: schedule.updatedAt,
-            },
-        }));
-
+        // Format successful response
         const response = {
             success: true,
-            message: 'All available schedules retrieved successfully',
-            total: formattedSchedules.length,
-            data: formattedSchedules,
+            message: 'Teacher assigned successfully',
+            data: {
+                scheduleId: updatedSchedule.id,
+                subject: {
+                    id: updatedSchedule.termSubject.subject.id,
+                    name: updatedSchedule.termSubject.subject.name,
+                    code: updatedSchedule.termSubject.subject.code,
+                },
+                term: {
+                    id: updatedSchedule.termSubject.termYearLevel.academicTerm.id,
+                    name: updatedSchedule.termSubject.termYearLevel.academicTerm.year,
+                },
+                yearLevel: {
+                    id: updatedSchedule.termSubject.termYearLevel.yearLevel.id,
+                    name: updatedSchedule.termSubject.termYearLevel.yearLevel.name,
+                },
+                section: updatedSchedule.section ? {
+                    id: updatedSchedule.section.id,
+                    name: updatedSchedule.section.name,
+                    capacity: updatedSchedule.section.capacity,
+                } : null,
+                schedule: {
+                    day: updatedSchedule.day,
+                    startTime: updatedSchedule.startTime,
+                    endTime: updatedSchedule.endTime,
+                    room: updatedSchedule.room,
+                },
+                teacher: {
+                    assigned: true,
+                    teacherId: updatedSchedule.teacherId,
+                    teacherName: updatedSchedule.teacherName,
+                    teacherEmail: updatedSchedule.teacherEmail,
+                },
+                metadata: {
+                    updatedAt: updatedSchedule.updatedAt,
+                },
+            },
         };
 
         return Response.json(response, { status: 200 });
 
     } catch (err) {
         console.error('Database error:', err);
-        return Response.json({ error: 'Server error' }, { status: 500 });
+        return Response.json({
+            success: false,
+            error: 'Server error',
+            details: err instanceof Error ? err.message : 'Unknown error'
+        }, { status: 500 });
     }
 }
