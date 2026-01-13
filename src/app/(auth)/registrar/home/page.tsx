@@ -87,7 +87,7 @@ export default function RegistrarHomePage() {
                             <p className="text-sm text-gray-600">Student distribution across grade levels</p>
                         </div>
                     </div>
-                    <div className="h-64">
+                    <div className="flex-1">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={enrollmentData}>
                                 <CartesianGrid strokeDasharray="3 3" />
@@ -104,19 +104,24 @@ export default function RegistrarHomePage() {
                     </div>
                 </div>
 
-                {/* Right column (narrower): "Registration Types" donut/pie chart */}
-                <div className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow flex flex-col">
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="p-2 bg-green-100 rounded-lg">
-                            <PieChart className="w-5 h-5 text-green-600" />
+                {/* Right column (narrower): "Registration Types" donut/pie chart and QuickActions */}
+                <div className="space-y-6">
+                    
+                    <QuickActions />
+                    
+                    <div className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow flex flex-col">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 bg-green-100 rounded-lg">
+                                <PieChart className="w-5 h-5 text-green-600" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold text-gray-900">Registration Types</h3>
+                                <p className="text-sm text-gray-600">Breakdown of student types</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 className="text-lg font-semibold text-gray-900">Registration Types</h3>
-                            <p className="text-sm text-gray-600">Breakdown of student types</p>
+                        <div className="flex-1">
+                            <GradePieChart />
                         </div>
-                    </div>
-                    <div className="flex-1">
-                        <GradePieChart />
                     </div>
                 </div>
             </div>
@@ -193,57 +198,52 @@ export default function RegistrarHomePage() {
                     </div>
                 </div>
 
-                {/* Right column: QuickActions and Requirements Status stacked */}
-                <div className="space-y-6">
-                    <QuickActions />
-
-                    {/* Requirements Status */}
-                    <div className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
-                        <div className="flex items-center gap-3 mb-4 text-black">
-                            <div className="p-2 bg-orange-100 rounded-lg">
-                                <CheckCircle className="w-5 h-5 text-orange-600" />
+                {/* Requirements Status */}
+                <div className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
+                    <div className="flex items-center gap-3 mb-4 text-black">
+                        <div className="p-2 bg-orange-100 rounded-lg">
+                            <CheckCircle className="w-5 h-5 text-orange-600" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-semibold text-gray-900">Requirements Status</h3>
+                            <p className="text-sm text-gray-600">Document submission progress</p>
+                        </div>
+                    </div>
+                    <div className="space-y-4">
+                        <div>
+                            <div className="flex justify-between items-center mb-1">
+                                <span className="text-sm font-medium text-black">Birth Certificate</span>
+                                <span className="text-sm text-gray-600">85% (17/20)</span>
                             </div>
-                            <div>
-                                <h3 className="text-lg font-semibold text-gray-900">Requirements Status</h3>
-                                <p className="text-sm text-gray-600">Document submission progress</p>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div className="bg-blue-600 h-2 rounded-full" style={{width: '85%'}}></div>
                             </div>
                         </div>
-                        <div className="space-y-4">
-                            <div>
-                                <div className="flex justify-between items-center mb-1">
-                                    <span className="text-sm font-medium text-black">Birth Certificate</span>
-                                    <span className="text-sm text-gray-600">85% (17/20)</span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <div className="bg-blue-600 h-2 rounded-full" style={{width: '85%'}}></div>
-                                </div>
+                        <div>
+                            <div className="flex justify-between items-center mb-1">
+                                <span className="text-sm font-medium text-black">Report Card</span>
+                                <span className="text-sm text-gray-600">92% (23/25)</span>
                             </div>
-                            <div>
-                                <div className="flex justify-between items-center mb-1">
-                                    <span className="text-sm font-medium text-black">Report Card</span>
-                                    <span className="text-sm text-gray-600">92% (23/25)</span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <div className="bg-green-600 h-2 rounded-full" style={{width: '92%'}}></div>
-                                </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div className="bg-green-600 h-2 rounded-full" style={{width: '92%'}}></div>
                             </div>
-                            <div>
-                                <div className="flex justify-between items-center mb-1">
-                                    <span className="text-sm font-medium text-orange-600">Medical Certificate</span>
-                                    <span className="text-sm text-gray-600">45% (9/20)</span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <div className="bg-orange-600 h-2 rounded-full" style={{width: '45%'}}></div>
-                                </div>
+                        </div>
+                        <div>
+                            <div className="flex justify-between items-center mb-1">
+                                <span className="text-sm font-medium text-orange-600">Medical Certificate</span>
+                                <span className="text-sm text-gray-600">45% (9/20)</span>
                             </div>
-                            <div>
-                                <div className="flex justify-between items-center mb-1">
-                                    <span className="text-sm font-medium text-black">Good Moral</span>
-                                    <span className="text-sm text-gray-600">78% (14/18)</span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <div className="bg-purple-600 h-2 rounded-full" style={{width: '78%'}}></div>
-                                </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div className="bg-orange-600 h-2 rounded-full" style={{width: '45%'}}></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div className="flex justify-between items-center mb-1">
+                                <span className="text-sm font-medium text-black">Good Moral</span>
+                                <span className="text-sm text-gray-600">78% (14/18)</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div className="bg-purple-600 h-2 rounded-full" style={{width: '78%'}}></div>
                             </div>
                         </div>
                     </div>
