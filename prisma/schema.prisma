@@ -216,6 +216,7 @@ model StudentApplication {
   yearLevelId             Int
   childStatus             String                 @default("LEGITIMATE") @db.VarChar(50)
   applicationNumber       String?                @unique @db.VarChar(100)
+  sectionId               Int?
   educationalBackground   EducationalBackground?
   familyBackgrounds       FamilyBackground[]
   healthHistory           HealthHistory?
@@ -225,6 +226,7 @@ model StudentApplication {
   siblings                Siblings[]
   academicYear            AcademicTerm           @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
   yearLevel               YearLevel              @relation(fields: [yearLevelId], references: [id], onDelete: Cascade)
+  section                 Section?               @relation(fields: [sectionId], references: [id])
   transferee              Transferee?
 
   @@index([status, academicYearId])
@@ -234,6 +236,7 @@ model StudentApplication {
   @@index([createdAt])
   @@index([familyName, firstName])
   @@index([mobileNumber])
+  @@index([sectionId, status])
 }
 
 model HealthHistory {
@@ -518,6 +521,7 @@ model Section {
   deletedAt           DateTime?
   termYearLevel       TermYearLevel  @relation(fields: [termYearLevelId], references: [id])
   schedules           Schedule[]
+  studentApplications StudentApplication[]
 
   @@unique([termYearLevelId, name, deletedAt])
   @@index([termYearLevelId, status, deletedAt])

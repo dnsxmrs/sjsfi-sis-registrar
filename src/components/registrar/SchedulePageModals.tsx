@@ -53,6 +53,7 @@ interface Section {
     status: string;
     _count?: {
         schedules: number;
+        studentApplications: number;
     };
 }
 

@@ -4,14 +4,15 @@ import { useEffect, useState } from 'react';
 import { Plus, Edit, Trash2, Settings, Users, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import SchedulePageModals from '@/components/registrar/SchedulePageModals';
-import { getAllSchedules, createSchedule, updateSchedule, deleteSchedule, getSchedulesByTerm } from '@/app/_actions/scheduleActions';
+import ManageStudentsModal from '@/components/registrar/ManageStudentsModal';
+import { getAllSchedules, createSchedule, updateSchedule, deleteSchedule, getSchedulesByTerm, getSchedulesByTermYearLevel } from '@/app/_actions/scheduleActions';
 import { getSchoolAllYears } from '@/app/_actions/getSchoolYears';
 import { getYearLevels } from '@/app/_actions/getYearLevels';
 import { addYearLevel, updateYearLevel, deleteYearLevel } from '@/app/_actions/yearLevelActions';
 import { addAcademicTerm, updateAcademicTerm, deleteAcademicTerm } from '@/app/_actions/academicTermActions';
 import { getYearLevelsForTerm, addYearLevelToTerm, removeYearLevelFromTerm } from '@/app/_actions/termYearLevelActions';
 import { getSubjectsForYearLevel } from '@/app/_actions/termSubjectActions';
-import { getSectionsForYearLevel, createSection, updateSection, deleteSection } from '@/app/_actions/sectionActions';
+import { getSectionsForYearLevel, createSection, updateSection, deleteSection, fetchAndSyncAdvisers, syncSectionAdvisers } from '@/app/_actions/sectionActions';
 import { getAllSubjects, createSubject, updateSubject, deleteSubject } from '@/app/_actions/subjectActions';
 
 interface Term {
@@ -69,8 +70,19 @@ interface Section {
     advisorFirstName?: string | null;
     advisorLastName?: string | null;
     advisorEmail?: string | null;
+    termYearLevel?: {
+        academicTermId: number;
+        yearLevelId: number;
+        academicTerm: {
+            year: string;
+        };
+        yearLevel: {
+            name: string;
+        };
+    };
     _count?: {
         schedules: number;
+        studentApplications: number;
     };
 }
 
@@ -103,7 +115,7 @@ export default function SchedulePage() {
     const [termSubjects, setTermSubjects] = useState<TermSubject[]>([]);
     const [sections, setSections] = useState<Section[]>([]);
     const [subjects, setSubjects] = useState<Subject[]>([]);
-    
+
     // Loading states
     const [loading, setLoading] = useState(true);
     const [schedulesLoading, setSchedulesLoading] = useState(true);
@@ -130,11 +142,13 @@ export default function SchedulePage() {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showAddSubjectModal, setShowAddSubjectModal] = useState(false);
     const [showEditSubjectModal, setShowEditSubjectModal] = useState(false);
+    const [showManageStudentsModal, setShowManageStudentsModal] = useState(false);
 
     // Selected items for modals
     const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
     const [selectedTermYearLevelForConfig, setSelectedTermYearLevelForConfig] = useState<number | null>(null);
     const [selectedSectionForEdit, setSelectedSectionForEdit] = useState<Section | null>(null);
+    const [selectedSectionForManage, setSelectedSectionForManage] = useState<Section | null>(null);
     const [selectedScheduleForEdit, setSelectedSchedule] = useState<Schedule | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<{ type: string; id: number; name: string } | null>(null);
 
@@ -180,15 +194,21 @@ export default function SchedulePage() {
     useEffect(() => {
         if (selectedTerm) {
             fetchTermYearLevels(selectedTerm);
-            fetchSchedulesByTerm(selectedTerm);
+            // Only fetch schedules if no year level is selected
+            if (!selectedTermYearLevel) {
+                fetchSchedulesByTerm(selectedTerm);
+            }
         }
-    }, [selectedTerm]);
+    }, [selectedTerm, selectedTermYearLevel]);
 
     useEffect(() => {
         if (selectedTermYearLevel) {
             fetchSections(selectedTermYearLevel);
             fetchTermSubjects(selectedTermYearLevel);
+            // Fetch schedules filtered by term year level
+            fetchSchedulesByTermYearLevel(selectedTermYearLevel);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedTermYearLevel]);
 
     async function fetchSchedules() {
@@ -214,6 +234,20 @@ export default function SchedulePage() {
             }
         } catch (error) {
             console.error('Error fetching schedules by term:', error);
+        } finally {
+            setSchedulesLoading(false);
+        }
+    }
+
+    async function fetchSchedulesByTermYearLevel(termYearLevelId: number) {
+        try {
+            setSchedulesLoading(true);
+            const result = await getSchedulesByTermYearLevel(termYearLevelId);
+            if (result.success) {
+                setSchedules(result.data as Schedule[]);
+            }
+        } catch (error) {
+            console.error('Error fetching schedules by term year level:', error);
         } finally {
             setSchedulesLoading(false);
         }
@@ -267,9 +301,42 @@ export default function SchedulePage() {
     async function fetchSections(termYearLevelId: number) {
         try {
             setSectionsLoading(true);
+
+            // First, get the sections
             const result = await getSectionsForYearLevel(termYearLevelId);
             if (result.success) {
                 setSections(result.data as Section[]);
+
+                // Find the term and year level info for the API call
+                const termYearLevel = termYearLevels.find(tyl => tyl.id === termYearLevelId);
+                const term = terms.find(t => t.id === selectedTerm);
+
+                if (termYearLevel && term) {
+                    // Pass full grade level name (e.g., "Grade 7") and school year (e.g., "2024-2025")
+                    const gradeLevel = termYearLevel.yearLevel.name; // e.g., "Grade 7"
+                    const schoolYear = term.year; // e.g., "2024-2025"
+
+                    // Fetch adviser data from HRMS
+                    const adviserResult = await fetchAndSyncAdvisers(gradeLevel, schoolYear);
+
+                    if (adviserResult.success && adviserResult.data) {
+                        // Sync the adviser data with sections
+                        const syncResult = await syncSectionAdvisers(termYearLevelId, adviserResult.data);
+
+                        if (syncResult.success && syncResult.updatedCount && syncResult.updatedCount > 0) {
+                            toast.success(`Synced ${syncResult.updatedCount} section adviser(s)`);
+
+                            // Refresh sections to show updated data
+                            const refreshResult = await getSectionsForYearLevel(termYearLevelId);
+                            if (refreshResult.success) {
+                                setSections(refreshResult.data as Section[]);
+                            }
+                        }
+                    } else if (!adviserResult.success && adviserResult.error) {
+                        // Don't show error toast for now as this is a background sync
+                        console.warn('Could not sync advisers:', adviserResult.error);
+                    }
+                }
             }
         } catch (error) {
             console.error('Error fetching sections:', error);
@@ -527,6 +594,11 @@ export default function SchedulePage() {
         setShowEditSectionModal(true);
     };
 
+    const openManageStudentsModal = (section: Section) => {
+        setSelectedSectionForManage(section);
+        setShowManageStudentsModal(true);
+    };
+
     // Schedule handlers
     const handleScheduleSubmit = async (data: {
         id?: number;
@@ -727,8 +799,8 @@ export default function SchedulePage() {
                                     key={tab.id}
                                     onClick={() => setSelectedTab(tab.id as typeof selectedTab)}
                                     className={`px-4 lg:px-6 py-3 text-sm font-medium transition-colors whitespace-nowrap ${selectedTab === tab.id
-                                            ? 'border-b-2 border-red-800 text-red-800'
-                                            : 'text-black hover:text-gray-700 hover:border-gray-300'
+                                        ? 'border-b-2 border-red-800 text-red-800'
+                                        : 'text-black hover:text-gray-700 hover:border-gray-300'
                                         }`}
                                     role="tab"
                                     aria-selected={selectedTab === tab.id}
@@ -1498,11 +1570,10 @@ export default function SchedulePage() {
                                                     </div>
                                                     <div>
                                                         <span className="text-gray-500">Status:</span>
-                                                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                                            subject.isActive
+                                                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${subject.isActive
                                                                 ? 'bg-green-100 text-green-800'
                                                                 : 'bg-gray-100 text-gray-800'
-                                                        }`}>
+                                                            }`}>
                                                             {subject.isActive ? 'Active' : 'Inactive'}
                                                         </span>
                                                     </div>
@@ -1553,11 +1624,10 @@ export default function SchedulePage() {
                                                 <td className="px-4 py-3 text-sm text-gray-900">{subject.units}</td>
                                                 <td className="px-4 py-3 text-sm">
                                                     <span
-                                                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                                            subject.isActive
+                                                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${subject.isActive
                                                                 ? 'bg-green-100 text-green-800'
                                                                 : 'bg-gray-100 text-gray-800'
-                                                        }`}
+                                                            }`}
                                                     >
                                                         {subject.isActive ? 'Active' : 'Inactive'}
                                                     </span>
@@ -1674,8 +1744,8 @@ export default function SchedulePage() {
                                                 <div>
                                                     <h3 className="text-lg font-semibold text-gray-900">{section.name}</h3>
                                                     <span className={`inline-block px-2 py-1 text-xs rounded-full mt-1 ${section.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
-                                                            section.status === 'INACTIVE' ? 'bg-gray-100 text-gray-800' :
-                                                                'bg-yellow-100 text-yellow-800'
+                                                        section.status === 'INACTIVE' ? 'bg-gray-100 text-gray-800' :
+                                                            'bg-yellow-100 text-yellow-800'
                                                         }`}>
                                                         {section.status}
                                                     </span>
@@ -1716,7 +1786,7 @@ export default function SchedulePage() {
                                                 )}
                                                 <div className="border-t pt-2 mt-2">
                                                     <div className="text-sm">
-                                                        <span className="text-gray-600">Advisor:</span>
+                                                        <span className="text-gray-600">Adviser:</span>
                                                         {section.advisorFirstName && section.advisorLastName ? (
                                                             <div className="mt-1">
                                                                 <div className="font-medium text-gray-900">
@@ -1738,6 +1808,15 @@ export default function SchedulePage() {
                                                         )}
                                                     </div>
                                                 </div>
+                                                <div className="border-t pt-3 mt-3">
+                                                    <button
+                                                        onClick={() => openManageStudentsModal(section)}
+                                                        className="w-full px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-900 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                                                    >
+                                                        <Users size={16} />
+                                                        Manage Students
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     ))
@@ -1747,6 +1826,22 @@ export default function SchedulePage() {
                     </div>
                 )}
             </div>
+
+            {/* Manage Students Modal */}
+            <ManageStudentsModal
+                show={showManageStudentsModal}
+                onClose={() => {
+                    setShowManageStudentsModal(false);
+                    setSelectedSectionForManage(null);
+                }}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                section={selectedSectionForManage as any}
+                onSuccess={() => {
+                    if (selectedTermYearLevel) {
+                        fetchSections(selectedTermYearLevel);
+                    }
+                }}
+            />
 
             {/* All Modals */}
             <SchedulePageModals
