@@ -31,6 +31,13 @@ export default function SystemLogsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
+  // Helper function to truncate action to 10 words
+  const truncateWords = (text: string, maxWords: number) => {
+    const words = text.split(' ');
+    if (words.length <= maxWords) return text;
+    return words.slice(0, maxWords).join(' ') + '...';
+  };
+
   // CSV Export Function
   const exportToCSV = () => {
     try {
@@ -294,8 +301,19 @@ export default function SystemLogsPage() {
             />
           </div>
 
-          {/* Export Controls */}
-          <div className="flex justify-end">
+          {/* Export Controls and Clear Selection */}
+          <div className="flex justify-end items-center gap-2">
+            {selectedRows.length >= 2 && (
+              <button
+                onClick={() => {
+                  setSelectedRows([]);
+                  toast.success("Selection cleared");
+                }}
+                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm"
+              >
+                Clear Selection ({selectedRows.length})
+              </button>
+            )}
             <div className="relative export-dropdown">
               <button
                 onClick={() => setExportDropdownOpen(!exportDropdownOpen)}
@@ -442,7 +460,7 @@ export default function SystemLogsPage() {
                           />
                         </div>
                       </div>
-                      <p className="text-sm text-gray-700">{log.action}</p>
+                      <p className="text-sm text-gray-700 truncate">{truncateWords(log.action, 10)}</p>
                     </div>
                   </div>
                 ))}
@@ -491,7 +509,7 @@ export default function SystemLogsPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{log.logNumber}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{log.timestamp}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{log.user}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{log.action}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 truncate">{truncateWords(log.action, 10)}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${log.status === "Success"
