@@ -12,187 +12,6 @@
 import { prisma } from "@/lib/prisma";
 import { logSystemAction } from "@/lib/systemLogger";
 
-export async function getActiveSubjects() {
-    try {
-        // Note: Subject model doesn't exist in current schema
-        // Returning mock data for development purposes
-        const mockSubjects = [
-            {
-                id: "mock-1",
-                code: "ENG101",
-                name: "English 1",
-                description: "Basic English Language and Communication Skills",
-                units: 3,
-                gradeLevel: "Grade 7",
-                department: "Language Department",
-                isActive: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            },
-            {
-                id: "mock-2",
-                code: "MATH101",
-                name: "Mathematics 1",
-                description: "Fundamentals of Algebra and Geometry",
-                units: 3,
-                gradeLevel: "Grade 7",
-                department: "Mathematics Department",
-                isActive: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            },
-            {
-                id: "mock-3",
-                code: "SCI101",
-                name: "Science 1",
-                description: "Introduction to Physical and Earth Sciences",
-                units: 3,
-                gradeLevel: "Grade 7",
-                department: "Science Department",
-                isActive: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            },
-            {
-                id: "mock-4",
-                code: "FIL101",
-                name: "Filipino 1",
-                description: "Wikang Filipino at Kultura",
-                units: 3,
-                gradeLevel: "Grade 7",
-                department: "Language Department",
-                isActive: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            },
-            {
-                id: "mock-5",
-                code: "AP101",
-                name: "Araling Panlipunan 1",
-                description: "Philippine History and Geography",
-                units: 3,
-                gradeLevel: "Grade 7",
-                department: "Social Studies Department",
-                isActive: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            },
-            {
-                id: "mock-6",
-                code: "MAPEH101",
-                name: "MAPEH 1",
-                description: "Music, Arts, Physical Education, and Health",
-                units: 2,
-                gradeLevel: "Grade 7",
-                department: "MAPEH Department",
-                isActive: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            },
-            {
-                id: "mock-7",
-                code: "TLE101",
-                name: "Technology and Livelihood Education 1",
-                description: "Basic Computer Skills and Digital Literacy",
-                units: 2,
-                gradeLevel: "Grade 7",
-                department: "TLE Department",
-                isActive: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            },
-            {
-                id: "mock-8",
-                code: "ENG201",
-                name: "English 2",
-                description: "Advanced English Language and Literature",
-                units: 3,
-                gradeLevel: "Grade 8",
-                department: "Language Department",
-                isActive: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            },
-            {
-                id: "mock-9",
-                code: "MATH201",
-                name: "Mathematics 2",
-                description: "Advanced Algebra and Basic Statistics",
-                units: 3,
-                gradeLevel: "Grade 8",
-                department: "Mathematics Department",
-                isActive: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            },
-            {
-                id: "mock-10",
-                code: "SCI201",
-                name: "Science 2",
-                description: "Biology and Chemistry Fundamentals",
-                units: 3,
-                gradeLevel: "Grade 8",
-                department: "Science Department",
-                isActive: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            },
-            {
-                id: "mock-11",
-                code: "PE101",
-                name: "Physical Education 1",
-                description: "Basic Physical Fitness and Sports",
-                units: 2,
-                gradeLevel: "Grade 7",
-                department: "PE Department",
-                isActive: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            },
-            {
-                id: "mock-12",
-                code: "ESP101",
-                name: "Edukasyon sa Pagpapakatao 1",
-                description: "Values Education and Character Development",
-                units: 1,
-                gradeLevel: "Grade 7",
-                department: "Values Education Department",
-                isActive: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            },
-        ];
-
-        return {
-            success: true,
-            subjects: mockSubjects,
-            count: mockSubjects.length,
-            isMockData: true,
-            message: "Returning mock data - Subject model not implemented in database schema",
-        };
-    } catch (error) {
-        // Log the error in system logger
-        await logSystemAction({
-            actionCategory: "SYSTEM",
-            actionType: "VIEW",
-            actionDescription: `Error fetching active subjects: ${error}`,
-            targetType: "REPORT",
-            targetId: "mock-active-subjects",
-            status: "FAILED",
-            severityLevel: "LOW",
-            errorMessage: String(error)
-        });
-
-        console.error("Error in getActiveSubjects:", error);
-        return {
-            success: false,
-            subjects: [],
-            count: 0,
-            error: "Failed to fetch active subjects",
-        };
-    }
-}
-
 export async function getPendingRegistrationCount() {
     try {
         // Count pending registrations
@@ -300,137 +119,409 @@ export async function getActiveStudents() {
     }
 }
 
-export async function getActiveTermCount() {
+export async function getCriticalLogs() {
     try {
-        // Count active academic terms
-        const activeTermCount = await prisma.academicTerm.count({
+        // Count critical severity logs
+        const criticalCount = await prisma.systemLog.count({
             where: {
-                status: 'ACTIVE',
-            },
-        });
-
-        return {
-            success: true,
-            count: activeTermCount,
-        };
-    } catch (error) {
-        // Log the error in system logger
-        await logSystemAction({
-            actionCategory: "SYSTEM",
-            actionType: "VIEW",
-            actionDescription: `Error fetching active terms: ${error}`,
-            targetType: "ACADEMIC_TERM",
-            targetId: "active-terms",
-            status: "FAILED",
-            severityLevel: "LOW",
-            errorMessage: String(error)
-        });
-
-        console.error("Error fetching active terms:", error);
-        return {
-            success: false,
-            count: 0,
-            error: "Failed to fetch active terms",
-        };
-    }
-}
-
-export async function getFeedbackCount() {
-    try {
-        // Count feedback entries
-        const feedbackCount = await prisma.feedback.count();
-        return {
-            success: true,
-            count: feedbackCount,
-        };
-    } catch (error) {
-        // Log the error in system logger
-        await logSystemAction({
-            actionCategory: "SYSTEM",
-            actionType: "VIEW",
-            actionDescription: `Error fetching feedback count: ${error}`,
-            targetType: "FEEDBACK",
-            targetId: "feedback-count",
-            status: "FAILED",
-            severityLevel: "LOW",
-            errorMessage: String(error)
-        });
-
-        console.error("Error fetching feedback count:", error);
-        return {
-            success: false,
-            count: 0,
-            error: "Failed to fetch feedback count",
-        };
-    }
-}
-
-export async function getApprovedRegistrationCount() {
-    try {
-        // Count approved registrations
-        const approvedCount = await prisma.registration.count({
-            where: {
-                status: "APPROVED",
+                severityLevel: "CRITICAL",
                 deletedAt: null,
             },
         });
+
         return {
             success: true,
-            count: approvedCount,
+            count: criticalCount,
         };
     } catch (error) {
         // Log the error in system logger
         await logSystemAction({
             actionCategory: "SYSTEM",
             actionType: "VIEW",
-            actionDescription: `Error fetching approved registration count: ${error}`,
-            targetType: "REGISTRATION",
-            targetId: "approved-registrations",
+            actionDescription: `Error fetching critical logs: ${error}`,
+            targetType: "SYSTEM_LOG",
+            targetId: "critical-logs",
             status: "FAILED",
             severityLevel: "LOW",
             errorMessage: String(error)
         });
 
-        console.error("Error fetching approved registration count:", error);
+        console.error("Error fetching critical logs:", error);
         return {
             success: false,
             count: 0,
-            error: "Failed to fetch approved registration count",
+            error: "Failed to fetch critical logs",
         };
     }
 }
 
-export async function getApprovedApplicationCount() {
+// Last week stats functions
+export async function getLastWeekPendingRegistrationCount() {
     try {
-        // Count approved student applications
-        const approvedCount = await prisma.studentApplication.count({
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+        const pendingCount = await prisma.registration.count({
             where: {
-                status: "APPROVED",
+                status: "PENDING",
                 deletedAt: null,
+                createdAt: {
+                    lte: oneWeekAgo
+                }
             },
         });
+
         return {
             success: true,
-            count: approvedCount,
+            count: pendingCount,
+        };
+    } catch (error) {
+        console.error("Error fetching last week pending registrations:", error);
+        return {
+            success: false,
+            count: 0,
+            error: "Failed to fetch last week pending registrations",
+        };
+    }
+}
+
+export async function getLastWeekPendingApplicationCount() {
+    try {
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+        const pendingCount = await prisma.studentApplication.count({
+            where: {
+                status: "PENDING",
+                deletedAt: null,
+                createdAt: {
+                    lte: oneWeekAgo
+                }
+            },
+        });
+
+        return {
+            success: true,
+            count: pendingCount,
+        };
+    } catch (error) {
+        console.error("Error fetching last week pending applications:", error);
+        return {
+            success: false,
+            count: 0,
+            error: "Failed to fetch last week pending applications",
+        };
+    }
+}
+
+export async function getLastWeekActiveStudents() {
+    try {
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+        const activeStudentCount = await prisma.student.count({
+            where: {
+                deletedAt: null,
+                createdAt: {
+                    lte: oneWeekAgo
+                }
+            },
+        });
+
+        return {
+            success: true,
+            count: activeStudentCount,
+        };
+    } catch (error) {
+        console.error("Error fetching last week active students:", error);
+        return {
+            success: false,
+            count: 0,
+            error: "Failed to fetch last week active students",
+        };
+    }
+}
+
+export async function getLastWeekCriticalLogs() {
+    try {
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+        const criticalCount = await prisma.systemLog.count({
+            where: {
+                severityLevel: "CRITICAL",
+                deletedAt: null,
+                timestamp: {
+                    lte: oneWeekAgo
+                }
+            },
+        });
+
+        return {
+            success: true,
+            count: criticalCount,
+        };
+    } catch (error) {
+        console.error("Error fetching last week critical logs:", error);
+        return {
+            success: false,
+            count: 0,
+            error: "Failed to fetch last week critical logs",
+        };
+    }
+}
+
+export async function getEnrollmentByYearLevel() {
+    try {
+        // Get all year levels with their registration counts
+        const yearLevels = await prisma.yearLevel.findMany({
+            where: {
+                deletedAt: null,
+                status: "ACTIVE"
+            },
+            include: {
+                studentApplications: {
+                    where: {
+                        deletedAt: null,
+                        status: {
+                            in: ["APPROVED"]
+                        }
+                    }
+                }
+            },
+            orderBy: {
+                name: 'asc'
+            }
+        });
+
+        // Transform data for chart and filter out year levels with 0 students
+        const enrollmentData = yearLevels
+            .map(level => ({
+                yearLevel: level.name,
+                students: level.studentApplications.length
+            }))
+            .filter(level => level.students > 0);
+
+        return {
+            success: true,
+            data: enrollmentData,
+        };
+    } catch (error) {
+        console.error("Error fetching enrollment by year level:", error);
+        return {
+            success: false,
+            data: [],
+            error: "Failed to fetch enrollment data",
+        };
+    }
+}
+
+export async function getRegistrationTypesCount() {
+    try {
+        // Group registrations by type and count them
+        const registrationTypes = await prisma.registration.groupBy({
+            by: ['registrationType'],
+            where: {
+                deletedAt: null,
+            },
+            _count: {
+                registrationType: true
+            }
+        });
+
+        // Transform data for chart
+        const registrationTypeData = registrationTypes.map(type => ({
+            type: type.registrationType,
+            count: type._count.registrationType
+        }));
+
+        return {
+            success: true,
+            data: registrationTypeData,
+        };
+    } catch (error) {
+        console.error("Error fetching registration types count:", error);
+        return {
+            success: false,
+            data: [],
+            error: "Failed to fetch registration types count",
+        };
+    }
+}
+
+// get requirements count per requirement type and their status
+export async function getRequirementsStatusCount() {
+    try {
+        // Group requirements by type and status, then count them
+        const requirementsStatus = await prisma.requirements.groupBy({
+            by: ['requirementType', 'status'],
+            where: {
+                deletedAt: null,
+            },
+            _count: {
+                id: true
+            }
+        });
+
+        // Get total counts per requirement type
+        const requirementTypeCounts = await prisma.requirements.groupBy({
+            by: ['requirementType'],
+            where: {
+                deletedAt: null,
+            },
+            _count: {
+                id: true
+            }
+        });
+
+        // Transform data for chart
+        const requirementsData = requirementTypeCounts.map(type => {
+            const approved = requirementsStatus.find(
+                r => r.requirementType === type.requirementType && r.status === 'APPROVED'
+            )?._count.id || 0;
+            
+            const total = type._count.id;
+
+            return {
+                requirementType: type.requirementType,
+                approved,
+                total,
+                percentage: total > 0 ? Math.round((approved / total) * 100) : 0
+            };
+        });
+
+        return {
+            success: true,
+            data: requirementsData,
+        };
+    } catch (error) {
+        console.error("Error fetching requirements status count:", error);
+        return {
+            success: false,
+            data: [],
+            error: "Failed to fetch requirements status count",
+        };
+    }
+}
+
+export async function getFeedbackStatusCount() {
+    try {
+        // Group feedbacks by type and count them
+        const feedbackTypes = await prisma.feedback.groupBy({
+            by: ['type'],
+            where: {
+                deletedAt: null,
+            },
+            _count: {
+                id: true
+            }
+        });
+
+        // Transform data for chart
+        const feedbackData = feedbackTypes.map(type => ({
+            type: type.type,
+            count: type._count.id
+        }));
+
+        return {
+            success: true,
+            data: feedbackData,
+        };
+    } catch (error) {
+        console.error("Error fetching feedback status count:", error);
+        return {
+            success: false,
+            data: [],
+            error: "Failed to fetch feedback status count",
+        };
+    }
+}
+
+export async function getRecentFeedbacks(limit: number = 10) {
+    try {
+        // Get recent feedbacks
+        const feedbacks = await prisma.feedback.findMany({
+            where: {
+                deletedAt: null,
+            },
+            orderBy: {
+                createdAt: 'desc'
+            },
+            take: limit,
+            select: {
+                id: true,
+                type: true,
+                message: true,
+                suggestion: true,
+                status: true,
+                createdAt: true
+            }
+        });
+
+        return {
+            success: true,
+            data: feedbacks,
+        };
+    } catch (error) {
+        console.error("Error fetching recent feedbacks:", error);
+        return {
+            success: false,
+            data: [],
+            error: "Failed to fetch recent feedbacks",
+        };
+    }
+}
+
+export async function getRecentApplications(limit: number = 10) {
+    try {
+        // Get recent student applications
+        // get studentNo, name, year level, submitted date, status
+        const applications = await prisma.studentApplication.findMany({
+            where: {
+                deletedAt: null,
+            },
+            orderBy: {
+                createdAt: 'desc'
+            },
+            take: limit,
+            select: {
+                id: true,
+                applicationNumber: true,
+                firstName: true,
+                middleName: true,
+                familyName: true,
+                status: true,
+                createdAt: true,
+                yearLevel: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
+        });
+
+        return {
+            success: true,
+            data: applications,
         };
     } catch (error) {
         // Log the error in system logger
         await logSystemAction({
             actionCategory: "SYSTEM",
             actionType: "VIEW",
-            actionDescription: `Error fetching approved application count: ${error}`,
-            targetType: "APPLICATION",
-            targetId: "approved-applications",
+            actionDescription: `Error fetching recent applications: ${error}`,
+            targetType: "STUDENT_APPLICATION",
+            targetId: "recent-applications",
             status: "FAILED",
             severityLevel: "LOW",
             errorMessage: String(error)
         });
 
-        console.error("Error fetching approved application count:", error);
+        console.error("Error fetching recent applications:", error);
         return {
             success: false,
-            count: 0,
-            error: "Failed to fetch approved application count",
+            data: [],
+            error: "Failed to fetch recent applications",
         };
     }
 }

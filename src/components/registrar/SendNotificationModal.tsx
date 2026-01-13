@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Send, Loader2, Search, Users, User } from 'lucide-react';
+import { X, Send, Loader2, Users, User } from 'lucide-react';
 import { sendNotification } from '@/app/_actions/sendDynamicNotification';
 import { searchStudents } from '@/app/_actions/searchStudents';
 import toast from 'react-hot-toast';
@@ -40,6 +40,20 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<Student[]>([]);
     const [selectedStudents, setSelectedStudents] = useState<Student[]>([]);
+
+    // Auto-search with debouncing
+    useEffect(() => {
+        const delayDebounce = setTimeout(() => {
+            if (searchQuery.trim().length >= 2) {
+                handleSearch();
+            } else if (searchQuery.trim().length === 0) {
+                setSearchResults([]);
+            }
+        }, 100); // 100ms delay after user stops typing
+
+        return () => clearTimeout(delayDebounce);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchQuery]);
 
     useEffect(() => {
         if (!isOpen) {
@@ -167,16 +181,14 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
             <div className="flex min-h-screen items-center justify-center p-4">
                 {/* Backdrop */}
                 <div
-                    className={`fixed inset-0 bg-black/50 transition-opacity duration-300 ${
-                        isClosing ? 'opacity-0' : 'opacity-100'
-                    }`}
+                    className={`fixed inset-0 bg-black/50 transition-opacity duration-300 ${isClosing ? 'opacity-0' : 'opacity-100'
+                        }`}
                     onClick={handleClose}
                 />
 
                 {/* Modal */}
-                <div className={`relative bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden transition-all duration-300 ${
-                    isClosing ? 'opacity-0 scale-95 -translate-y-5' : 'opacity-100 scale-100 translate-y-0'
-                }`}>
+                <div className={`relative bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden transition-all duration-300 ${isClosing ? 'opacity-0 scale-95 -translate-y-5' : 'opacity-100 scale-100 translate-y-0'
+                    }`}>
                     {/* Header */}
                     <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
                         <h2 className="text-xl font-semibold text-gray-900">Send Notification</h2>
@@ -200,8 +212,8 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
                                             type="button"
                                             onClick={() => setScope('GROUPS')}
                                             className={`p-4 rounded-lg border-2 transition-all duration-200 transform hover:scale-105 ${scope === 'GROUPS'
-                                                    ? 'border-blue-600 bg-blue-50 scale-105'
-                                                    : 'border-gray-200 hover:border-gray-300 cursor-pointer'
+                                                ? 'border-blue-600 bg-blue-50 scale-105'
+                                                : 'border-gray-200 hover:border-gray-300 cursor-pointer'
                                                 }`}
                                         >
                                             <Users className={`w-8 h-8 mx-auto mb-2 transition-colors duration-200 ${scope === 'GROUPS' ? 'text-blue-600' : 'text-gray-400'}`} />
@@ -213,8 +225,8 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
                                             type="button"
                                             onClick={() => setScope('USER')}
                                             className={`p-4 rounded-lg border-2 transition-all duration-200 transform hover:scale-105 ${scope === 'USER'
-                                                    ? 'border-blue-600 bg-blue-50 scale-105'
-                                                    : 'border-gray-200 hover:border-gray-300 cursor-pointer'
+                                                ? 'border-blue-600 bg-blue-50 scale-105'
+                                                : 'border-gray-200 hover:border-gray-300 cursor-pointer'
                                                 }`}
                                         >
                                             <User className={`w-8 h-8 mx-auto mb-2 transition-colors duration-200 ${scope === 'USER' ? 'text-blue-600' : 'text-gray-400'}`} />
@@ -280,8 +292,8 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
                                                 <div className="bg-blue-50 rounded-lg p-3 animate-in fade-in slide-in-from-top-3 duration-300">
                                                     <p className="text-sm text-blue-900">
                                                         <span className="font-medium">Selected:</span>{' '}
-                                                        {selectedRoles.length === 3 
-                                                            ? 'All Users' 
+                                                        {selectedRoles.length === 3
+                                                            ? 'All Users'
                                                             : selectedRoles.map(role => {
                                                                 if (role === 'STUDENT') return 'Students';
                                                                 if (role === 'REGISTRAR') return 'Registrars';
@@ -304,17 +316,14 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
                                                     value={searchQuery}
                                                     onChange={(e) => setSearchQuery(e.target.value)}
                                                     onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleSearch())}
-                                                    placeholder="Search by name or student number..."
+                                                    placeholder="Search by name or student number... (type to search)"
                                                     className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                                 />
-                                                <button
-                                                    type="button"
-                                                    onClick={handleSearch}
-                                                    disabled={searchLoading}
-                                                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white rounded-lg transition-colors cursor-pointer"
-                                                >
-                                                    {searchLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-                                                </button>
+                                                {searchLoading && (
+                                                    <div className="flex items-center justify-center px-4">
+                                                        <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+                                                    </div>
+                                                )}
                                             </div>
 
                                             {searchResults.length > 0 && (
@@ -369,10 +378,22 @@ export default function SendNotificationModal({ isOpen, onClose }: SendNotificat
                                         </div>
                                     )}
 
+                                    {/* Validation message */}
+                                    {((scope === 'GROUPS' && selectedRoles.length === 0) || (scope === 'USER' && selectedStudents.length === 0)) && (
+                                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 animate-in fade-in slide-in-from-top-3 duration-300">
+                                            <p className="text-sm text-yellow-800">
+                                                {scope === 'GROUPS'
+                                                    ? 'Please select at least one group to continue'
+                                                    : 'Please select at least one student to continue'}
+                                            </p>
+                                        </div>
+                                    )}
+
                                     <button
                                         type="button"
                                         onClick={() => setStep('details')}
-                                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors cursor-pointer"
+                                        disabled={(scope === 'GROUPS' && selectedRoles.length === 0) || (scope === 'USER' && selectedStudents.length === 0)}
+                                        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-lg transition-colors cursor-pointer"
                                     >
                                         Next: Message Details
                                     </button>

@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { getRegistrationTypesCount } from '@/app/_actions/registrarHome';
 
 interface ChartData {
   name: string;
@@ -9,17 +10,37 @@ interface ChartData {
 }
 
 const GradePieChart: React.FC = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [data, setData] = useState<ChartData[]>([]);
 
-  // Static data for registration types (total amounts)
-  const data: ChartData[] = [
-    { name: 'New', value: 45 },
-    { name: 'Old/Returning', value: 35 },
-    { name: 'Transferee', value: 20 },
-  ];
+  useEffect(() => {
+    const fetchRegistrationTypes = async () => {
+      const result = await getRegistrationTypesCount();
+      if (result.success && result.data) {
+        // Map the data to the chart format
+        const chartData = result.data.map((item: { type: string; count: number }) => {
+          // Format the registration type names
+          let name = item.type;
+          if (item.type === 'NEW') name = 'New';
+          else if (item.type === 'OLD') name = 'Old';
+          else if (item.type === 'RETURNING') name = 'Returning';
+          else if (item.type === 'TRANSFER') name = 'Transferee';
 
-  // Predefined colors matching the palette in home/page.tsx
-  const colors = ['#3B82F6', '#10B981', '#F59E0B']; // Blue, Emerald, Amber
+          return {
+            name,
+            value: item.count
+          };
+        });
+        setData(chartData);
+      }
+    };
+
+    fetchRegistrationTypes();
+  }, []);
+
+  // Predefined colors for different registration types
+  const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']; // Blue, Emerald, Amber, Red, Violet
 
   const onPieEnter = (_: unknown, index: number) => {
     setActiveIndex(index);
@@ -49,7 +70,7 @@ const GradePieChart: React.FC = () => {
               {data.map((_, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={colors[index]}
+                  fill={colors[index % colors.length]}
                   className="transition-all duration-300 cursor-pointer"
                 />
               ))}
@@ -63,7 +84,7 @@ const GradePieChart: React.FC = () => {
           <div key={entry.name} className="flex flex-col items-center min-w-0">
             <span
               className="text-2xl sm:text-3xl font-bold"
-              style={{ color: colors[index] }}
+              style={{ color: colors[index % colors.length] }}
             >
               {entry.value}
             </span>

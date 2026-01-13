@@ -2,14 +2,14 @@
 "use client";
 
 import {
-    getActiveSubjects,
     getPendingRegistrationCount,
     getPendingApplicationCount,
     getActiveStudents,
-    getActiveTermCount,
-    getFeedbackCount,
-    getApprovedRegistrationCount,
-    getApprovedApplicationCount
+    getCriticalLogs,
+    getLastWeekPendingRegistrationCount,
+    getLastWeekPendingApplicationCount,
+    getLastWeekActiveStudents,
+    getLastWeekCriticalLogs,
 } from "@/app/_actions/registrarHome";
 import React, { useState, useEffect } from "react";
 import { Users, FileText, Clock, AlertTriangle } from "lucide-react";
@@ -18,41 +18,30 @@ export default function StatsCards() {
     const [activeStudentCount, setActiveStudentCount] = useState<number | null>(null);
     const [pendingApplicationsCount, setPendingApplicationsCount] = useState<number | null>(null);
     const [pendingRegistrationsCount, setPendingRegistrationsCount] = useState<number | null>(null);
-    const [criticalAlertsCount, setCriticalAlertsCount] = useState<number>(3);
-    const [approvedRegistrationCount, setApprovedRegistrationCount] = useState<number | null>(null);
-    const [approvedApplicationCount, setApprovedApplicationCount] = useState<number | null>(null);
-    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-    const [timeAgo, setTimeAgo] = useState<string>("Loading...");
+    const [criticalAlertsCount, setCriticalAlertsCount] = useState<number | null>(null);
 
-    // Update time ago string
-    useEffect(() => {
-        if (!lastUpdated) return;
+    // Previous counts for comparison (last week)
+    const [prevActiveStudentCount, setPrevActiveStudentCount] = useState<number | null>(null);
+    const [prevPendingApplicationsCount, setPrevPendingApplicationsCount] = useState<number | null>(null);
+    const [prevPendingRegistrationsCount, setPrevPendingRegistrationsCount] = useState<number | null>(null);
+    const [prevCriticalAlertsCount, setPrevCriticalAlertsCount] = useState<number | null>(null);
 
-        const updateTimeAgo = () => {
-            const now = new Date();
-            const seconds = Math.floor((now.getTime() - lastUpdated.getTime()) / 1000);
-
-            if (seconds < 10) {
-                setTimeAgo("Just now");
-            } else if (seconds < 60) {
-                setTimeAgo(`${seconds}s ago`);
-            } else if (seconds < 3600) {
-                const minutes = Math.floor(seconds / 60);
-                setTimeAgo(`${minutes}m ago`);
-            } else if (seconds < 86400) {
-                const hours = Math.floor(seconds / 3600);
-                setTimeAgo(`${hours}h ago`);
-            } else {
-                const days = Math.floor(seconds / 86400);
-                setTimeAgo(`${days}d ago`);
-            }
+    // Calculate change percentage and text
+    const calculateChange = (current: number | null, previous: number | null) => {
+        if (current === null || previous === null || previous === 0) {
+            return { text: "No data from last week", color: "text-gray-500" };
+        }
+        
+        const change = current - previous;
+        const percentChange = ((change / previous) * 100).toFixed(1);
+        const sign = change > 0 ? "+" : "";
+        const color = change > 0 ? "text-green-600" : change < 0 ? "text-red-600" : "text-gray-500";
+        
+        return {
+            text: `${sign}${percentChange}% from last week`,
+            color
         };
-
-        updateTimeAgo();
-        const interval = setInterval(updateTimeAgo, 10000); // Update every 10 seconds
-
-        return () => clearInterval(interval);
-    }, [lastUpdated]);
+    };
 
     useEffect(() => {
         const fetchActiveStudents = async () => {
@@ -85,68 +74,54 @@ export default function StatsCards() {
             }
         };
 
-        const fetchActiveSubjects = async () => {
+        const fetchCriticalLogs = async () => {
             try {
-                const result = await getActiveSubjects();
+                const result = await getCriticalLogs();
                 const count = result.success ? result.count : 0;
-                // Update the DOM element for the summary card
-                const elem = document.getElementById('active-courses');
-                if (elem) elem.textContent = count.toString();
+                setCriticalAlertsCount(count);
             } catch {
-                const elem = document.getElementById('active-courses');
-                if (elem) elem.textContent = '0';
+                setCriticalAlertsCount(0);
             }
         };
 
-        const fetchActiveTerms = async () => {
+        // Fetch last week's data
+        const fetchLastWeekActiveStudents = async () => {
             try {
-                const result = await getActiveTermCount();
+                const result = await getLastWeekActiveStudents();
                 const count = result.success ? result.count : 0;
-                // Update the DOM element for the summary card
-                const elem = document.getElementById('active-terms');
-                if (elem) elem.textContent = count.toString();
+                setPrevActiveStudentCount(count);
             } catch {
-                const elem = document.getElementById('active-terms');
-                if (elem) elem.textContent = '0';
+                setPrevActiveStudentCount(0);
             }
         };
 
-        const fetchFeedback = async () => {
+        const fetchLastWeekPendingRegistrations = async () => {
             try {
-                const result = await getFeedbackCount();
+                const result = await getLastWeekPendingRegistrationCount();
                 const count = result.success ? result.count : 0;
-                // Update the DOM element for the summary card
-                const elem = document.getElementById('feedback-count');
-                if (elem) elem.textContent = count.toString();
+                setPrevPendingRegistrationsCount(count);
             } catch {
-                const elem = document.getElementById('feedback-count');
-                if (elem) elem.textContent = '0';
+                setPrevPendingRegistrationsCount(0);
             }
         };
 
-        const fetchApprovedRegistrations = async () => {
+        const fetchLastWeekPendingApplications = async () => {
             try {
-                const result = await getApprovedRegistrationCount();
+                const result = await getLastWeekPendingApplicationCount();
                 const count = result.success ? result.count : 0;
-                setApprovedRegistrationCount(count);
-                // Update the DOM element for the summary card
-                const elem = document.getElementById('approved-registrations');
-                if (elem) elem.textContent = count.toString();
+                setPrevPendingApplicationsCount(count);
             } catch {
-                setApprovedRegistrationCount(0);
+                setPrevPendingApplicationsCount(0);
             }
         };
 
-        const fetchApprovedApplications = async () => {
+        const fetchLastWeekCriticalLogs = async () => {
             try {
-                const result = await getApprovedApplicationCount();
+                const result = await getLastWeekCriticalLogs();
                 const count = result.success ? result.count : 0;
-                setApprovedApplicationCount(count);
-                // Update the DOM element for the summary card
-                const elem = document.getElementById('approved-applications');
-                if (elem) elem.textContent = count.toString();
+                setPrevCriticalAlertsCount(count);
             } catch {
-                setApprovedApplicationCount(0);
+                setPrevCriticalAlertsCount(0);
             }
         };
 
@@ -154,22 +129,27 @@ export default function StatsCards() {
         fetchActiveStudents();
         fetchPendingRegistrations();
         fetchPendingApplications();
-        fetchActiveSubjects();
-        fetchActiveTerms();
-        fetchFeedback();
-        fetchApprovedRegistrations();
-        fetchApprovedApplications();
-
-        // Set last updated time
-        setLastUpdated(new Date());
+        fetchCriticalLogs();
+        
+        // Fetch last week's data
+        fetchLastWeekActiveStudents();
+        fetchLastWeekPendingRegistrations();
+        fetchLastWeekPendingApplications();
+        fetchLastWeekCriticalLogs();
     }, []);
+
+    // Calculate dynamic changes
+    const activeStudentsChange = calculateChange(activeStudentCount, prevActiveStudentCount);
+    const pendingApplicationsChange = calculateChange(pendingApplicationsCount, prevPendingApplicationsCount);
+    const pendingRegistrationsChange = calculateChange(pendingRegistrationsCount, prevPendingRegistrationsCount);
+    const criticalAlertsChange = calculateChange(criticalAlertsCount, prevCriticalAlertsCount);
 
     const mainStats = [
         {
             label: "Total Active Students",
             value: activeStudentCount === null ? "..." : activeStudentCount,
-            change: "+12% from last month",
-            changeColor: "text-green-600",
+            change: activeStudentsChange.text,
+            changeColor: activeStudentsChange.color,
             icon: <Users className="w-6 h-6" />,
             iconBg: "bg-blue-100",
             iconColor: "text-blue-600"
@@ -177,8 +157,8 @@ export default function StatsCards() {
         {
             label: "Pending Applications",
             value: pendingApplicationsCount === null ? "..." : pendingApplicationsCount,
-            change: "-5% from last month",
-            changeColor: "text-red-600",
+            change: pendingApplicationsChange.text,
+            changeColor: pendingApplicationsChange.color,
             icon: <FileText className="w-6 h-6" />,
             iconBg: "bg-yellow-100",
             iconColor: "text-yellow-600"
@@ -186,17 +166,17 @@ export default function StatsCards() {
         {
             label: "Pending Registrations",
             value: pendingRegistrationsCount === null ? "..." : pendingRegistrationsCount,
-            change: "-8% from last month",
-            changeColor: "text-red-600",
+            change: pendingRegistrationsChange.text,
+            changeColor: pendingRegistrationsChange.color,
             icon: <Clock className="w-6 h-6" />,
             iconBg: "bg-orange-100",
             iconColor: "text-orange-600"
         },
         {
             label: "Critical Alerts",
-            value: criticalAlertsCount,
-            change: "+2 from yesterday",
-            changeColor: "text-red-600",
+            value: criticalAlertsCount === null ? "..." : criticalAlertsCount,
+            change: criticalAlertsChange.text,
+            changeColor: criticalAlertsChange.color,
             icon: <AlertTriangle className="w-6 h-6" />,
             iconBg: "bg-red-100",
             iconColor: "text-red-600"
