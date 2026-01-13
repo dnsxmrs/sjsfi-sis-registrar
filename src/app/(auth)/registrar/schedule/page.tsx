@@ -64,6 +64,11 @@ interface Section {
     capacity: number;
     currentStudents: number;
     status: string;
+    advisorFacultyId?: number | null;
+    advisorEmployeeId?: string | null;
+    advisorFirstName?: string | null;
+    advisorLastName?: string | null;
+    advisorEmail?: string | null;
     _count?: {
         schedules: number;
     };
@@ -1709,6 +1714,30 @@ export default function SchedulePage() {
                                                         <span className="font-medium text-gray-900">{section._count.schedules}</span>
                                                     </div>
                                                 )}
+                                                <div className="border-t pt-2 mt-2">
+                                                    <div className="text-sm">
+                                                        <span className="text-gray-600">Advisor:</span>
+                                                        {section.advisorFirstName && section.advisorLastName ? (
+                                                            <div className="mt-1">
+                                                                <div className="font-medium text-gray-900">
+                                                                    {section.advisorFirstName} {section.advisorLastName}
+                                                                </div>
+                                                                {section.advisorEmail && (
+                                                                    <div className="text-xs text-gray-500">{section.advisorEmail}</div>
+                                                                )}
+                                                                {section.advisorEmployeeId && (
+                                                                    <div className="text-xs text-gray-500">ID: {section.advisorEmployeeId}</div>
+                                                                )}
+                                                            </div>
+                                                        ) : (
+                                                            <div className="mt-1">
+                                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                                    No advisor assigned
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     ))

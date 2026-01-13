@@ -502,21 +502,27 @@ model TermSubject {
 }
 
 model Section {
-  id               Int            @id @default(autoincrement())
-  termYearLevelId  Int
-  name             String         @db.VarChar(100)
-  capacity         Int
-  currentStudents  Int            @default(0)
-  status           GeneralStatus  @default(ACTIVE)
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  deletedAt        DateTime?
-  termYearLevel    TermYearLevel  @relation(fields: [termYearLevelId], references: [id])
-  schedules        Schedule[]
+  id                  Int            @id @default(autoincrement())
+  termYearLevelId     Int
+  name                String         @db.VarChar(100)
+  capacity            Int
+  currentStudents     Int            @default(0)
+  status              GeneralStatus  @default(ACTIVE)
+  advisorFacultyId    Int?
+  advisorEmployeeId   String?        @db.VarChar(100)
+  advisorFirstName    String?        @db.VarChar(255)
+  advisorLastName     String?        @db.VarChar(255)
+  advisorEmail        String?        @db.VarChar(255)
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  deletedAt           DateTime?
+  termYearLevel       TermYearLevel  @relation(fields: [termYearLevelId], references: [id])
+  schedules           Schedule[]
 
   @@unique([termYearLevelId, name, deletedAt])
   @@index([termYearLevelId, status, deletedAt])
   @@index([status, deletedAt])
+  @@index([advisorFacultyId, deletedAt])
 }
 
 model Schedule {
