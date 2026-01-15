@@ -321,10 +321,7 @@ export async function deleteSection(sectionId: number) {
 /**
  * Fetch advisers from HRMS and sync with section data
  */
-export async function fetchAndSyncAdvisers(
-  gradeLevel: string,
-  schoolYear: string
-) {
+export async function fetchAndSyncAdvisers() {
   try {
     const secret = process.env.SJSFI_SHARED_SECRET;
     const apiKey = process.env.SJSFI_SIS_API_KEY;
@@ -426,14 +423,14 @@ export async function syncSectionAdvisers(
   try {
     console.log('🔄 Starting adviser sync for termYearLevelId:', termYearLevelId);
     console.log('📦 HRMS Response:', JSON.stringify(hrmsResponse, null, 2));
-    
+
     // Extract assignments array from response
     const assignments = hrmsResponse.assignments || [];
-    
+
     if (!Array.isArray(assignments)) {
-      return { 
-        success: false, 
-        error: "Invalid response format: assignments is not an array" 
+      return {
+        success: false,
+        error: "Invalid response format: assignments is not an array"
       };
     }
 
@@ -456,9 +453,9 @@ export async function syncSectionAdvisers(
 
       if (assignment && assignment.adviser) {
         const adviser = assignment.adviser;
-        
+
         console.log(`📋 Found adviser for section "${section.name}":`, adviser);
-        
+
         // Compare existing adviser data with fetched data
         const needsUpdate =
           section.advisorEmployeeId !== adviser.employeeId ||
@@ -468,7 +465,7 @@ export async function syncSectionAdvisers(
 
         if (needsUpdate) {
           console.log(`🔄 Updating section "${section.name}" with new adviser data`);
-          
+
           // Update section with new adviser data
           const updated = await prisma.section.update({
             where: { id: section.id },
