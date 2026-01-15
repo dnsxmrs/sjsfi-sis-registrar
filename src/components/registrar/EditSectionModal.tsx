@@ -19,22 +19,18 @@ interface EditSectionModalProps {
 }
 
 export default function EditSectionModal({ isOpen, onClose, section, onEdit }: EditSectionModalProps) {
-  const [name, setName] = useState("");
-  const [capacity, setCapacity] = useState("");
-  const [status, setStatus] = useState("ACTIVE");
+  const [name, setName] = useState(section?.name || "");
+  const [capacity, setCapacity] = useState(section?.capacity.toString() || "");
+  const [status, setStatus] = useState(section?.status || "ACTIVE");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const nameInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isOpen && section) {
-      setName(section.name);
-      setCapacity(section.capacity.toString());
-      setStatus(section.status);
-      setError("");
+    if (isOpen) {
       setTimeout(() => nameInputRef.current?.focus(), 100);
     }
-  }, [isOpen, section]);
+  }, [isOpen]);
 
   if (!isOpen || !section) return null;
 

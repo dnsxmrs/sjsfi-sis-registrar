@@ -224,6 +224,7 @@ export default function SchedulePageModals({
             />
 
             <AddYearLevelToTermModal
+                key={modalStates.showAddYearLevelToTermModal ? 'open' : 'closed'}
                 isOpen={modalStates.showAddYearLevelToTermModal}
                 onClose={() => modalHandlers.setShowAddYearLevelToTermModal(false)}
                 availableYearLevels={yearLevels.filter(yl =>
@@ -254,6 +255,7 @@ export default function SchedulePageModals({
 
             {selectedSectionForEdit && (
                 <EditSectionModal
+                    key={selectedSectionForEdit.id}
                     isOpen={modalStates.showEditSectionModal}
                     onClose={() => {
                         modalHandlers.setShowEditSectionModal(false);
@@ -266,6 +268,7 @@ export default function SchedulePageModals({
 
             {selectedTermYearLevel && (
                 <ScheduleModal
+                    key={selectedScheduleForEdit?.id || 'new'}
                     isOpen={modalStates.showScheduleModal}
                     onClose={() => {
                         modalHandlers.setShowScheduleModal(false);
@@ -295,6 +298,7 @@ export default function SchedulePageModals({
 
             {selectedSubject && (
                 <EditSubjectModal
+                    key={selectedSubject.id}
                     isOpen={modalStates.showEditSubjectModal}
                     onClose={() => {
                         modalHandlers.setShowEditSubjectModal(false);

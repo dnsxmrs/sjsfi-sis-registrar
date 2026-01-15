@@ -55,12 +55,28 @@ export default function ScheduleModal({
     initialData,
     onSubmit,
 }: ScheduleModalProps) {
-    const [termSubjectId, setTermSubjectId] = useState("");
-    const [sectionId, setSectionId] = useState("");
-    const [day, setDay] = useState("");
-    const [startTime, setStartTime] = useState("");
-    const [endTime, setEndTime] = useState("");
-    const [room, setRoom] = useState("");
+    // Initialize state from initialData when in edit mode
+    const getInitialState = () => {
+        if (mode === "edit" && initialData) {
+            return {
+                termSubjectId: initialData.termSubjectId.toString(),
+                sectionId: initialData.sectionId?.toString() || "",
+                day: initialData.day,
+                startTime: initialData.startTime,
+                endTime: initialData.endTime,
+                room: initialData.room,
+            };
+        }
+        return { termSubjectId: "", sectionId: "", day: "", startTime: "", endTime: "", room: "" };
+    };
+
+    const initialState = getInitialState();
+    const [termSubjectId, setTermSubjectId] = useState(initialState.termSubjectId);
+    const [sectionId, setSectionId] = useState(initialState.sectionId);
+    const [day, setDay] = useState(initialState.day);
+    const [startTime, setStartTime] = useState(initialState.startTime);
+    const [endTime, setEndTime] = useState(initialState.endTime);
+    const [room, setRoom] = useState(initialState.room);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState("");
     const [conflictWarning, setConflictWarning] = useState("");
@@ -68,26 +84,9 @@ export default function ScheduleModal({
 
     useEffect(() => {
         if (isOpen) {
-            if (mode === "edit" && initialData) {
-                setTermSubjectId(initialData.termSubjectId.toString());
-                setSectionId(initialData.sectionId?.toString() || "");
-                setDay(initialData.day);
-                setStartTime(initialData.startTime);
-                setEndTime(initialData.endTime);
-                setRoom(initialData.room);
-            } else {
-                setTermSubjectId("");
-                setSectionId("");
-                setDay("");
-                setStartTime("");
-                setEndTime("");
-                setRoom("");
-            }
-            setError("");
-            setConflictWarning("");
             setTimeout(() => termSubjectRef.current?.focus(), 100);
         }
-    }, [isOpen, mode, initialData]);
+    }, [isOpen]);
 
     if (!isOpen) return null;
 

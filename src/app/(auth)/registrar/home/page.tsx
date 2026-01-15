@@ -5,7 +5,7 @@ import GradePieChart from '@/components/admin/PieChart';
 import QuickActions from '@/components/registrar/QuickActions';
 import { CheckCircle, BarChart3, PieChart, Table, Activity, ChevronDown } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { getRequirementsStatusCount, getRecentFeedbacks, getRecentApplications, getAcademicYears, getAllEnrollmentData } from '@/app/_actions/registrarHome';
 
 interface Application {
@@ -103,12 +103,10 @@ const getConsistentColors = (data: Array<{ yearLevel: string; students: number }
 };
 
 export default function RegistrarHomePage() {
-    const [enrollmentData, setEnrollmentData] = useState<Array<{ yearLevel: string; students: number }>>([]);
     const [allEnrollmentData, setAllEnrollmentData] = useState<{
         byYear: Record<string, Array<{ yearLevel: string; students: number }>>;
         all: Array<{ yearLevel: string; students: number }>;
     }>({ byYear: {}, all: [] });
-    const [barColors, setBarColors] = useState<string[]>([]);
     const [requirementsData, setRequirementsData] = useState<Array<{ requirementType: string; approved: number; total: number; percentage: number }>>([]);
     const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
     const [applications, setApplications] = useState<Application[]>([]);
@@ -163,18 +161,15 @@ export default function RegistrarHomePage() {
         fetchApplications();
     }, []);
 
-    // Filter enrollment data client-side for instant updates
-    useEffect(() => {
+    // Derive enrollment data and colors based on selected academic year
+    const enrollmentData = useMemo(() => {
         if (selectedAcademicYear === 'all') {
-            const data = allEnrollmentData.all;
-            setEnrollmentData(data);
-            setBarColors(getConsistentColors(data));
-        } else {
-            const data = allEnrollmentData.byYear[String(selectedAcademicYear)] || [];
-            setEnrollmentData(data);
-            setBarColors(getConsistentColors(data));
+            return allEnrollmentData.all;
         }
+        return allEnrollmentData.byYear[String(selectedAcademicYear)] || [];
     }, [selectedAcademicYear, allEnrollmentData]);
+
+    const barColors = useMemo(() => getConsistentColors(enrollmentData), [enrollmentData]);
 
     const getFeedbackTypeColor = (type: string) => {
         switch (type) {

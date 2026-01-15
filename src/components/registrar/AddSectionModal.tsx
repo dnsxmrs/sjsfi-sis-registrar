@@ -18,9 +18,6 @@ export default function AddSectionModal({ isOpen, onClose, onAdd }: AddSectionMo
 
     useEffect(() => {
         if (isOpen) {
-            setName("");
-            setCapacity("");
-            setError("");
             setTimeout(() => nameInputRef.current?.focus(), 100);
         }
     }, [isOpen]);

@@ -25,11 +25,6 @@ export default function AddSubjectModal({ isOpen, onClose, onAdd }: AddSubjectMo
 
     useEffect(() => {
         if (isOpen) {
-            setCode('');
-            setName('');
-            setDescription('');
-            setUnits('3');
-            setError('');
             setTimeout(() => codeRef.current?.focus(), 100);
         }
     }, [isOpen]);

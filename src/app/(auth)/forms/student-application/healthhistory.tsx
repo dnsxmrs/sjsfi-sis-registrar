@@ -6,6 +6,14 @@ interface StudentHealthHistoryPageProps {
   onNext?: () => void;
 }
 
+// Error display component (moved outside to prevent recreation on every render)
+const ErrorMessage: React.FC<{ error?: string }> = ({ error }) => {
+  if (!error) return null;
+  return (
+    <p className="error-message text-red-500 text-sm mt-1">{error}</p>
+  );
+};
+
 export default function StudentHealthHistoryPage({ onBack, onNext }: StudentHealthHistoryPageProps) {
   const { formData, updateFormData } = useFormData();
   const { healthHistory } = formData;
@@ -82,14 +90,6 @@ export default function StudentHealthHistoryPage({ onBack, onNext }: StudentHeal
     if (onNext) {
       onNext();
     }
-  };
-
-  // Error display component
-  const ErrorMessage: React.FC<{ error?: string }> = ({ error }) => {
-    if (!error) return null;
-    return (
-      <p className="error-message text-red-500 text-sm mt-1">{error}</p>
-    );
   };
 
   return (

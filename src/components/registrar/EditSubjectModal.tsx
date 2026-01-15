@@ -28,22 +28,12 @@ interface EditSubjectModalProps {
 }
 
 export default function EditSubjectModal({ isOpen, onClose, subject, onEdit }: EditSubjectModalProps) {
-    const [code, setCode] = useState('');
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [units, setUnits] = useState('3');
+    const [code, setCode] = useState(subject?.code || '');
+    const [name, setName] = useState(subject?.name || '');
+    const [description, setDescription] = useState(subject?.description || '');
+    const [units, setUnits] = useState(subject?.units.toString() || '3');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
-
-    useEffect(() => {
-        if (isOpen && subject) {
-            setCode(subject.code);
-            setName(subject.name);
-            setDescription(subject.description || '');
-            setUnits(subject.units.toString());
-            setError('');
-        }
-    }, [isOpen, subject]);
 
     if (!isOpen || !subject) return null;
 

@@ -28,14 +28,6 @@ export default function AddYearLevelToTermModal({
     const [error, setError] = useState("");
     const [selectAll, setSelectAll] = useState(false);
 
-    useEffect(() => {
-        if (isOpen) {
-            setSelectedYearLevelIds(new Set());
-            setSelectAll(false);
-            setError("");
-        }
-    }, [isOpen]);
-
     if (!isOpen) return null;
 
     const handleToggleYearLevel = (yearLevelId: number) => {
