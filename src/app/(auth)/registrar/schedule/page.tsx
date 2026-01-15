@@ -317,7 +317,7 @@ export default function SchedulePage() {
                     const schoolYear = term.year; // e.g., "2024-2025"
 
                     // Fetch adviser data from HRMS
-                    const adviserResult = await fetchAndSyncAdvisers(gradeLevel, schoolYear);
+                    const adviserResult = await fetchAndSyncAdvisers();
 
                     if (adviserResult.success && adviserResult.data) {
                         // Sync the adviser data with sections
