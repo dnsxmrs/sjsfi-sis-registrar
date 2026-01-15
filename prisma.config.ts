@@ -9,6 +9,8 @@ export default defineConfig({
     },
     datasource: {
         // Use direct connection for migrations (port 5432)
-        url: env('DIRECT_URL'),
+        // url: env('DIRECT_URL'),
+        url: env('DATABASE_URL'),
+        // url: process.env.DATABASE_URL,
     },
 })
