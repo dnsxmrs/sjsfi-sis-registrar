@@ -10,10 +10,12 @@ const nextConfig: NextConfig = {
     webpack: (config, { isServer }) => {
         if (isServer) {
             config.plugins = [...config.plugins, new PrismaPlugin()];
+            // Externalize rate-limiter-flexible to prevent webpack from bundling it
+            config.externals = config.externals || [];
+            config.externals.push('rate-limiter-flexible');
         }
         return config;
     },
-    serverComponentsExternalPackages: ['rate-limiter-flexible'],
 };
 
 export default nextConfig;
