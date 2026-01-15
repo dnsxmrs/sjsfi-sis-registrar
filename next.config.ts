@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
         }
         return config;
     },
+    transpilePackages: ['rate-limiter-flexible'],
 };
 
 export default nextConfig;
