@@ -227,7 +227,7 @@ export default function SchedulePageModals({
                 isOpen={modalStates.showAddYearLevelToTermModal}
                 onClose={() => modalHandlers.setShowAddYearLevelToTermModal(false)}
                 availableYearLevels={yearLevels.filter(yl =>
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                     
                     !termYearLevels.some((tyl: any) => tyl?.yearLevelId === yl.id)
                 )}
                 termName={terms.find(t => t.id === selectedTerm)?.year || ''}

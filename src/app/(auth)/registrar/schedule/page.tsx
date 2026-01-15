@@ -110,7 +110,7 @@ export default function SchedulePage() {
     const [schedules, setSchedules] = useState<Schedule[]>([]);
     const [terms, setTerms] = useState<Term[]>([]);
     const [yearLevels, setYearLevels] = useState<YearLevel[]>([]);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const [termYearLevels, setTermYearLevels] = useState<any[]>([]);
     const [termSubjects, setTermSubjects] = useState<TermSubject[]>([]);
     const [sections, setSections] = useState<Section[]>([]);
@@ -288,7 +288,7 @@ export default function SchedulePage() {
             setTermYearLevelsLoading(true);
             const result = await getYearLevelsForTerm(termId);
             if (result.success) {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                 
                 setTermYearLevels((result.data || []) as any[]);
             }
         } catch (error) {
@@ -1834,7 +1834,7 @@ export default function SchedulePage() {
                     setShowManageStudentsModal(false);
                     setSelectedSectionForManage(null);
                 }}
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                 
                 section={selectedSectionForManage as any}
                 onSuccess={() => {
                     if (selectedTermYearLevel) {

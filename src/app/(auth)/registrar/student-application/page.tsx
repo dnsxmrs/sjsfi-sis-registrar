@@ -186,10 +186,10 @@ const ApplicationPage: React.FC = () => {
     const [email, setEmail] = useState('');
     const [status, setStatus] = useState(''); // This will hold the application status
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const [students, setStudents] = useState<any[]>([]);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const [selectedApplication, setSelectedApplication] = useState<any>(null);
 
     const [isLoading, setIsLoading] = useState(true);

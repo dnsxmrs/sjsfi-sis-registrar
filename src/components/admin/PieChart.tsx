@@ -10,7 +10,7 @@ interface ChartData {
 }
 
 const GradePieChart: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [data, setData] = useState<ChartData[]>([]);
 

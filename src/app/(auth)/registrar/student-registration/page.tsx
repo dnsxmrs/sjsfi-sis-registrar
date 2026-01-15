@@ -11,7 +11,7 @@ import { getStudentTableData, getOneStudentTableData } from '@/app/_actions/getS
 
 const RegisterCoursePage: React.FC = () => {
     // Selected registration details state
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const [selectedRegistration, setSelectedRegistration] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingDetails, setIsLoadingDetails] = useState(false);
@@ -26,7 +26,7 @@ const RegisterCoursePage: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const [students, setStudents] = useState<any[]>([]);
     
     // Ref for scrolling to top
@@ -246,7 +246,7 @@ const RegisterCoursePage: React.FC = () => {
         }
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const handleViewStudent = async (studentId: any) => {
         setIsLoadingDetails(true);
         try {
@@ -758,7 +758,7 @@ const RegisterCoursePage: React.FC = () => {
                                     <div>
                                         <h3 className="text-md font-semibold mb-3 text-gray-800 border-b pb-2">Contact Number/s</h3>
                                         <div className="grid grid-cols-2 gap-4">
-                                            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                                            { }
                                             {selectedRegistration.contactNumbers.map((contact: any, index: number) => (
                                                 <div key={contact.id}>
                                                     <label className="block text-sm font-medium mb-1 text-black">Contact {index + 1}</label>
@@ -776,7 +776,7 @@ const RegisterCoursePage: React.FC = () => {
                                     <div>
                                         <h3 className="text-md font-semibold mb-3 text-gray-800 border-b pb-2">Guardian/s</h3>
                                         <div className="space-y-4">
-                                            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                                            { }
                                             {selectedRegistration.guardians.map((guardian: any, index: number) => (
                                                 <div key={guardian.id} className="border border-gray-200 rounded p-3 bg-gray-50 text-black">
                                                     <h4 className="font-medium text-sm text-gray-700 mb-2">Guardian {index + 1}</h4>

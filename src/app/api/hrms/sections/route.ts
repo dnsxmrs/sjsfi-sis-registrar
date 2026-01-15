@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
         console.log(`Found ${sections.length} sections`);
 
         // Format the response
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         const formattedSections = sections.map((section: any) => ({
             sectionId: section.id,
             section: {

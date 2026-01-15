@@ -524,7 +524,7 @@ async function main() {
     for (const fb of feedbackMessages) {
         await prisma.feedback.create({
             data: {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                 
                 type: fb.type as any,
                 message: fb.msg,
                 suggestion: fb.sug

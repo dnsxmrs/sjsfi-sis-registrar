@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
         console.log(`Found ${schedules.length} schedules`);
 
         // Format the response
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         const formattedSchedules = schedules.map((schedule: any) => ({
             scheduleId: schedule.id,
             subject: {

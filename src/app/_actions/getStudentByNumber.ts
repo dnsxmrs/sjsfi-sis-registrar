@@ -268,7 +268,7 @@ export async function getStudentByNumber(studentNumber: string): Promise<Student
         }));
 
         // Build educational background data
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         const educBg = studentApplication.educationalBackground as any;
         const educationalBackground: StudentEducationalBackground | null =
             educBg
@@ -290,7 +290,7 @@ export async function getStudentByNumber(studentNumber: string): Promise<Student
             : null;
 
         // Build transferee background data
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         const transfereeData = studentApplication.transferee as any;
         const transfereeBackground: StudentTransfereeBackground | null =
             transfereeData
@@ -318,7 +318,7 @@ export async function getStudentByNumber(studentNumber: string): Promise<Student
             : null;
 
         // Build siblings data
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         const siblings: StudentSibling[] = (studentApplication.siblings || []).map((sibling: any) => ({
             id: sibling.id,
             familyName: sibling.familyName,
@@ -331,7 +331,7 @@ export async function getStudentByNumber(studentNumber: string): Promise<Student
         }));
 
         // Build requirements data
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         const requirements: StudentRequirement[] = (studentApplication.requirements || []).map((req: any) => ({
             id: req.id,
             requirementType: req.requirementType,

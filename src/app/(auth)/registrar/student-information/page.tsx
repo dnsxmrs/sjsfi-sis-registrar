@@ -19,7 +19,7 @@ export default function StudentInformationPage() {
     const [sortOrder, setSortOrder] = useState<SortOrder>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const [students, setStudents] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
