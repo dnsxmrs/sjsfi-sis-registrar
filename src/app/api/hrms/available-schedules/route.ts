@@ -21,7 +21,7 @@ function verifySignature(body: string, timestamp: string, signature: string): bo
     hmac.update(body + timestamp);
     const digest = hmac.digest('hex');
     console.log('[verifySignature] Computed digest:', digest);
-    
+
     // Use constant-time comparison to prevent timing attacks
     try {
         return crypto.timingSafeEqual(

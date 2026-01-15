@@ -366,7 +366,7 @@ export async function fetchAndSyncAdvisers(
       .join("");
 
     // Make the GET request to fetch section assignments with advisers
-    const upstreamUrl = `${baseUrl}/api/xr/section-assignments?gradeLevel=${encodeURIComponent(gradeLevel)}&schoolYear=${encodeURIComponent(schoolYear)}`;
+    const upstreamUrl = `${baseUrl}/api/xr/section-assignments`;
 
     console.log('🔍 Fetching advisers from HRMS:', upstreamUrl);
 

@@ -14,7 +14,7 @@ import {
     Shield,
     FileUser,
     ChevronRight,
-    Paperclip
+    CalendarCheck
 } from "lucide-react";
 import Image from "next/image";
 import { UserButton } from "@clerk/nextjs";
@@ -25,7 +25,7 @@ const NAVIGATION_ITEMS = [
     { href: "/registrar/student-registration", label: "Student Registration", icon: PencilLine },
     { href: "/registrar/student-application", label: "Student Application", icon: FileUser },
     { href: "/registrar/student-information", label: "Student Information", icon: BookMarked },
-    { href: "/registrar/schedule", label: "Schedule Management", icon: Paperclip },
+    { href: "/registrar/schedule", label: "Schedule Management", icon: CalendarCheck },
     { href: "/registrar/code-logs", label: "Code Logs", icon: Newspaper },
     { href: "/registrar/policies", label: "Policies", icon: Scale },
     { href: "/registrar/system-logs", label: "System Logs", icon: Shield },

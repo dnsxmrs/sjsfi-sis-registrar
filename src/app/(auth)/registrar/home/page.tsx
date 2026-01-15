@@ -3,10 +3,10 @@
 import StatsCards from '@/components/registrar/StatsCards';
 import GradePieChart from '@/components/admin/PieChart';
 import QuickActions from '@/components/registrar/QuickActions';
-import { CheckCircle, BarChart3, PieChart, Table, Activity } from 'lucide-react';
+import { CheckCircle, BarChart3, PieChart, Table, Activity, ChevronDown } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { useEffect, useState } from 'react';
-import { getEnrollmentByYearLevel, getRequirementsStatusCount, getRecentFeedbacks, getRecentApplications } from '@/app/_actions/registrarHome';
+import { getRequirementsStatusCount, getRecentFeedbacks, getRecentApplications, getAcademicYears, getAllEnrollmentData } from '@/app/_actions/registrarHome';
 
 interface Application {
     id: number;
@@ -43,52 +43,95 @@ const getStatusColor = (status: string) => {
     }
 };
 
-// Predefined aesthetically pleasing colors
+// Predefined distinct colors - carefully selected to be visually different
 const colorPalette = [
     '#3B82F6', // Blue
-    '#10B981', // Emerald
-    '#F59E0B', // Amber
-    '#EF4444', // Red
-    '#8B5CF6', // Violet
-    '#06B6D4', // Cyan
-    '#84CC16', // Lime
+    '#10B981', // Emerald Green
     '#F97316', // Orange
+    '#8B5CF6', // Violet
+    '#EF4444', // Red
+    '#06B6D4', // Cyan
     '#EC4899', // Pink
-    '#6B7280', // Gray
     '#14B8A6', // Teal
+    '#F59E0B', // Amber
     '#A855F7', // Purple
+    '#84CC16', // Lime Green
+    '#F43F5E', // Rose
 ];
 
-// Function to get unique colors for bars
-const getUniqueColors = (count: number) => {
-    // Shuffle the color palette
-    const shuffled = [...colorPalette].sort(() => Math.random() - 0.5);
-    // Return the first 'count' colors, or repeat the palette if needed
-    if (count <= shuffled.length) {
-        return shuffled.slice(0, count);
+// Simple hash function to convert string to number
+const hashString = (str: string): number => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32-bit integer
     }
-    // If we need more colors than available, repeat the palette
-    const result = [];
-    for (let i = 0; i < count; i++) {
-        result.push(shuffled[i % shuffled.length]);
-    }
-    return result;
+    return Math.abs(hash);
+};
+
+// Function to get consistent colors for bars based on year level names
+const getConsistentColors = (data: Array<{ yearLevel: string; students: number }>) => {
+    const usedColors = new Set<string>();
+    const colorMap: Record<string, string> = {};
+
+    // Sort data to ensure consistent ordering
+    const sortedData = [...data].sort((a, b) => a.yearLevel.localeCompare(b.yearLevel));
+
+    sortedData.forEach((item) => {
+        const yearLevel = item.yearLevel;
+
+        // Generate a deterministic index based on year level name
+        const hash = hashString(yearLevel);
+        let colorIndex = hash % colorPalette.length;
+        let selectedColor = colorPalette[colorIndex];
+
+        // If color is already used, find the next available color
+        let attempts = 0;
+        while (usedColors.has(selectedColor) && attempts < colorPalette.length) {
+            colorIndex = (colorIndex + 1) % colorPalette.length;
+            selectedColor = colorPalette[colorIndex];
+            attempts++;
+        }
+
+        colorMap[yearLevel] = selectedColor;
+        usedColors.add(selectedColor);
+    });
+
+    // Return colors in the original data order
+    return data.map(item => colorMap[item.yearLevel]);
 };
 
 export default function RegistrarHomePage() {
     const [enrollmentData, setEnrollmentData] = useState<Array<{ yearLevel: string; students: number }>>([]);
+    const [allEnrollmentData, setAllEnrollmentData] = useState<{
+        byYear: Record<string, Array<{ yearLevel: string; students: number }>>;
+        all: Array<{ yearLevel: string; students: number }>;
+    }>({ byYear: {}, all: [] });
     const [barColors, setBarColors] = useState<string[]>([]);
     const [requirementsData, setRequirementsData] = useState<Array<{ requirementType: string; approved: number; total: number; percentage: number }>>([]);
     const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
     const [applications, setApplications] = useState<Application[]>([]);
+    const [academicYears, setAcademicYears] = useState<Array<{ id: number; year: string }>>([]);
+    const [selectedAcademicYear, setSelectedAcademicYear] = useState<number | 'all'>('all');
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
     useEffect(() => {
-        const fetchEnrollmentData = async () => {
-            const result = await getEnrollmentByYearLevel();
+        const fetchAcademicYears = async () => {
+            const result = await getAcademicYears();
             if (result.success && result.data) {
-                setEnrollmentData(result.data);
-                // Generate unique colors for each bar
-                setBarColors(getUniqueColors(result.data.length));
+                setAcademicYears(result.data);
+                // Set the current academic year as default
+                if (result.currentAcademicYearId) {
+                    setSelectedAcademicYear(result.currentAcademicYearId);
+                }
+            }
+        };
+
+        const fetchAllEnrollmentData = async () => {
+            const result = await getAllEnrollmentData();
+            if (result.success && result.data) {
+                setAllEnrollmentData(result.data);
             }
         };
 
@@ -113,11 +156,25 @@ export default function RegistrarHomePage() {
             }
         };
 
-        fetchEnrollmentData();
+        fetchAcademicYears();
+        fetchAllEnrollmentData();
         fetchRequirementsData();
         fetchFeedbacks();
         fetchApplications();
     }, []);
+
+    // Filter enrollment data client-side for instant updates
+    useEffect(() => {
+        if (selectedAcademicYear === 'all') {
+            const data = allEnrollmentData.all;
+            setEnrollmentData(data);
+            setBarColors(getConsistentColors(data));
+        } else {
+            const data = allEnrollmentData.byYear[String(selectedAcademicYear)] || [];
+            setEnrollmentData(data);
+            setBarColors(getConsistentColors(data));
+        }
+    }, [selectedAcademicYear, allEnrollmentData]);
 
     const getFeedbackTypeColor = (type: string) => {
         switch (type) {
@@ -163,29 +220,89 @@ export default function RegistrarHomePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Left column (wider): "Enrollment by Year Level" bar chart */}
                 <div className="text-black lg:col-span-2 bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow flex flex-col">
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="p-2 bg-blue-100 rounded-lg">
-                            <BarChart3 className="w-5 h-5 text-blue-600" />
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-blue-100 rounded-lg">
+                                <BarChart3 className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold text-gray-900">Enrollment by Year Level</h3>
+                                <p className="text-sm text-gray-600">Student distribution across grade levels</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 className="text-lg font-semibold text-gray-900">Enrollment by Year Level</h3>
-                            <p className="text-sm text-gray-600">Student distribution across grade levels</p>
+                        {/* Academic Year Dropdown */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                className="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors text-sm font-medium text-gray-700"
+                            >
+                                <span>
+                                    {selectedAcademicYear === 'all'
+                                        ? 'All Academic Years'
+                                        : academicYears.find(y => y.id === selectedAcademicYear)?.year || 'Select Year'}
+                                </span>
+                                <ChevronDown className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                            </button>
+                            {isDropdownOpen && (
+                                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                                    <div className="py-1">
+                                        <button
+                                            onClick={() => {
+                                                setSelectedAcademicYear('all');
+                                                setIsDropdownOpen(false);
+                                            }}
+                                            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${selectedAcademicYear === 'all' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'
+                                                }`}
+                                        >
+                                            All Academic Years
+                                        </button>
+                                        {academicYears.map((year) => (
+                                            <button
+                                                key={year.id}
+                                                onClick={() => {
+                                                    setSelectedAcademicYear(year.id);
+                                                    setIsDropdownOpen(false);
+                                                }}
+                                                className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${selectedAcademicYear === year.id ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'
+                                                    }`}
+                                            >
+                                                {year.year}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                     <div className="flex-1">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={enrollmentData}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="yearLevel" />
-                                <YAxis allowDecimals={false} />
-                                <Tooltip formatter={(value) => [value, '']} />
-                                <Bar dataKey="students">
-                                    {enrollmentData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={barColors[index]} />
-                                    ))}
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
+                        {enrollmentData.length > 0 ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={enrollmentData}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="yearLevel" />
+                                    <YAxis allowDecimals={false} />
+                                    <Tooltip formatter={(value) => [value, '']} />
+                                    <Bar dataKey="students">
+                                        {enrollmentData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={barColors[index]} />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="flex items-center justify-center h-full">
+                                <div className="text-center">
+                                    <p className="text-gray-500 text-lg font-medium">No data found</p>
+                                    <p className="text-gray-400 text-sm mt-1">
+                                        No enrollment data available for {
+                                            selectedAcademicYear === 'all' 
+                                                ? 'all academic years' 
+                                                : academicYears.find(y => y.id === selectedAcademicYear)?.year || 'the selected period'
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -316,7 +433,7 @@ export default function RegistrarHomePage() {
                                             <span className="text-sm text-gray-600">{req.percentage}% ({req.approved}/{req.total})</span>
                                         </div>
                                         <div className="w-full bg-gray-200 rounded-full h-2">
-                                            <div className={`${barColor} h-2 rounded-full transition-all duration-300`} style={{width: `${req.percentage}%`}}></div>
+                                            <div className={`${barColor} h-2 rounded-full transition-all duration-300`} style={{ width: `${req.percentage}%` }}></div>
                                         </div>
                                     </div>
                                 );

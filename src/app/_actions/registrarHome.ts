@@ -271,9 +271,9 @@ export async function getLastWeekCriticalLogs() {
     }
 }
 
-export async function getEnrollmentByYearLevel() {
+export async function getAllEnrollmentData() {
     try {
-        // Get all year levels with their registration counts
+        // Get all year levels with ALL their student applications
         const yearLevels = await prisma.yearLevel.findMany({
             where: {
                 deletedAt: null,
@@ -286,6 +286,10 @@ export async function getEnrollmentByYearLevel() {
                         status: {
                             in: ["APPROVED"]
                         }
+                    },
+                    select: {
+                        id: true,
+                        academicYearId: true
                     }
                 }
             },
@@ -294,8 +298,34 @@ export async function getEnrollmentByYearLevel() {
             }
         });
 
-        // Transform data for chart and filter out year levels with 0 students
-        const enrollmentData = yearLevels
+        // Group enrollment data by academic year
+        const enrollmentByYear: Record<string, Array<{ yearLevel: string; students: number }>> = {};
+        
+        yearLevels.forEach(level => {
+            level.studentApplications.forEach(app => {
+                const academicYearKey = app.academicYearId ? String(app.academicYearId) : 'unknown';
+                
+                if (!enrollmentByYear[academicYearKey]) {
+                    enrollmentByYear[academicYearKey] = [];
+                }
+                
+                const existingLevel = enrollmentByYear[academicYearKey].find(
+                    item => item.yearLevel === level.name
+                );
+                
+                if (existingLevel) {
+                    existingLevel.students++;
+                } else {
+                    enrollmentByYear[academicYearKey].push({
+                        yearLevel: level.name,
+                        students: 1
+                    });
+                }
+            });
+        });
+
+        // Calculate 'all' data
+        const allData = yearLevels
             .map(level => ({
                 yearLevel: level.name,
                 students: level.studentApplications.length
@@ -304,14 +334,61 @@ export async function getEnrollmentByYearLevel() {
 
         return {
             success: true,
-            data: enrollmentData,
+            data: {
+                byYear: enrollmentByYear,
+                all: allData
+            }
         };
     } catch (error) {
-        console.error("Error fetching enrollment by year level:", error);
+        console.error("Error fetching enrollment data:", error);
+        return {
+            success: false,
+            data: {
+                byYear: {},
+                all: []
+            },
+            error: "Failed to fetch enrollment data",
+        };
+    }
+}
+
+export async function getAcademicYears() {
+    try {
+        const academicYears = await prisma.academicTerm.findMany({
+            where: {
+                deletedAt: null,
+                status: "ACTIVE"
+            },
+            orderBy: {
+                startDate: 'desc'
+            },
+            select: {
+                id: true,
+                year: true,
+                startDate: true,
+                endDate: true
+            }
+        });
+
+        // Get the current academic year (the one that includes today's date)
+        const today = new Date();
+        const currentAcademicYear = academicYears.find(year => {
+            const startDate = new Date(year.startDate);
+            const endDate = new Date(year.endDate);
+            return today >= startDate && today <= endDate;
+        });
+
+        return {
+            success: true,
+            data: academicYears,
+            currentAcademicYearId: currentAcademicYear?.id
+        };
+    } catch (error) {
+        console.error("Error fetching academic years:", error);
         return {
             success: false,
             data: [],
-            error: "Failed to fetch enrollment data",
+            error: "Failed to fetch academic years",
         };
     }
 }
