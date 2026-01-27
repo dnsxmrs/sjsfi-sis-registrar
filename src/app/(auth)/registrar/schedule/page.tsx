@@ -110,7 +110,7 @@ export default function SchedulePage() {
     const [schedules, setSchedules] = useState<Schedule[]>([]);
     const [terms, setTerms] = useState<Term[]>([]);
     const [yearLevels, setYearLevels] = useState<YearLevel[]>([]);
-     
+
     const [termYearLevels, setTermYearLevels] = useState<any[]>([]);
     const [termSubjects, setTermSubjects] = useState<TermSubject[]>([]);
     const [sections, setSections] = useState<Section[]>([]);
@@ -258,11 +258,42 @@ export default function SchedulePage() {
             setLoading(true);
             const result = await getSchoolAllYears();
             if (result.success) {
-                setTerms(result.schoolYears || []);
-                // Auto-select first active term
-                const activeTerm = (result.schoolYears || []).find((t: Term) => t.status === 'ACTIVE');
-                if (activeTerm) {
-                    setSelectedTerm(activeTerm.id);
+                const fetchedTerms = result.schoolYears || [];
+                setTerms(fetchedTerms);
+
+                // Auto-select appropriate term based on current date
+                if (fetchedTerms.length > 0) {
+                    const today = new Date();
+
+                    // 1. Find ongoing term (today is between start and end date)
+                    let selectedTermId = fetchedTerms.find((term: Term) => {
+                        const startDate = new Date(term.startDate);
+                        const endDate = new Date(term.endDate);
+                        return today >= startDate && today <= endDate;
+                    })?.id;
+
+                    // 2. If no ongoing term, find next upcoming term
+                    if (!selectedTermId) {
+                        const upcomingTerms = fetchedTerms
+                            .filter((term: Term) => new Date(term.startDate) > today)
+                            .sort((a: Term, b: Term) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+                        selectedTermId = upcomingTerms[0]?.id;
+                    }
+
+                    // 3. If no upcoming term, select most recently ended term
+                    if (!selectedTermId) {
+                        const pastTerms = fetchedTerms
+                            .filter((term: Term) => new Date(term.endDate) < today)
+                            .sort((a: Term, b: Term) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime());
+                        selectedTermId = pastTerms[0]?.id;
+                    }
+
+                    // 4. Fallback to first term if still no match
+                    if (!selectedTermId) {
+                        selectedTermId = fetchedTerms[0].id;
+                    }
+
+                    setSelectedTerm(selectedTermId);
                 }
             }
         } catch (error) {
@@ -288,7 +319,7 @@ export default function SchedulePage() {
             setTermYearLevelsLoading(true);
             const result = await getYearLevelsForTerm(termId);
             if (result.success) {
-                 
+
                 setTermYearLevels((result.data || []) as any[]);
             }
         } catch (error) {
@@ -1571,8 +1602,8 @@ export default function SchedulePage() {
                                                     <div>
                                                         <span className="text-gray-500">Status:</span>
                                                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${subject.isActive
-                                                                ? 'bg-green-100 text-green-800'
-                                                                : 'bg-gray-100 text-gray-800'
+                                                            ? 'bg-green-100 text-green-800'
+                                                            : 'bg-gray-100 text-gray-800'
                                                             }`}>
                                                             {subject.isActive ? 'Active' : 'Inactive'}
                                                         </span>
@@ -1625,8 +1656,8 @@ export default function SchedulePage() {
                                                 <td className="px-4 py-3 text-sm">
                                                     <span
                                                         className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${subject.isActive
-                                                                ? 'bg-green-100 text-green-800'
-                                                                : 'bg-gray-100 text-gray-800'
+                                                            ? 'bg-green-100 text-green-800'
+                                                            : 'bg-gray-100 text-gray-800'
                                                             }`}
                                                     >
                                                         {subject.isActive ? 'Active' : 'Inactive'}
@@ -1834,7 +1865,7 @@ export default function SchedulePage() {
                     setShowManageStudentsModal(false);
                     setSelectedSectionForManage(null);
                 }}
-                 
+
                 section={selectedSectionForManage as any}
                 onSuccess={() => {
                     if (selectedTermYearLevel) {
