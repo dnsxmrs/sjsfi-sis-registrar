@@ -26,7 +26,7 @@ function verifySignature(body: string, timestamp: string, signature: string): bo
     hmac.update(body + timestamp);
     const digest = hmac.digest('hex');
     console.log('[verifySignature] Computed digest:', digest);
-    
+
     // Use constant-time comparison to prevent timing attacks
     try {
         return crypto.timingSafeEqual(
@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
 
     let scheduleId: number;
     let teacher: { teacherId: string; teacherName: string; teacherEmail: string };
-    
+
     try {
         const parsed = schema.parse(JSON.parse(rawBody));
         scheduleId = parsed.scheduleId;
@@ -125,16 +125,16 @@ export async function POST(request: NextRequest) {
         console.log('Teacher info:', teacher.teacherName, teacher.teacherEmail);
     } catch (err) {
         console.error('Zod validation failed:', err);
-        return Response.json({ 
+        return Response.json({
             success: false,
-            error: 'Invalid request data', 
+            error: 'Invalid request data',
             details: err instanceof Error ? err.message : 'Validation failed'
         }, { status: 400 });
     }
 
     try {
         console.log(`Assigning teacher to schedule ID: ${scheduleId}`);
-        
+
         // Check if schedule exists and is not deleted
         const existingSchedule = await prisma.schedule.findFirst({
             where: {
@@ -165,18 +165,9 @@ export async function POST(request: NextRequest) {
             }, { status: 404 });
         }
 
-        // Check if schedule already has a teacher assigned
+        // Log if replacing existing teacher assignment
         if (existingSchedule.teacherId) {
-            console.warn(`Schedule ${scheduleId} already has a teacher assigned: ${existingSchedule.teacherName}`);
-            return Response.json({
-                success: false,
-                error: 'Schedule already has a teacher assigned',
-                currentTeacher: {
-                    teacherId: existingSchedule.teacherId,
-                    teacherName: existingSchedule.teacherName,
-                    teacherEmail: existingSchedule.teacherEmail,
-                },
-            }, { status: 409 });
+            console.log(`Schedule ${scheduleId} already has teacher ${existingSchedule.teacherName}, replacing with ${teacher.teacherName}`);
         }
 
         // Update the schedule with teacher information
@@ -210,7 +201,9 @@ export async function POST(request: NextRequest) {
         // Format successful response
         const response = {
             success: true,
-            message: 'Teacher assigned successfully',
+            message: existingSchedule.teacherId
+                ? 'Teacher assignment updated successfully'
+                : 'Teacher assigned successfully',
             data: {
                 scheduleId: updatedSchedule.id,
                 subject: {
