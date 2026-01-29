@@ -1,0 +1,20 @@
+SJSFI ENROLLMENT SYSTEM LICENSE AGREEMENT (draft and not yet approved)
+
+Copyright (c) 2026 Saint Joseph School of Fairview Inc. (SJSFI)
+All rights reserved.
+
+This software and associated documentation files (the "Software") are the exclusive property of Saint Joseph School of Fairview Inc. (SJSFI), located in Quezon City, Philippines.
+
+Permission is hereby granted to authorized personnel of SJSFI to use, copy, modify, and deploy the Software within the institution for educational and administrative purposes only.
+
+Restrictions:
+- Redistribution, sublicensing, or sale of the Software, in whole or in part, is strictly prohibited without the prior written consent of SJSFI.
+- The Software may not be used for commercial purposes outside SJSFI.
+- Unauthorized use, copying, or distribution is a violation of this license and may result in legal action.
+
+Disclaimer:
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL SJSFI OR CONTRIBUTORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+For inquiries, contact:
+Saint Joseph School of Fairview Inc.
+Quezon City, Philippines
