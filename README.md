@@ -7,7 +7,7 @@ Saint Joseph School of Fairview Inc. (SJSFI) is a private educational institutio
 - **Next.js** (React framework)
 - **TypeScript**
 - **Prisma ORM**
-- **Clerk** (Auth Service)
+- **Clerk** (Authentication Service)
 - **Supabase** (Database & Auth)
 - **Node.js**
 - **PostgreSQL**
