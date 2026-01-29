@@ -45,7 +45,8 @@ function getRoleHomePage(userRoles: string[] | string): string {
 const isPublicRoute = createRouteMatcher([
     "/",
     "/sign-in/(.*)",
-    "/sign-out"
+    "/sign-out",
+    "/api-docs",
 ]);
 
 const isProtectedRoute = createRouteMatcher([

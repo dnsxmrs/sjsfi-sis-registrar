@@ -1,0 +1,1076 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "SJSFI SIS API",
+        "version": "1.0.0",
+        "description": "OpenAPI documentation for the SJSFI SIS endpoint."
+    },
+    "paths": {
+        "/api/up": {
+            "get": {
+                "tags": [
+                    "UP"
+                ],
+                "summary": "Health check for the SIS API.",
+                "description": "Returns a simple status response to indicate the API is up.",
+                "responses": {
+                    "200": {
+                        "description": "API is up and running.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UpSuccessResponse"
+                                },
+                                "examples": {
+                                    "success": {
+                                        "value": {
+                                            "message": "Database connection is healthy"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Database connection failed.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UpErrorResponse"
+                                },
+                                "examples": {
+                                    "error": {
+                                        "value": {
+                                            "message": "Database connection failed",
+                                            "error": "Some error message"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/hrms/available-schedules": {
+            "post": {
+                "tags": [
+                    "Schedules"
+                ],
+                "summary": "Fetch all available schedules for HRMS faculty assignment.",
+                "description": "Returns all available schedules in SIS for HRMS to assign faculty. Requires API key and signature headers.",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AvailableSchedulesRequest"
+                            },
+                            "examples": {
+                                "default": {
+                                    "value": {
+                                        "data": "any-string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "All available schedules retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AvailableSchedulesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized (missing or invalid API key).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden (invalid signature or HTTPS required).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests (rate limited).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/hrms/assign-teacher": {
+            "post": {
+                "tags": [
+                    "Teacher Assignment"
+                ],
+                "summary": "Assign a teacher to a schedule.",
+                "description": "Assigns a teacher to a schedule in SIS. Requires API key and signature headers.",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AssignTeacherRequest"
+                            },
+                            "examples": {
+                                "default": {
+                                    "value": {
+                                        "scheduleId": 1,
+                                        "teacher": {
+                                            "teacherId": "T123",
+                                            "teacherName": "Juan Dela Cruz",
+                                            "teacherEmail": "juan.delacruz@email.com"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Teacher assigned or updated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AssignTeacherResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AssignTeacherErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized (missing or invalid API key).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden (invalid signature or HTTPS required).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Schedule not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AssignTeacherErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests (rate limited).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AssignTeacherErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/hrms/sections": {
+            "post": {
+                "tags": [
+                    "Section"
+                ],
+                "summary": "Fetch all sections for HRMS adviser assignment.",
+                "description": "Returns all sections in SIS for HRMS to assign a faculty adviser. Requires API key and signature headers.",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SectionsRequest"
+                            },
+                            "examples": {
+                                "default": {
+                                    "value": {
+                                        "data": "any-string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "All sections retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SectionsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized (missing or invalid API key).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden (invalid signature or HTTPS required).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests (rate limited).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "UpSuccessResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Database connection is healthy"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            },
+            "UpErrorResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Database connection failed"
+                    },
+                    "error": {
+                        "type": "string",
+                        "example": "Some error message"
+                    }
+                },
+                "required": [
+                    "message",
+                    "error"
+                ]
+            },
+            "AvailableSchedulesRequest": {
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "data"
+                ]
+            },
+            "AvailableSchedulesResponse": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "All available schedules retrieved successfully"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ScheduleItem"
+                        }
+                    }
+                },
+                "required": [
+                    "success",
+                    "message",
+                    "total",
+                    "data"
+                ]
+            },
+            "ScheduleItem": {
+                "type": "object",
+                "properties": {
+                    "scheduleId": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "subject": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 101
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "Mathematics"
+                            },
+                            "code": {
+                                "type": "string",
+                                "example": "MATH101"
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "name",
+                            "code"
+                        ]
+                    },
+                    "term": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 2026
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "2025-2026"
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "name"
+                        ]
+                    },
+                    "yearLevel": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "First Year"
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "name"
+                        ]
+                    },
+                    "section": {
+                        "type": "object",
+                        "nullable": true,
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 10
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "A"
+                            },
+                            "capacity": {
+                                "type": "integer",
+                                "example": 40
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "name",
+                            "capacity"
+                        ]
+                    },
+                    "schedule": {
+                        "type": "object",
+                        "properties": {
+                            "day": {
+                                "type": "string",
+                                "example": "Monday"
+                            },
+                            "startTime": {
+                                "type": "string",
+                                "example": "08:00"
+                            },
+                            "endTime": {
+                                "type": "string",
+                                "example": "10:00"
+                            },
+                            "room": {
+                                "type": "string",
+                                "example": "Room 101"
+                            }
+                        },
+                        "required": [
+                            "day",
+                            "startTime",
+                            "endTime",
+                            "room"
+                        ]
+                    },
+                    "teacher": {
+                        "type": "object",
+                        "properties": {
+                            "assigned": {
+                                "type": "boolean",
+                                "example": false
+                            },
+                            "teacherId": {
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ],
+                                "example": null
+                            },
+                            "teacherName": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "example": null
+                            },
+                            "teacherEmail": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "example": null
+                            }
+                        },
+                        "required": [
+                            "assigned",
+                            "teacherId",
+                            "teacherName",
+                            "teacherEmail"
+                        ]
+                    },
+                    "metadata": {
+                        "type": "object",
+                        "properties": {
+                            "createdAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2026-01-29T12:34:56.789Z"
+                            },
+                            "updatedAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2026-01-29T12:34:56.789Z"
+                            }
+                        },
+                        "required": [
+                            "createdAt",
+                            "updatedAt"
+                        ]
+                    }
+                },
+                "required": [
+                    "scheduleId",
+                    "subject",
+                    "term",
+                    "yearLevel",
+                    "section",
+                    "schedule",
+                    "teacher",
+                    "metadata"
+                ]
+            },
+            "ErrorResponse": {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "example": "Error message"
+                    }
+                },
+                "required": [
+                    "error"
+                ]
+            },
+            "SectionsRequest": {
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "data"
+                ]
+            },
+            "SectionsResponse": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "All sections retrieved successfully"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SectionItem"
+                        }
+                    }
+                },
+                "required": [
+                    "success",
+                    "message",
+                    "total",
+                    "data"
+                ]
+            },
+            "SectionItem": {
+                "type": "object",
+                "properties": {
+                    "sectionId": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "section": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "example": "A"
+                            },
+                            "capacity": {
+                                "type": "integer",
+                                "example": 40
+                            },
+                            "currentStudents": {
+                                "type": "integer",
+                                "example": 35
+                            }
+                        },
+                        "required": [
+                            "name",
+                            "capacity",
+                            "currentStudents"
+                        ]
+                    },
+                    "term": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 2026
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "2025-2026"
+                            },
+                            "status": {
+                                "type": "string",
+                                "example": "ACTIVE"
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "name",
+                            "status"
+                        ]
+                    },
+                    "yearLevel": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "First Year"
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "name"
+                        ]
+                    },
+                    "adviser": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "nullable": true,
+                        "properties": {
+                            "facultyId": {
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ],
+                                "example": null
+                            },
+                            "employeeId": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "example": null
+                            },
+                            "firstName": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "example": null
+                            },
+                            "lastName": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "example": null
+                            },
+                            "email": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "example": null
+                            },
+                            "fullName": {
+                                "type": "string",
+                                "example": "Juan Dela Cruz"
+                            }
+                        },
+                        "required": [
+                            "facultyId",
+                            "employeeId",
+                            "firstName",
+                            "lastName",
+                            "email",
+                            "fullName"
+                        ]
+                    },
+                    "metadata": {
+                        "type": "object",
+                        "properties": {
+                            "createdAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2026-01-29T12:34:56.789Z"
+                            },
+                            "updatedAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2026-01-29T12:34:56.789Z"
+                            }
+                        },
+                        "required": [
+                            "createdAt",
+                            "updatedAt"
+                        ]
+                    }
+                },
+                "required": [
+                    "sectionId",
+                    "section",
+                    "term",
+                    "yearLevel",
+                    "adviser",
+                    "metadata"
+                ]
+            },
+            "AssignTeacherRequest": {
+                "type": "object",
+                "properties": {
+                    "scheduleId": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "teacher": {
+                        "type": "object",
+                        "properties": {
+                            "teacherId": {
+                                "type": "string",
+                                "example": "T123"
+                            },
+                            "teacherName": {
+                                "type": "string",
+                                "example": "Juan Dela Cruz"
+                            },
+                            "teacherEmail": {
+                                "type": "string",
+                                "example": "juan.delacruz@email.com"
+                            }
+                        },
+                        "required": [
+                            "teacherId",
+                            "teacherName",
+                            "teacherEmail"
+                        ]
+                    }
+                },
+                "required": [
+                    "scheduleId",
+                    "teacher"
+                ]
+            },
+            "AssignTeacherResponse": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Teacher assigned successfully"
+                    },
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "scheduleId": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "subject": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "integer",
+                                        "example": 101
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Mathematics"
+                                    },
+                                    "code": {
+                                        "type": "string",
+                                        "example": "MATH101"
+                                    }
+                                },
+                                "required": [
+                                    "id",
+                                    "name",
+                                    "code"
+                                ]
+                            },
+                            "term": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "integer",
+                                        "example": 2026
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "2025-2026"
+                                    }
+                                },
+                                "required": [
+                                    "id",
+                                    "name"
+                                ]
+                            },
+                            "yearLevel": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "First Year"
+                                    }
+                                },
+                                "required": [
+                                    "id",
+                                    "name"
+                                ]
+                            },
+                            "section": {
+                                "type": [
+                                    "object",
+                                    "null"
+                                ],
+                                "nullable": true,
+                                "properties": {
+                                    "id": {
+                                        "type": "integer",
+                                        "example": 10
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "A"
+                                    },
+                                    "capacity": {
+                                        "type": "integer",
+                                        "example": 40
+                                    }
+                                },
+                                "required": [
+                                    "id",
+                                    "name",
+                                    "capacity"
+                                ]
+                            },
+                            "schedule": {
+                                "type": "object",
+                                "properties": {
+                                    "day": {
+                                        "type": "string",
+                                        "example": "Monday"
+                                    },
+                                    "startTime": {
+                                        "type": "string",
+                                        "example": "08:00"
+                                    },
+                                    "endTime": {
+                                        "type": "string",
+                                        "example": "10:00"
+                                    },
+                                    "room": {
+                                        "type": "string",
+                                        "example": "Room 101"
+                                    }
+                                },
+                                "required": [
+                                    "day",
+                                    "startTime",
+                                    "endTime",
+                                    "room"
+                                ]
+                            },
+                            "teacher": {
+                                "type": "object",
+                                "properties": {
+                                    "assigned": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "teacherId": {
+                                        "type": "string",
+                                        "example": "T123"
+                                    },
+                                    "teacherName": {
+                                        "type": "string",
+                                        "example": "Juan Dela Cruz"
+                                    },
+                                    "teacherEmail": {
+                                        "type": "string",
+                                        "example": "juan.delacruz@email.com"
+                                    }
+                                },
+                                "required": [
+                                    "assigned",
+                                    "teacherId",
+                                    "teacherName",
+                                    "teacherEmail"
+                                ]
+                            },
+                            "metadata": {
+                                "type": "object",
+                                "properties": {
+                                    "updatedAt": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2026-01-29T12:34:56.789Z"
+                                    }
+                                },
+                                "required": [
+                                    "updatedAt"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "scheduleId",
+                            "subject",
+                            "term",
+                            "yearLevel",
+                            "section",
+                            "schedule",
+                            "teacher",
+                            "metadata"
+                        ]
+                    }
+                },
+                "required": [
+                    "success",
+                    "message",
+                    "data"
+                ]
+            },
+            "AssignTeacherErrorResponse": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "error": {
+                        "type": "string",
+                        "example": "Schedule not found"
+                    },
+                    "details": {
+                        "type": "string",
+                        "example": "Validation failed"
+                    }
+                },
+                "required": [
+                    "success",
+                    "error"
+                ]
+            }
+        },
+        "securitySchemes": {
+            "ApiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "authorization",
+                "description": "API key in the format: Bearer <API_KEY>"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "UP",
+            "description": "System health and status checks."
+        },
+        {
+            "name": "Schedules",
+            "description": "Schedule management and queries."
+        },
+        {
+            "name": "Section",
+            "description": "Section management and queries."
+        },
+        {
+            "name": "Teacher Assignment",
+            "description": "Assigning teachers to schedules."
+        }
+    ]
+}
